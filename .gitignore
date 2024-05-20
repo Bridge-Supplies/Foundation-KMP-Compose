@@ -31,3 +31,9 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+.DS_Store
+
+*.xcuserstate
+keystore.properties
+*.preferences_pb

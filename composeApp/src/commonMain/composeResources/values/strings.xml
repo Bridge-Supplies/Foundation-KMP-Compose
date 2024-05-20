@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Foundation</string>
+
+    <string name="generate_qr_code_text">Type text to encode</string>
+    <string name="scanner_button_text">Scan QR Code</string>
+    <string name="generate_button_text">Generate QR Code</string>
+    <string name="scanner_unsupported_text">This device does not support QR scanning</string>
+    <string name="theme_settings_title">Theme Settings</string>
+    <string name="theme_settings_auto">Auto</string>
+    <string name="theme_settings_light">Light</string>
+    <string name="theme_settings_dark">Dark</string>
+    <string name="theme_settings_dynamic_colors_title">Enable dynamic colors</string>
+    <string name="theme_settings_vibration_title">Enable vibration</string>
+</resources>
