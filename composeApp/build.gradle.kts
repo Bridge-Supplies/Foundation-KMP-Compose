@@ -184,15 +184,15 @@ compose.desktop {
                 packageName = libs.versions.app.name.get()
                 dockName = libs.versions.app.name.get()
                 
-                iconFile.set(project.file("foundation-icon-256.icns"))
+                iconFile.set(project.file("assets/foundation-icon-256.icns"))
             }
             
             windows {
-                iconFile.set(project.file("foundation-icon-256.ico"))
+                iconFile.set(project.file("assets/foundation-icon-256.ico"))
             }
             
             linux {
-                iconFile.set(project.file("foundation-icon-256.png"))
+                iconFile.set(project.file("assets/foundation-icon-256.png"))
             }
         }
     }

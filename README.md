@@ -5,7 +5,7 @@
 This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's intended to be used as a template to develop good-looking, decentralized, targeted-scope apps for commonly used platforms.
 
 ### Android
-<img width="200" alt="android_scanner" src="/assets/android_scanner.png">
+<img width="200" alt="android_qr" src="/assets/android_qr.png">
 <img width="200" alt="android_settings" src="/assets/android_settings.png">
 
 ### iOS
@@ -113,22 +113,26 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 - iOS
   - `iosApp/Assets.xcassets/AppIcon.appiconset`
     - 1024x1024 `.png`
-- Desktop - _TBD_
-  - Mac
-    - `.icns`
-  - Windows
-    - `.ico`
-  - Linux
-    - `.png`
-
-### Running applications
-- Android
-  - `composeApp` run configuration pointed to `Foundation.composeApp.main` module
-- iOS
-  - `iosApp` run configuration using `iosApp.xcodeproj` project file
+    - Also update corresponding `Contents.json`
 - Desktop
-  - create `desktopRun` run configuration using `desktopRun -DmainClass=Foundation --quiet` run options
-    - `DmainClass` should match `app-mainName` without the `.`
+  - Mac
+    - `assets/`
+    - `.icns` file
+  - Windows
+    - `assets/`
+    - `.ico` file
+  - Linux
+    - `assets/`
+    - `.png` file
+
+### Run configurations
+- `Android`
+  - using `Foundation.composeApp.main` module
+- `iOS`
+  - using `iosApp.xcodeproj` project file
+- `Desktop`
+  - using `desktopRun -DmainClass=Foundation --quiet` run options
+  - `DmainClass` should match `app-mainName` without the `.`
 
 ### Publishing
 - Android
