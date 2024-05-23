@@ -37,3 +37,4 @@ google-services.json
 *.xcuserstate
 keystore.properties
 *.preferences_pb
+/.kotlin
