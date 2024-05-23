@@ -95,6 +95,7 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
   - `/iosApp/iosApp.xcodeproj`: in Xcode, select `iosApp` > `Build Settings`
     - `Packaging` > `Product Name`: for app name ("Foundation_")
     - `Packaging` > `Product Bundle Identifier`: bundle ID
+    - `General` > `Identity` > `Display Name`, `Bundle Identifier`, `Version`, `Build`
 - Desktop
   - `libs.versions.toml`
     - `app-name`: display name on window
