@@ -1,23 +1,68 @@
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Build
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
+import bridge.supplies.foundation.BuildConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
-// Platform info
+// System info
 
 actual fun getPlatform() = object : Platform {
     override val type = PlatformType.ANDROID
     override val name = "Android ${Build.VERSION.SDK_INT}"
-    override val supportsDynamicColors = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    override val supportsVibration = true
-    override val supportsQrGeneration = true
-    override val supportsQrScanning = true
+    override val version = BuildConfig.APP_VERSION
+    override val build = BuildConfig.APP_BUILD
+    override val supportedFeatures: List<Feature>
+        get() {
+            val features = mutableListOf(
+                Feature.FULLSCREEN,
+                Feature.VIBRATION,
+                Feature.QR_GENERATION,
+                Feature.QR_SCANNING,
+                Feature.QR_UPLOADING
+            )
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                features.add(Feature.DYNAMIC_COLORS)
+            }
+            
+            return features
+        }
+}
+
+@Composable
+actual fun getScreenSizeInfo(): ScreenSizeInfo {
+    val density = LocalDensity.current
+    val config = LocalConfiguration.current
+    val dpHeight = config.screenHeightDp.dp
+    val dpWidth = config.screenWidthDp.dp
+    
+    return remember(density, config) {
+        ScreenSizeInfo(
+            pxHeight = with(density) { dpHeight.roundToPx() },
+            pxWidth = with(density) { dpWidth.roundToPx() },
+            dpHeight = dpHeight,
+            dpWidth = dpWidth
+        )
+    }
+}
+
+@Composable
+actual fun isPortraitMode(): Boolean {
+    val config = LocalConfiguration.current
+    val dpHeight = config.screenHeightDp.toFloat()
+    val dpWidth = config.screenWidthDp.toFloat()
+    return (dpWidth / dpHeight) <= 1f
 }
 
 
@@ -31,7 +76,7 @@ actual class KoinInitializer(
             androidContext(context)
             androidLogger()
             modules(
-                appModule,
+                platformModule,
                 viewModelModule,
                 dataStoreModule
             )
@@ -39,8 +84,8 @@ actual class KoinInitializer(
     }
 }
 
-actual val appModule = module {
-    single { "Hello Google world!" }
+actual val platformModule = module {
+    single { getPlatform() }
 }
 
 actual val viewModelModule = module {

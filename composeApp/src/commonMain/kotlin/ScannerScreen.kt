@@ -23,7 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.unit.dp
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.generate_button_text
@@ -36,7 +36,9 @@ import qrcode.QRCode
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ScannerScreen(
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    haptics: HapticFeedback,
+    isPortraitMode: Boolean
 ) {
     val surfaceContainerColor = MaterialTheme.colorScheme.surfaceVariant
     val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -44,7 +46,6 @@ fun ScannerScreen(
     val onPrimaryColor = MaterialTheme.colorScheme.onSecondary
     
     var isScanning by remember { mutableStateOf(false) }
-    val haptics = LocalHapticFeedback.current
     
     Column(
         modifier = Modifier
@@ -54,7 +55,7 @@ fun ScannerScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (getPlatform().supportsQrGeneration) {
+        if (viewModel.supportsFeature(Feature.QR_GENERATION)) {
             var inputText by remember { mutableStateOf("") }
             
             val qrBytes by remember(inputText) {
@@ -105,31 +106,24 @@ fun ScannerScreen(
                             .aspectRatio(1f)
                             .fillMaxWidth()
                             .padding(8.dp),
-                        flashlightOn = false,
-                        launchGallery = false,
                         onCompletion = { result ->
                             inputText = result
                             isScanning = false
                             
-                            if (viewModel.useVibration.value) {
-                                hapticFeedback(haptics)
-                            }
+                            viewModel.hapticFeedback(haptics)
                         },
-                        onGalleryCallBackHandler = { },
                         onFailure = {
                             inputText = it
                             isScanning = false
                             
-                            if (viewModel.useVibration.value) {
-                                hapticFeedback(haptics)
-                            }
+                            viewModel.hapticFeedback(haptics)
                         }
                     )
                 }
             }
         }
         
-        if (getPlatform().supportsQrScanning) {
+        if (viewModel.supportsFeature(Feature.QR_SCANNING)) {
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,9 +131,7 @@ fun ScannerScreen(
                 onClick = {
                     isScanning = !isScanning
                     
-                    if (viewModel.useVibration.value) {
-                        hapticFeedback(haptics)
-                    }
+                    viewModel.hapticFeedback(haptics)
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = primaryColor,
@@ -159,9 +151,6 @@ fun ScannerScreen(
 @Composable
 expect fun QrScannerLayout(
     modifier: Modifier,
-    flashlightOn: Boolean,
-    launchGallery: Boolean,
     onCompletion: (String) -> Unit,
-    onGalleryCallBackHandler: (Boolean) -> Unit,
     onFailure: (String) -> Unit
 )

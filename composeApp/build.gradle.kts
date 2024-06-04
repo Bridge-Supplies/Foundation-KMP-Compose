@@ -9,45 +9,19 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.gmazzo.buildconfig)
+}
+
+buildConfig {
+    packageName(libs.versions.app.packageName.get())
+    buildConfigField("APP_VERSION", libs.versions.app.versionName.get())
+    buildConfigField("APP_BUILD", libs.versions.app.versionCode.get())
 }
 
 kotlin {
-    task("testClasses")
-    
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-                    freeCompilerArgs.add("-Xexpect-actual-classes")
-                }
-            }
-        }
-    }
-    
-    androidTarget {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                
-                }
-            }
-        }
-    }
-    
-    listOf(
-//        iosX64(),
-//        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            binaryOption("bundleId", libs.versions.app.packageName.get())
-            isStatic = true
-        }
-    }
-    
+    androidTarget()
     jvm("desktop")
+    task("testClasses")
     
     sourceSets {
         commonMain.dependencies {
@@ -96,10 +70,24 @@ kotlin {
         }
     }
     
-    sourceSets {
-        commonMain.dependencies {
-            implementation(compose.components.resources)
+    listOf(
+//        iosArm64(), // iOS Native
+//        iosX64(), // MacOS Simulator (Intel)
+        iosSimulatorArm64() // MacOS Simulator (Apple Silicon)
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "ComposeApp"
+            binaryOption("bundleId", libs.versions.app.packageName.get())
+            binaryOption("bundleVersion", libs.versions.app.versionCode.get())
+            binaryOption("bundleShortVersionString", libs.versions.app.versionName.get())
+            isStatic = true
         }
+    }
+    
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
 
@@ -129,8 +117,8 @@ android {
         applicationId = libs.versions.app.packageName.get()
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = libs.versions.app.versionCode.get().toInt()
         versionName = libs.versions.app.versionName.get()
+        versionCode = libs.versions.app.versionCode.get().toInt()
     }
     
     buildTypes {
@@ -171,22 +159,17 @@ android {
     }
 }
 
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = libs.versions.app.packageName.get() + libs.versions.app.mainName.get()
-    }
-}
-
 compose.desktop {
     application {
         mainClass = libs.versions.app.packageName.get() + libs.versions.app.mainName.get()
         
         nativeDistributions {
             targetFormats(
-                TargetFormat.Dmg,
-//                TargetFormat.Msi,
-//                TargetFormat.Deb
+                TargetFormat.Dmg, // TargetFormat.Pkg, // MacOS
+//                TargetFormat.Exe, TargetFormat.Msi, // Windows
+//                TargetFormat.Deb, TargetFormat.Rpm // Linux
             )
+            
             packageName = libs.versions.app.packageName.get()
             packageVersion = libs.versions.app.versionName.get()
             version = libs.versions.app.versionName.get()
@@ -197,16 +180,20 @@ compose.desktop {
             macOS {
                 bundleID = libs.versions.app.packageName.get()
                 packageName = libs.versions.app.name.get()
+                packageVersion = libs.versions.app.versionName.get()
                 dockName = libs.versions.app.name.get()
-                
                 iconFile.set(project.file("assets/foundation-icon-256.icns"))
             }
             
             windows {
+                packageName = libs.versions.app.name.get()
+                packageVersion = libs.versions.app.versionName.get()
                 iconFile.set(project.file("assets/foundation-icon-256.ico"))
             }
             
             linux {
+                packageName = libs.versions.app.name.get()
+                packageVersion = libs.versions.app.versionName.get()
                 iconFile.set(project.file("assets/foundation-icon-256.png"))
             }
         }

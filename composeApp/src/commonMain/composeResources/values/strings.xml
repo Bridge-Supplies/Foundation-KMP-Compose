@@ -1,5 +1,8 @@
 <resources>
+    <!-- Overwritten by Gradle -->
     <string name="app_name">Foundation</string>
+    <string name="app_version">1.0.0</string>
+    <string name="app_build">202401010</string>
 
     <string name="generate_qr_code_text">Type text to encode</string>
     <string name="scanner_button_text">Scan QR Code</string>

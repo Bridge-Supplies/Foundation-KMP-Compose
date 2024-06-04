@@ -1,10 +1,13 @@
 import android.app.Activity
 import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -15,13 +18,21 @@ import bridge.supplies.foundation.Typography
 
 @Composable
 actual fun FoundationTheme(
-    darkTheme: Boolean,
-    dynamicColor: Boolean, // Android 12+
+    viewModel: MainViewModel,
     content: @Composable () -> Unit
 ) {
+    val useDarkTheme by viewModel.useDarkTheme.collectAsState()
+    val useDynamicColors by viewModel.useDynamicColors.collectAsState()
+    
+    val darkTheme = when (useDarkTheme) {
+        -1 -> isSystemInDarkTheme()
+        0 -> false
+        else -> true
+    }
+    
     val colorScheme =
         when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            useDynamicColors && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 val context = LocalContext.current
                 if (darkTheme)
                     dynamicDarkColorScheme(context)

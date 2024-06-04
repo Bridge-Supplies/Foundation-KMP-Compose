@@ -9,12 +9,12 @@ import qrscanner.QrScanner
 @Composable
 actual fun QrScannerLayout(
     modifier: Modifier,
-    flashlightOn: Boolean,
-    launchGallery: Boolean,
     onCompletion: (String) -> Unit,
-    onGalleryCallBackHandler: (Boolean) -> Unit,
     onFailure: (String) -> Unit
 ) {
+    val flashlightOn = false
+    val launchGallery = false
+    
     QrScanner(
         modifier = Modifier
             .clipToBounds()
@@ -22,7 +22,7 @@ actual fun QrScannerLayout(
         flashlightOn = flashlightOn,
         launchGallery = launchGallery,
         onCompletion = onCompletion,
-        onGalleryCallBackHandler = onGalleryCallBackHandler,
+        onGalleryCallBackHandler = { /*TODO*/ },
         onFailure = onFailure
     )
 }

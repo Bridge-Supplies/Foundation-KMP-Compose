@@ -7,13 +7,13 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -43,7 +43,8 @@ enum class Screens(
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavController
+    navController: NavController,
+    isPortraitMode: Boolean
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     var currentRoute by remember { mutableStateOf(Screens.HOME.route) }
@@ -83,11 +84,11 @@ fun BottomNavigationBar(
 fun Navigation(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    haptics: HapticFeedback
 ) {
-    val useDarkTheme by viewModel.useDarkTheme.collectAsState()
-    val useDynamicColors by viewModel.useDynamicColors.collectAsState()
-    val useVibration by viewModel.useVibration.collectAsState()
+    // Note: iOS does not propagate composition changes through NavHost
+    // Params must be declared inside each composable()
     
     NavHost(
         modifier = modifier,
@@ -96,22 +97,25 @@ fun Navigation(
     ) {
         composable(Screens.HOME.route) {
             HomeScreen(
-                viewModel = viewModel
+                viewModel = viewModel,
+                haptics = haptics,
+                isPortraitMode = isPortraitMode()
             )
         }
         
         composable(Screens.SCANNER.route) {
             ScannerScreen(
-                viewModel = viewModel
+                viewModel = viewModel,
+                haptics = haptics,
+                isPortraitMode = isPortraitMode()
             )
         }
         
         composable(Screens.SETTINGS.route) {
             SettingsScreen(
                 viewModel = viewModel,
-                useDarkTheme = useDarkTheme,
-                useDynamicColors = useDynamicColors,
-                useVibration = useVibration
+                haptics = haptics,
+                isPortraitMode = isPortraitMode()
             )
         }
     }

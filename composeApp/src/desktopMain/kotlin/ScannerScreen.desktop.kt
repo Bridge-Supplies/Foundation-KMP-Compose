@@ -6,17 +6,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.scanner_unsupported_text
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun QrScannerLayout(
     modifier: Modifier,
-    flashlightOn: Boolean,
-    launchGallery: Boolean,
     onCompletion: (String) -> Unit,
-    onGalleryCallBackHandler: (Boolean) -> Unit,
     onFailure: (String) -> Unit
 ) {
     Box(

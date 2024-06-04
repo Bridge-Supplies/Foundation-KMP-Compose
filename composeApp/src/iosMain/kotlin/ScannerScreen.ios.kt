@@ -1,5 +1,8 @@
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
@@ -9,12 +12,12 @@ import qrscanner.QrScanner
 @Composable
 actual fun QrScannerLayout(
     modifier: Modifier,
-    flashlightOn: Boolean,
-    launchGallery: Boolean,
     onCompletion: (String) -> Unit,
-    onGalleryCallBackHandler: (Boolean) -> Unit,
     onFailure: (String) -> Unit
 ) {
+    val flashlightOn by remember { mutableStateOf(false) }
+    val launchGallery by remember { mutableStateOf(false) }
+    
     QrScanner(
         modifier = Modifier
             .clipToBounds()
@@ -22,7 +25,7 @@ actual fun QrScannerLayout(
         flashlightOn = flashlightOn,
         launchGallery = launchGallery,
         onCompletion = onCompletion,
-        onGalleryCallBackHandler = onGalleryCallBackHandler,
+        onGalleryCallBackHandler = { /*TODO*/ },
         onFailure = onFailure
     )
 }

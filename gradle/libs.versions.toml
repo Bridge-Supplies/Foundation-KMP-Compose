@@ -6,8 +6,8 @@ app-copyright = "© 2024 Bridge Supplies. All rights reserved."
 app-vendor = "Bridge Supplies"
 app-packageName = "bridge.supplies.foundation"
 app-mainName = ".Foundation"
-app-versionCode = "202406020"
-app-versionName = "1.0.0"
+app-versionName = "1.0.1" # "Version"
+app-versionCode = "202406030" # "Build"
 android-minSdk = "28"
 android-targetSdk = "34"
 android-compileSdk = "34"
@@ -30,6 +30,7 @@ navigation-compose = "2.7.0-alpha07"
 chaintech-qrkit = "1.0.2"
 g0dkar-qrcode-kotlin = "4.1.1"
 androidx-datastore = "1.1.1"
+buildconfig = "5.3.5"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -61,3 +62,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+gmazzo-buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }

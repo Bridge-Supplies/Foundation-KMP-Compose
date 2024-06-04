@@ -16,9 +16,11 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import foundation.composeapp.generated.resources.Res
@@ -28,22 +30,22 @@ import foundation.composeapp.generated.resources.theme_settings_dynamic_colors_t
 import foundation.composeapp.generated.resources.theme_settings_light
 import foundation.composeapp.generated.resources.theme_settings_title
 import foundation.composeapp.generated.resources.theme_settings_vibration_title
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SettingsScreen(
     viewModel: MainViewModel,
-    useDarkTheme: Int, // -1 = auto (system default), 0 = light theme, 1 = dark theme
-    useDynamicColors: Boolean,
-    useVibration: Boolean
+    haptics: HapticFeedback,
+    isPortraitMode: Boolean
 ) {
     val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val primaryColor = MaterialTheme.colorScheme.primary
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
     
-    val haptics = LocalHapticFeedback.current
+    val useDarkTheme by viewModel.useDarkTheme.collectAsState()
+    val useDynamicColors by viewModel.useDynamicColors.collectAsState()
+    val useVibration by viewModel.useVibration.collectAsState()
     
     Column(
         modifier = Modifier
@@ -54,37 +56,30 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         ThemeOptions(
+            viewModel = viewModel,
             useDarkTheme = useDarkTheme,
             useDynamicColors = useDynamicColors,
             useVibration = useVibration,
             onUseDynamicColors = { enabled ->
                 viewModel.useDynamicColors(enabled)
-                
-                if (viewModel.useVibration.value) {
-                    hapticFeedback(haptics)
-                }
+                viewModel.hapticFeedback(haptics)
             },
             onUseDarkTheme = { option ->
                 viewModel.useDarkTheme(option)
-                
-                if (viewModel.useVibration.value) {
-                    hapticFeedback(haptics)
-                }
+                viewModel.hapticFeedback(haptics)
             },
             onUseVibration = { enabled ->
                 viewModel.useVibration(enabled)
-                
-                if (enabled) {
-                    hapticFeedback(haptics)
-                }
+                viewModel.hapticFeedback(haptics)
             }
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeOptions(
+    viewModel: MainViewModel,
     useDarkTheme: Int, // -1 = auto (system default), 0 = light theme, 1 = dark theme
     useDynamicColors: Boolean,
     useVibration: Boolean,
@@ -141,7 +136,7 @@ fun ThemeOptions(
             }
         }
         
-        if (getPlatform().supportsDynamicColors) {
+        if (viewModel.supportsFeature(Feature.DYNAMIC_COLORS)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -167,7 +162,7 @@ fun ThemeOptions(
             }
         }
         
-        if (getPlatform().supportsVibration) {
+        if (viewModel.supportsFeature(Feature.VIBRATION)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

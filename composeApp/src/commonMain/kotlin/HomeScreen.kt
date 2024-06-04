@@ -13,12 +13,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun HomeScreen(
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    haptics: HapticFeedback,
+    isPortraitMode: Boolean
 ) {
     val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
@@ -26,9 +29,8 @@ fun HomeScreen(
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
     
     val timer by viewModel.timer.collectAsState()
-    
     val todaysDate by remember { mutableStateOf(todaysDate()) }
-    val greeting = remember { Greeting().greet() }
+    val orientationText = if (isPortraitMode) "Portrait" else "Landscape"
     
     Column(
         modifier = Modifier
@@ -42,7 +44,12 @@ fun HomeScreen(
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             color = onSurfaceColor,
-            text = "$greeting\n\nToday's date: $todaysDate",
+            text = "${viewModel.platform.name} ($orientationText)" +
+                "\n" +
+                "\nVersion: ${viewModel.platform.version}" +
+                "\nBuild: ${viewModel.platform.build}" +
+                "\n" +
+                "\nToday's date: $todaysDate",
             modifier = Modifier.padding(bottom = 16.dp)
         )
         

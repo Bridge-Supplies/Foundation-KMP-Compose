@@ -1,3 +1,5 @@
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -7,9 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-
 class MainViewModel(
-    private val helloWorld: String,
+    val platform: Platform,
     private val repository: DataRepository
 ) : ViewModel() {
     
@@ -19,6 +20,7 @@ class MainViewModel(
             action()
         }
     }
+    
     
     // SETTINGS
     
@@ -37,12 +39,12 @@ class MainViewModel(
     private val _timer = MutableStateFlow(0)
     val timer = _timer.asStateFlow()
     
+    
+    // SETUP
+    
     init {
         launchFlows()
-        
         startTimer()
-        
-        println(helloWorld)
     }
     
     private fun launchFlows() {
@@ -63,6 +65,9 @@ class MainViewModel(
         }
     }
     
+    
+    // UTILITIES
+    
     private fun startTimer() {
         launch {
             while (true) {
@@ -71,6 +76,9 @@ class MainViewModel(
             }
         }
     }
+    
+    fun supportsFeature(feature: Feature) =
+        platform.supportsFeature(feature)
     
     fun useDarkTheme(option: Int) = launch {
         repository.setDarkMode(option)
@@ -82,5 +90,11 @@ class MainViewModel(
     
     fun useVibration(enabled: Boolean) = launch {
         repository.setVibration(enabled)
+    }
+    
+    fun hapticFeedback(haptics: HapticFeedback) {
+        if (useVibration.value && supportsFeature(Feature.VIBRATION)) {
+            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
     }
 }

@@ -1,7 +1,9 @@
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.Dp
 import org.koin.core.module.Module
 
-// Platform info
+// System info
 
 enum class PlatformType {
     ANDROID,
@@ -9,16 +11,40 @@ enum class PlatformType {
     DESKTOP
 }
 
+enum class Feature {
+    FULLSCREEN,
+    DYNAMIC_COLORS,
+    VIBRATION,
+    QR_GENERATION,
+    QR_SCANNING,
+    QR_UPLOADING
+}
+
 interface Platform {
     val type: PlatformType
     val name: String
-    val supportsDynamicColors: Boolean
-    val supportsVibration: Boolean
-    val supportsQrGeneration: Boolean
-    val supportsQrScanning: Boolean
+    val version: String // ex: 1.0.0
+    val build: String // ex: 202401010
+    val supportedFeatures: List<Feature>
+    
+    fun supportsFeature(feature: Feature) =
+        supportedFeatures.contains(feature)
 }
 
 expect fun getPlatform(): Platform
+
+data class ScreenSizeInfo(
+    val pxHeight: Int,
+    val pxWidth: Int,
+    val dpHeight: Dp,
+    val dpWidth: Dp
+)
+
+@Composable
+expect fun getScreenSizeInfo(): ScreenSizeInfo
+
+@Composable
+expect fun isPortraitMode(): Boolean
 
 
 // Koin modules
@@ -27,7 +53,7 @@ expect class KoinInitializer {
     fun init()
 }
 
-expect val appModule: Module
+expect val platformModule: Module
 
 expect val dataStoreModule: Module
 
