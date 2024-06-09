@@ -96,6 +96,10 @@ android {
     sourceSets["main"].res.srcDirs("src/androidMain/res")
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
     
+    dependencies {
+        debugImplementation(libs.compose.ui.tooling)
+    }
+    
     signingConfigs {
         create("release") {
             val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -146,10 +150,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    
-    dependencies {
-        debugImplementation(libs.compose.ui.tooling)
     }
     
     packaging {

@@ -52,7 +52,10 @@ fun ScannerScreen(
             .fillMaxSize()
             .background(surfaceContainerColor)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(
+                vertical = 16.dp,
+                horizontal = if (isPortraitMode) 16.dp else 64.dp
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (viewModel.supportsFeature(Feature.QR_GENERATION)) {

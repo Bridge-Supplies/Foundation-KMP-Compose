@@ -1,7 +1,10 @@
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -13,9 +16,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.ic_launcher_foreground
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun HomeScreen(
@@ -37,26 +44,45 @@ fun HomeScreen(
             .fillMaxSize()
             .background(surfaceContainerColor)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(
+                vertical = 16.dp,
+                horizontal = if (isPortraitMode) 16.dp else 64.dp
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Image(
+            painter = painterResource(
+                resource = Res.drawable.ic_launcher_foreground
+            ),
+            colorFilter = ColorFilter.tint(onSurfaceColor),
+            contentDescription = "Foundation",
+            modifier = Modifier
+                .size(128.dp)
+                .padding(8.dp)
+        )
+        
         Text(
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             color = onSurfaceColor,
-            text = "${viewModel.platform.name} ($orientationText)" +
-                "\n" +
-                "\nVersion: ${viewModel.platform.version}" +
-                "\nBuild: ${viewModel.platform.build}" +
-                "\n" +
-                "\nToday's date: $todaysDate",
-            modifier = Modifier.padding(bottom = 16.dp)
+            text = "Platform: ${viewModel.platform.name}" +
+                "\nOrientation: $orientationText" +
+                "\nApp version: ${viewModel.platform.version}" +
+                "\nApp build: ${viewModel.platform.build}",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         )
         
         Text(
             style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
             color = onSurfaceColor,
-            text = timer.toString()
+            text = "\nToday's date: $todaysDate" +
+                "\nElapsed seconds: $timer",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         )
     }
 }

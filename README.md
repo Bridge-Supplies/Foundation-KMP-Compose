@@ -37,6 +37,8 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 - QR code handling
   - [g0dkar's QRCode](https://github.com/g0dkar/qrcode-kotlin) (Android, iOS, Desktop - QR generation)
   - [Chaintech's QRKit](https://github.com/ChainTechNetwork/QRKitComposeMultiplatform) (Android, iOS - QR scanning)
+- Build
+  - [gmazzo's BuildConfig](https://github.com/gmazzo/gradle-buildconfig-plugin) (shared BuildConfig)
 
 
 ## Project structure
@@ -55,13 +57,13 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
   - `/androidMain` is for Android-specific code.
     - `Foundation.android.kt` is the `Application` definition to initialize libraries (Koin)
     - `MainActivity.kt` displays the shared `App` Composable
-    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and `ScannerScreen`
+    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and screens
   - `/iosMain` is for iOS-specific code.
     - `MainViewController.kt` initializes libraries (Koin) and displays shared `App` Composable
-    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and `ScannerScreen`
+    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and screens
   - `/desktopMain` is for JVM-specific code.
     - `Foundation.desktop.kt` contains the `main()` class to initialize libraries (Koin) and display shared `App` Composable
-     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and `ScannerScreen`
+     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and screens
 * `/iosApp` contains the iOS Xcode project files.
   - `Config.xcconfig` declares iOS package and app name
   - `ContentView.swift` displays the `MainViewController`'s implementation of the shared `App` Composable
@@ -78,6 +80,9 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 > [!CAUTION]
 > Apparently naming your app "Foundation" doesn't work on iOS due to a conflict with some Accessibility package, so it's called "Foundation_" there instead.
 
+- Shared
+  - `settings.gradle.kts`
+    - `rootProject.name`: Name of project's root directory
 - Android
   - `libs.versions.toml`
     - `app-name`: App display name in launcher
@@ -104,8 +109,12 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
     - `app-versionName`: build version name, usually in `Major.Minor.Patch` notation
 
 ### Icons
+- Shared
+  - `composeApp/src/commonMain/composeResources/drawable` (if you want to draw it in-app)
+    - `ic_launcher_foreground.xml`
+    - `ic_launcher_background.xml`
 - Android
-  - `composeApp/src/androidMain/kotlin/res/drawable`
+  - `composeApp/src/androidMain/kotlin/res/drawable` (needed for icon generation)
     - `ic_launcher_foreground.xml`
     - `ic_launcher_background.xml`
     - `ic_launcher_monochrome.xml` ([if needed](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive))
