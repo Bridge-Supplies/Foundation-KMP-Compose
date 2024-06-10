@@ -1,6 +1,5 @@
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -8,24 +7,20 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import foundation.composeapp.generated.resources.Res
-import foundation.composeapp.generated.resources.app_name
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 
@@ -52,7 +47,6 @@ fun App(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScaffold(
     viewModel: MainViewModel,
@@ -61,19 +55,20 @@ fun MainScaffold(
     onShowSystemUi: (Boolean) -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
+    val platform = remember { getPlatform() }
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentScreen = Screen.entries.find { it.route == backStackEntry?.destination?.route } ?: Screen.HOME
     
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer),
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(Res.string.app_name),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+            TopBar(
+                currentScreen = currentScreen,
+                canNavigateBack = navController.previousBackStackEntry != null,
+                navigateUp = {
+                    navController.navigateUp()
                 }
             )
         },
@@ -83,20 +78,14 @@ fun MainScaffold(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                BottomAppBar(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    BottomNavigationBar(
-                        navController = navController
-                    )
-                }
+                BottomNavigationBar(
+                    navController = navController
+                )
             }
         }
     ) { innerPadding ->
         LaunchedEffect(isPortraitMode) {
-            onShowSystemUi(!isPortraitMode)
+            onShowSystemUi(isPortraitMode)
         }
         
         Row(
@@ -105,8 +94,11 @@ fun MainScaffold(
                 .padding(
                     top = innerPadding.calculateTopPadding(),
                     bottom = innerPadding.calculateBottomPadding(),
-                    start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                    // iOS landscape gives too much horizontal space
+                    start = if (!isPortraitMode && platform.type != PlatformType.IOS)
+                        innerPadding.calculateStartPadding(LocalLayoutDirection.current) else 0.dp,
+                    end = if (!isPortraitMode && platform.type != PlatformType.IOS)
+                        innerPadding.calculateEndPadding(LocalLayoutDirection.current) else 0.dp,
                 ),
         ) {
             AnimatedVisibility(

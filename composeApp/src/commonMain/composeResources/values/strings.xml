@@ -14,4 +14,6 @@
     <string name="theme_settings_dark">Dark</string>
     <string name="theme_settings_dynamic_colors_title">Enable dynamic colors</string>
     <string name="theme_settings_vibration_title">Enable vibration</string>
+
+    <string name="navigation_back">Back</string>
 </resources>
