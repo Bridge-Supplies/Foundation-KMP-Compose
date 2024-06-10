@@ -70,6 +70,8 @@ actual fun isPortraitMode(): Boolean {
 }
 
 fun ComponentActivity.showSystemUI(show: Boolean) {
+    return // show/hide technically works but appears to lag, will investigate further
+    
     if (show) {
         actionBar?.hide()
         WindowCompat.setDecorFitsSystemWindows(window, false)
