@@ -1,7 +1,11 @@
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -24,7 +29,9 @@ import org.koin.compose.KoinContext
 
 @Composable
 @Preview
-fun App() {
+fun App(
+    onShowSystemUi: (Boolean) -> Unit = { }
+) {
     KoinContext {
         val viewModel = koinViewModel<MainViewModel>()
         val navController = rememberNavController()
@@ -36,7 +43,8 @@ fun App() {
             MainScaffold(
                 viewModel = viewModel,
                 navController = navController,
-                haptics = haptics
+                haptics = haptics,
+                onShowSystemUi = onShowSystemUi
             )
         }
     }
@@ -47,8 +55,11 @@ fun App() {
 fun MainScaffold(
     viewModel: MainViewModel,
     navController: NavHostController,
-    haptics: HapticFeedback
+    haptics: HapticFeedback,
+    onShowSystemUi: (Boolean) -> Unit
 ) {
+    val isPortraitMode = isPortraitMode()
+    
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -58,24 +69,34 @@ fun MainScaffold(
                 title = {
                     Text(
                         text = stringResource(Res.string.app_name),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = if (isPortraitMode) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             )
         },
         bottomBar = {
-            BottomAppBar(
+            AnimatedVisibility(
+                visible = isPortraitMode,
                 modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                BottomNavigationBar(
-                    navController = navController,
-                    isPortraitMode = isPortraitMode()
-                )
+                BottomAppBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    BottomNavigationBar(
+                        navController = navController
+                    )
+                }
             }
         }
     ) { innerPadding ->
-        Navigation(
+        LaunchedEffect(isPortraitMode) {
+            onShowSystemUi(!isPortraitMode)
+        }
+        
+        Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
@@ -84,9 +105,24 @@ fun MainScaffold(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
                 ),
-            viewModel = viewModel,
-            navController = navController,
-            haptics = haptics
-        )
+        ) {
+            AnimatedVisibility(
+                visible = !isPortraitMode,
+                modifier = Modifier
+                    .fillMaxHeight()
+            ) {
+                SideNavigationRail(
+                    navController = navController
+                )
+            }
+            
+            Navigation(
+                modifier = Modifier
+                    .fillMaxSize(),
+                viewModel = viewModel,
+                navController = navController,
+                haptics = haptics
+            )
+        }
     }
 }

@@ -1,6 +1,9 @@
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.view.WindowInsetsController
+import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
@@ -8,6 +11,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import bridge.supplies.foundation.BuildConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -63,6 +67,38 @@ actual fun isPortraitMode(): Boolean {
     val dpHeight = config.screenHeightDp.toFloat()
     val dpWidth = config.screenWidthDp.toFloat()
     return (dpWidth / dpHeight) <= 1f
+}
+
+fun ComponentActivity.showSystemUI(show: Boolean) {
+    if (show) {
+        actionBar?.hide()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        @Suppress("DEPRECATION")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        } else {
+            window.insetsController?.apply {
+                hide(android.view.WindowInsets.Type.statusBars())
+                hide(android.view.WindowInsets.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    } else {
+        actionBar?.show()
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        @Suppress("DEPRECATION")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        } else {
+            window.insetsController?.apply {
+                show(android.view.WindowInsets.Type.statusBars())
+                show(android.view.WindowInsets.Type.navigationBars())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_DEFAULT
+                }
+            }
+        }
+    }
 }
 
 

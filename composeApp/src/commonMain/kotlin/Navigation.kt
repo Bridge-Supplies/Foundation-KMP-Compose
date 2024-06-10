@@ -1,3 +1,4 @@
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.QrCodeScanner
@@ -5,12 +6,10 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -18,6 +17,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 enum class Screens(
     val title: String,
@@ -42,39 +42,39 @@ enum class Screens(
 }
 
 @Composable
-fun BottomNavigationBar(
-    navController: NavController,
-    isPortraitMode: Boolean
+fun SideNavigationRail(
+    navController: NavController
 ) {
-    var selectedItem by remember { mutableStateOf(0) }
-    var currentRoute by remember { mutableStateOf(Screens.HOME.route) }
-    
-    Screens.entries.forEachIndexed { index, navigationItem ->
-        if (navigationItem.route == currentRoute) {
-            selectedItem = index
+    NavigationRail(
+        modifier = Modifier
+            .fillMaxHeight()
+    ) {
+        Screens.entries.forEachIndexed { index, item ->
+            val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: Screens.HOME.route
+            NavigationRailItem(
+                alwaysShowLabel = true,
+                icon = { Icon(item.icon, contentDescription = item.title) },
+                label = { Text(item.title) },
+                selected = currentRoute == item.route,
+                onClick = { navController.navigate(item.route) }
+            )
         }
     }
-    
+}
+
+@Composable
+fun BottomNavigationBar(
+    navController: NavController
+) {
     NavigationBar {
         Screens.entries.forEachIndexed { index, item ->
+            val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: Screens.HOME.route
             NavigationBarItem(
                 alwaysShowLabel = true,
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(item.title) },
-                selected = selectedItem == index,
-                onClick = {
-                    selectedItem = index
-                    currentRoute = item.route
-                    navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
+                selected = currentRoute == item.route,
+                onClick = { navController.navigate(item.route) }
             )
         }
     }

@@ -5,5 +5,7 @@ fun MainViewController() = ComposeUIViewController(
         KoinInitializer().init()
     }
 ) {
-    App()
+    App() { isPortraitMode ->
+        // iOS automatically hides UI in portrait mode
+    }
 }

@@ -29,11 +29,9 @@ import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.generate_button_text
 import foundation.composeapp.generated.resources.generate_qr_code_text
 import foundation.composeapp.generated.resources.scanner_button_text
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import qrcode.QRCode
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ScannerScreen(
     viewModel: MainViewModel,
