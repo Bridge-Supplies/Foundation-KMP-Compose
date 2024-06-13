@@ -5,16 +5,19 @@
 This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's intended to be used as a template to develop good-looking, decentralized, targeted-scope apps for commonly used platforms.
 
 ### Android
-<img width="200" alt="android_qr" src="/assets/android_qr.png">
-<img width="200" alt="android_settings" src="/assets/android_settings.png">
+<img width="160" alt="android_home" src="/assets/android_home_v1_1_0.png">
+<img width="160" alt="android_qr" src="/assets/android_share_v1_1_0.png">
+<img width="160" alt="android_settings" src="/assets/android_settings_v1_1_0.png">
 
 ### iOS
-<img width="200" alt="ios_qr" src="/assets/ios_qr.png">
-<img width="200" alt="ios_settings" src="/assets/ios_settings.png">
+<img width="160" alt="ios_home" src="/assets/ios_home_v1_1_0.png">
+<img width="160" alt="ios_qr" src="/assets/ios_share_v1_1_0.png">
+<img width="160" alt="ios_settings" src="/assets/ios_settings_v1_1_0.png">
 
 ### Desktop JVM
-<img width="200" alt="macos_qr" src="/assets/macos_qr.png">
-<img width="200" alt="macos_settings" src="/assets/macos_settings.png">
+<img width="160" alt="macos_home" src="/assets/macos_home_landscape_v1_1_0.png">
+<img width="160" alt="macos_qr" src="/assets/macos_share_landscape_v1_1_0.png">
+<img width="160" alt="macos_settings" src="/assets/macos_settings_landscape_v1_1_0.png">
 
 </br></br>
 
@@ -53,7 +56,7 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
     - `DataStore.kt` and `DataRepository.kt` contain the `DataStore Preferences` `expect` implementation and wrapper
     - `FoundationTheme.kt` `expect`s a Theme definition for each platform
     - `MainViewModel.kt` contains the `ViewModel` and `DataStore` implementations injected with `Koin`
-    - `Navigation.kt`/`HomeScreen.kt`/`ScannerScreen.kt`/`SettingsScreen.kt` contain Composable definitions for each screen
+    - `Navigation.kt` and `/screens` contain Composable definitions for each screen
   - `/androidMain` is for Android-specific code.
     - `Foundation.android.kt` is the `Application` definition to initialize libraries (Koin)
     - `MainActivity.kt` displays the shared `App` Composable

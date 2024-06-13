@@ -4,10 +4,17 @@
     <string name="app_version">1.0.0</string>
     <string name="app_build">202401010</string>
 
+    <string name="app_about_platform">Platform: %1$s</string>
+    <string name="app_about_orientation">Orientation: %1$s</string>
+    <string name="app_about_today">Today's date: %1$s</string>
+    <string name="app_about_elapsed_seconds">Elapsed seconds: %1$s</string>
+    <string name="app_about_build">App version: %1$s</string>
+    <string name="app_about_version">App build: %1$s</string>
+
     <string name="generate_qr_code_text">Type text to encode</string>
-    <string name="scanner_button_text">Scan QR Code</string>
-    <string name="generate_button_text">Generate QR Code</string>
-    <string name="scanner_unsupported_text">This device does not support QR scanning</string>
+    <string name="scanner_button_text">Scan Code</string>
+    <string name="generate_button_text">Generate Code</string>
+    <string name="scanner_unsupported_text">This device does not support code scanning</string>
     <string name="theme_settings_title">Theme Settings</string>
     <string name="theme_settings_auto">Auto</string>
     <string name="theme_settings_light">Light</string>
@@ -15,5 +22,7 @@
     <string name="theme_settings_dynamic_colors_title">Enable dynamic colors</string>
     <string name="theme_settings_vibration_title">Enable vibration</string>
 
+    <string name="navigation_home_date">Today's date</string>
+    <string name="navigation_settings_about">About app</string>
     <string name="navigation_back">Back</string>
 </resources>

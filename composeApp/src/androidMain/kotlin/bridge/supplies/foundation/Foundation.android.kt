@@ -1,7 +1,7 @@
 package bridge.supplies.foundation
 
-import KoinInitializer
 import android.app.Application
+import config.KoinInitializer
 
 class Foundation : Application() {
     
