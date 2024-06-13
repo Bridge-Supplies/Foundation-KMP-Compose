@@ -5,21 +5,32 @@
 This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's intended to be used as a template to develop good-looking, decentralized, targeted-scope apps for commonly used platforms.
 
 ### Android
-<img width="160" alt="android_home" src="/assets/android_home_v1_1_0.png">
-<img width="160" alt="android_qr" src="/assets/android_share_v1_1_0.png">
-<img width="160" alt="android_settings" src="/assets/android_settings_v1_1_0.png">
+<img width="200" alt="android_home" src="/assets/android_home_v1_1_0.png"><img width="200" alt="android_qr" src="/assets/android_share_v1_1_0.png"><img width="200" alt="android_settings" src="/assets/android_settings_v1_1_0.png">
 
 ### iOS
-<img width="160" alt="ios_home" src="/assets/ios_home_v1_1_0.png">
-<img width="160" alt="ios_qr" src="/assets/ios_share_v1_1_0.png">
-<img width="160" alt="ios_settings" src="/assets/ios_settings_v1_1_0.png">
+<img width="200" alt="ios_home" src="/assets/ios_home_v1_1_0.png"><img width="200" alt="ios_qr" src="/assets/ios_share_v1_1_0.png"><img width="200" alt="ios_settings" src="/assets/ios_settings_v1_1_0.png">
 
 ### Desktop JVM
-<img width="160" alt="macos_home" src="/assets/macos_home_landscape_v1_1_0.png">
-<img width="160" alt="macos_qr" src="/assets/macos_share_landscape_v1_1_0.png">
-<img width="160" alt="macos_settings" src="/assets/macos_settings_landscape_v1_1_0.png">
+<img width="600" alt="macos_home" src="/assets/macos_home_landscape_v1_1_0.png">
+<img width="600" alt="macos_qr" src="/assets/macos_share_landscape_v1_1_0.png">
+<img width="600" alt="macos_settings" src="/assets/macos_settings_landscape_v1_1_0.png">
 
 </br></br>
+
+
+## Features
+- Material You theming
+- Nested, multiple-backstack navigation
+  - adaptive BottomBar and NavigationRail
+  - TopAppBar back button handling
+- Easily share information between apps offline via QR codes
+  - Android/iOS can scan codes
+  - All platforms can generate codes
+  - Planned: Encryption and zip support
+- Utilities for orientation, build configurations, and theme settings
+
+
+## Multiplatform libraries
 
 > [!TIP]
 > We've pre-configured KMP-supporting libraries that work across all platforms, with few limitations. It is recommended you familiarize yourself with these libraries before developing with Foundation.
