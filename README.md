@@ -2,7 +2,7 @@
 ## Presented by [Bridge Supplies](https://bridge.supplies)
 ### Active Development - W.I.P.
 
-This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's intended to be used as a template to develop good-looking, decentralized, targeted-scope apps for commonly used platforms.
+This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 
 ### Android
 <img width="200" alt="android_home" src="/assets/android_home_v1_1_0.png"><img width="200" alt="android_qr" src="/assets/android_share_v1_1_0.png"><img width="200" alt="android_settings" src="/assets/android_settings_v1_1_0.png">
@@ -21,7 +21,7 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 ## Features
 - Material You theming
 - Nested, multiple-backstack navigation
-  - adaptive BottomBar and NavigationRail
+  - Adaptive BottomBar and NavigationRail
   - TopAppBar back button handling
 - Easily share information between apps offline via QR codes
   - Android/iOS can scan codes
