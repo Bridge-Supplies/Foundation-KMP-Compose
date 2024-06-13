@@ -5,7 +5,9 @@
 This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 
 ### Android
-<video width="300" src="/demo/demo_compressed_v1_1_0.mov"></video>
+
+https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5b-847d-4b10-a4ec-cfcffc35ed14
+
 <img width="200" alt="android_home" src="/demo/android_home_v1_1_0.png"><img width="200" alt="android_qr" src="/demo/android_share_v1_1_0.png"><img width="200" alt="android_settings" src="/demo/android_settings_v1_1_0.png">
 
 ### iOS
