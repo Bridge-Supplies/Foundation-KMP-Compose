@@ -5,15 +5,16 @@
 This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 
 ### Android
-<img width="200" alt="android_home" src="/assets/android_home_v1_1_0.png"><img width="200" alt="android_qr" src="/assets/android_share_v1_1_0.png"><img width="200" alt="android_settings" src="/assets/android_settings_v1_1_0.png">
+<video width="300" src="/demo/demo_compressed_v1_1_0.mov"></video>
+<img width="200" alt="android_home" src="/demo/android_home_v1_1_0.png"><img width="200" alt="android_qr" src="/demo/android_share_v1_1_0.png"><img width="200" alt="android_settings" src="/demo/android_settings_v1_1_0.png">
 
 ### iOS
-<img width="200" alt="ios_home" src="/assets/ios_home_v1_1_0.png"><img width="200" alt="ios_qr" src="/assets/ios_share_v1_1_0.png"><img width="200" alt="ios_settings" src="/assets/ios_settings_v1_1_0.png">
+<img width="200" alt="ios_home" src="/demo/ios_home_v1_1_0.png"><img width="200" alt="ios_qr" src="/demo/ios_share_v1_1_0.png"><img width="200" alt="ios_settings" src="/demo/ios_settings_v1_1_0.png">
 
 ### Desktop JVM
-<img width="600" alt="macos_home" src="/assets/macos_home_landscape_v1_1_0.png">
-<img width="600" alt="macos_qr" src="/assets/macos_share_landscape_v1_1_0.png">
-<img width="600" alt="macos_settings" src="/assets/macos_settings_landscape_v1_1_0.png">
+<img width="600" alt="macos_home" src="/demo/macos_home_landscape_v1_1_0.png">
+<img width="600" alt="macos_qr" src="/demo/macos_share_landscape_v1_1_0.png">
+<img width="600" alt="macos_settings" src="/demo/macos_settings_landscape_v1_1_0.png">
 
 </br></br>
 
