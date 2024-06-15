@@ -13,6 +13,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 actual fun CodeScannerLayout(
     modifier: Modifier,
+    onVibrate: () -> Unit,
     onCompletion: (String) -> Unit,
     onFailure: (String) -> Unit
 ) {

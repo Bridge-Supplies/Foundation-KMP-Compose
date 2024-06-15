@@ -27,9 +27,9 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5
   - Adaptive BottomBar and NavigationRail
   - TopAppBar back button handling
 - Easily share information between apps offline via QR codes
-  - Android/iOS can scan codes
+  - Android/iOS can scan and import codes
   - All platforms can generate codes
-  - Planned: Encryption and zip support
+  - Encryption and compression support
 - Utilities for orientation, build configurations, and theme settings
 
 
@@ -56,6 +56,9 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5
   - [Chaintech's QRKit](https://github.com/ChainTechNetwork/QRKitComposeMultiplatform) (Android, iOS - QR scanning)
 - Build
   - [gmazzo's BuildConfig](https://github.com/gmazzo/gradle-buildconfig-plugin) (shared BuildConfig)
+- Cryptography & compression
+  - [Korlib's Krypto](https://github.com/korlibs/korlibs/tree/main/korlibs-crypto) (Encryption, decryption)
+  - [Korlib's Compression](https://github.com/korlibs/korlibs/tree/main/korlibs-compression) (Zipping, unzipping)
 
 
 ## Project structure
@@ -169,6 +172,7 @@ storeFile=/Users/Example/Documents/Keystores/upload-keystore.jks
 storePassword=myStorePassword
 keyAlias=upload
 keyPassword=myKeyPassword
+encryptionKey=dataTransferEncryptionKey
 ```
 - iOS
   - _TBD_

@@ -12,10 +12,20 @@ plugins {
     alias(libs.plugins.gmazzo.buildconfig)
 }
 
+fun getKeystoreProperties(): Properties {
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    val keystoreProperties = Properties()
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    return keystoreProperties
+}
+
 buildConfig {
+    val keystoreProperties = getKeystoreProperties()
+    
     packageName(libs.versions.app.packageName.get())
     buildConfigField("APP_VERSION", libs.versions.app.versionName.get())
     buildConfigField("APP_BUILD", libs.versions.app.versionCode.get())
+    buildConfigField("ENCRYPTION_KEY", keystoreProperties["encryptionKey"] as String)
 }
 
 kotlin {
@@ -44,6 +54,9 @@ kotlin {
             implementation(libs.koin.compose)
             
             implementation(libs.g0dkar.qrcode.kotlin)
+            implementation(libs.soywiz.korlibs.krypto)
+            implementation(libs.soywiz.korlibs.compression)
+            implementation(libs.soywiz.korlibs.compression.deflate)
             
             // TESTING
             implementation(libs.junit)
@@ -102,9 +115,7 @@ android {
     
     signingConfigs {
         create("release") {
-            val keystorePropertiesFile = rootProject.file("keystore.properties")
-            val keystoreProperties = Properties()
-            keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+            val keystoreProperties = getKeystoreProperties()
             
             storeFile = file(keystoreProperties["storeFile"] as String)
             storePassword = keystoreProperties["storePassword"] as String
