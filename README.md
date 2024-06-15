@@ -29,7 +29,7 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5
 - Easily share information between apps offline via QR codes
   - Android/iOS can scan and import codes
   - All platforms can generate codes
-  - Planned: Encryption and zip support
+  - Encryption and compression support
 - Utilities for orientation, build configurations, and theme settings
 
 
