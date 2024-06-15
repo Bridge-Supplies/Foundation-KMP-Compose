@@ -12,8 +12,10 @@
     <string name="app_about_version">App build: %1$s</string>
 
     <string name="generate_qr_code_text">Type text to encode</string>
-    <string name="scanner_button_text">Scan Code</string>
-    <string name="generate_button_text">Generate Code</string>
+    <string name="scanner_button_text">Scan code</string>
+    <string name="generate_button_text">Generate code</string>
+    <string name="import_button_text">Import code</string>
+    <string name="camera_flash_button_text">Toggle flash</string>
     <string name="scanner_unsupported_text">This device does not support code scanning</string>
     <string name="theme_settings_title">Theme Settings</string>
     <string name="theme_settings_auto">Auto</string>

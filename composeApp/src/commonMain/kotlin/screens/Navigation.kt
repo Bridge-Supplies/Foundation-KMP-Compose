@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.QrCodeScanner
+import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -81,8 +81,8 @@ enum class NavigationTab(
     SHARE(
         "Share",
         "share",
-        Icons.Outlined.QrCodeScanner,
-        Icons.Filled.QrCodeScanner,
+        Icons.Outlined.QrCode,
+        Icons.Filled.QrCode,
         Screen.SHARE_GENERATE,
         listOf(
             Screen.SHARE_GENERATE,

@@ -15,6 +15,7 @@ import data.MainViewModel
 @Composable
 expect fun CodeScannerLayout(
     modifier: Modifier,
+    onVibrate: () -> Unit,
     onCompletion: (String) -> Unit,
     onFailure: (String) -> Unit
 )
@@ -34,7 +35,7 @@ fun ScanCodeScreen(
     
     Column(
         modifier = Modifier
-            .background(surfaceContainerColor)
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -42,6 +43,7 @@ fun ScanCodeScreen(
         CodeScannerLayout(
             modifier = Modifier
                 .fillMaxSize(),
+            onVibrate = onVibrate,
             onCompletion = {
                 viewModel.setSharedText(it)
                 onComplete(it)
