@@ -31,6 +31,8 @@ chaintech-qrkit = "1.0.2"
 g0dkar-qrcode-kotlin = "4.1.1"
 androidx-datastore = "1.1.1"
 buildconfig = "5.3.5"
+korlibs-krypto = "4.0.10"
+korlibs-compression = "6.0.0-alpha2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -53,6 +55,9 @@ koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin-com
 
 chaintech-qrkit = { module = "network.chaintech:qr-kit", version.ref = "chaintech-qrkit" } # Android/iOS generation & scanning
 g0dkar-qrcode-kotlin = { module = "io.github.g0dkar:qrcode-kotlin", version.ref = "g0dkar-qrcode-kotlin" } # Android/iOS/Desktop generation
+soywiz-korlibs-krypto = { module = "com.soywiz.korlibs.krypto:krypto", version.ref = "korlibs-krypto" } # Encryption/Decryption
+soywiz-korlibs-compression = { module = "com.soywiz:korlibs-compression", version.ref = "korlibs-compression" } # Zipping/unzipping
+soywiz-korlibs-compression-deflate = { module = "com.soywiz:korlibs-compression-deflate", version.ref = "korlibs-compression" } # Zipping/unzipping
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

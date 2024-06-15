@@ -43,6 +43,7 @@ import config.Feature
 import config.bitmapFromBytes
 import config.isPortraitMode
 import data.MainViewModel
+import data.compressAndEncrypt
 import data.hideAndClearFocus
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.generate_qr_code_text
@@ -50,6 +51,7 @@ import foundation.composeapp.generated.resources.scanner_button_text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import qrcode.QRCode
@@ -72,12 +74,12 @@ fun ShareCodeScreen(
     val focusManager = LocalFocusManager.current
     
     val liveText by viewModel.sharedText.collectAsState()
-    var debouncedText by remember { mutableStateOf(liveText) }
+    var encryptedText by remember { mutableStateOf(liveText.compressAndEncrypt()) }
     
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.Default) {
-            viewModel.sharedText.debounce(300).collect {
-                debouncedText = it
+            viewModel.sharedText.debounce(250).distinctUntilChanged().collect {
+                encryptedText = it.compressAndEncrypt()
             }
         }
     }
@@ -101,7 +103,7 @@ fun ShareCodeScreen(
                     .clickable {
                         keyboardController.hideAndClearFocus(focusManager)
                     },
-                text = debouncedText,
+                text = encryptedText,
                 isPortraitMode = isPortraitMode,
                 color = primaryColor,
                 backgroundColor = onPrimaryColor,
@@ -141,7 +143,7 @@ fun ShareCodeScreen(
                     .clickable {
                         keyboardController.hideAndClearFocus(focusManager)
                     },
-                text = debouncedText,
+                text = encryptedText,
                 isPortraitMode = isPortraitMode,
                 color = primaryColor,
                 backgroundColor = onPrimaryColor,
