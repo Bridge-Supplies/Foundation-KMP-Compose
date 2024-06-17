@@ -53,7 +53,7 @@ fun ScanCodeScreen(
     }
     
     val onScanFailure: () -> Unit = {
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.Main) {
             // clear any existing snackbars
             snackbarHost.currentSnackbarData?.dismiss()
             
@@ -71,7 +71,7 @@ fun ScanCodeScreen(
     }
     
     val onScanResult: (String) -> Unit = { scannedString ->
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.Main) {
             val decryptedCode = scannedString.decryptAndUncompress()
             if (decryptedCode != null) {
                 onScanSuccess(decryptedCode.message)
