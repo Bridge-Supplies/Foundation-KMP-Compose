@@ -248,9 +248,9 @@ fun CodeReader(
             label = {
                 Text(
                     text = if (encryptionEnabled)
-                            stringResource(Res.string.generate_qr_code_encrypted_text)
-                        else
-                            stringResource(Res.string.generate_qr_code_text)
+                        stringResource(Res.string.generate_qr_code_encrypted_text)
+                    else
+                        stringResource(Res.string.generate_qr_code_text)
                 )
             },
             onValueChange = {

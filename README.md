@@ -59,6 +59,8 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5
 - Cryptography & compression
   - [Korlib's Krypto](https://github.com/korlibs/korlibs/tree/main/korlibs-crypto) (Encryption, decryption)
   - [Korlib's Compression](https://github.com/korlibs/korlibs/tree/main/korlibs-compression) (Zipping, unzipping)
+- Theming
+  - [jordond's MaterialKolor](https://github.com/jordond/materialkolor) (Material theme generation)
 
 
 ## Project structure

@@ -8,8 +8,8 @@ import korlibs.io.compression.compress
 import korlibs.io.compression.deflate.GZIP
 import korlibs.io.compression.uncompress
 import korlibs.io.lang.UTF8
-import korlibs.io.lang.toString
 import korlibs.io.lang.toByteArray
+import korlibs.io.lang.toString
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

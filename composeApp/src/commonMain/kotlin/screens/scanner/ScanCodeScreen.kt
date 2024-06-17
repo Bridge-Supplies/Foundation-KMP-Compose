@@ -20,10 +20,8 @@ import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.scanner_error_action
 import foundation.composeapp.generated.resources.scanner_error_text
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 expect fun CodeScannerLayout(

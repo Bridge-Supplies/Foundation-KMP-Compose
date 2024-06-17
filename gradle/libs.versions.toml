@@ -33,6 +33,7 @@ androidx-datastore = "1.1.1"
 buildconfig = "5.3.5"
 korlibs-krypto = "4.0.10"
 korlibs-compression = "6.0.0-alpha2"
+material-kolor = "1.7.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -58,6 +59,7 @@ g0dkar-qrcode-kotlin = { module = "io.github.g0dkar:qrcode-kotlin", version.ref 
 soywiz-korlibs-krypto = { module = "com.soywiz.korlibs.krypto:krypto", version.ref = "korlibs-krypto" } # Encryption/Decryption
 soywiz-korlibs-compression = { module = "com.soywiz:korlibs-compression", version.ref = "korlibs-compression" } # Zipping/unzipping
 soywiz-korlibs-compression-deflate = { module = "com.soywiz:korlibs-compression-deflate", version.ref = "korlibs-compression" } # GZIP
+material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "material-kolor" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

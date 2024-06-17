@@ -57,6 +57,7 @@ kotlin {
             implementation(libs.soywiz.korlibs.krypto)
             implementation(libs.soywiz.korlibs.compression)
             implementation(libs.soywiz.korlibs.compression.deflate)
+            implementation(libs.material.kolor)
             
             // TESTING
             implementation(libs.junit)
