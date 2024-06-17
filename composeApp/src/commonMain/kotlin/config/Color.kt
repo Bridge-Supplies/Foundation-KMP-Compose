@@ -1,4 +1,4 @@
-package bridge.supplies.foundation
+package config
 
 import androidx.compose.ui.graphics.Color
 

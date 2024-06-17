@@ -15,9 +15,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import bridge.supplies.foundation.DarkColorScheme
-import bridge.supplies.foundation.LightColorScheme
-import bridge.supplies.foundation.Typography
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
 import data.MainViewModel

@@ -294,9 +294,9 @@ fun ThemeSettings(
         
         Text(
             text = if (viewModel.supportsFeature(Feature.DYNAMIC_COLORS))
-                    stringResource(Res.string.theme_settings_color_theme_subtitle)
-                else
-                    stringResource(Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors),
+                stringResource(Res.string.theme_settings_color_theme_subtitle)
+            else
+                stringResource(Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors),
             style = MaterialTheme.typography.bodySmall,
             color = onSurfaceColor,
             modifier = Modifier
