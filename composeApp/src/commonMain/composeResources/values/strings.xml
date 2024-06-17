@@ -11,18 +11,40 @@
     <string name="app_about_build">App version: %1$s</string>
     <string name="app_about_version">App build: %1$s</string>
 
-    <string name="generate_qr_code_text">Type text to encode</string>
+    <string name="generate_qr_code_text">Text to share</string>
+    <string name="generate_qr_code_encrypted_text">Encrypted text to share</string>
     <string name="scanner_button_text">Scan code</string>
     <string name="generate_button_text">Generate code</string>
     <string name="import_button_text">Import code</string>
     <string name="camera_flash_button_text">Toggle flash</string>
     <string name="scanner_unsupported_text">This device does not support code scanning</string>
-    <string name="theme_settings_title">Theme Settings</string>
-    <string name="theme_settings_auto">Auto</string>
-    <string name="theme_settings_light">Light</string>
-    <string name="theme_settings_dark">Dark</string>
-    <string name="theme_settings_dynamic_colors_title">Enable dynamic colors</string>
-    <string name="theme_settings_vibration_title">Enable vibration</string>
+    <string name="scanner_error_text">Unable to scan code</string>
+    <string name="scanner_error_action">Try again</string>
+
+    <string name="app_settings_title">General</string>
+    <string name="app_settings_encryption_title">Encrypted sharing</string>
+    <string name="app_settings_encryption_subtitle">Use encryption when generating QR codes</string>
+    <string name="theme_settings_vibration_title">Haptic feedback</string>
+    <string name="theme_settings_vibration_subtitle">Interactions can vibrate the device</string>
+    <string name="theme_settings_title">Theming</string>
+    <string name="theme_settings_color_theme_title">Color</string>
+    <string name="theme_settings_color_theme_subtitle">Match system colors or select a preset</string>
+    <string name="theme_settings_color_theme_subtitle_no_dynamic_colors">Select a color or go monochrome</string>
+    <string name="theme_settings_color_theme_auto">Auto</string>
+    <string name="theme_settings_color_theme_red">Red</string>
+    <string name="theme_settings_color_theme_green">Green</string>
+    <string name="theme_settings_color_theme_blue">Blue</string>
+    <string name="theme_settings_color_theme_off">Off</string>
+    <string name="theme_settings_dark_mode_title">Dark mode</string>
+    <string name="theme_settings_dark_mode_subtitle">Match system dark mode or force an option</string>
+    <string name="theme_settings_dark_mode_auto">Auto</string>
+    <string name="theme_settings_dark_mode_light">Light</string>
+    <string name="theme_settings_dark_mode_dark">Dark</string>
+    <string name="theme_settings_palette_title">Palette</string>
+    <string name="theme_settings_palette_subtitle">Modify the intensity of colors</string>
+    <string name="theme_settings_palette_neutral">Neutral</string>
+    <string name="theme_settings_palette_tonal">Tonal</string>
+    <string name="theme_settings_palette_vibrant">Vibrant</string>
 
     <string name="navigation_home_date">Today's date</string>
     <string name="navigation_settings_about">About app</string>

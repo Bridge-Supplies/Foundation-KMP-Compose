@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +66,7 @@ fun MainScaffold(
     val platform = remember { getPlatform() }
     val haptics = LocalHapticFeedback.current
     val navController = rememberNavController()
+    val snackbarHost = remember { SnackbarHostState() }
     
     val onSelectNavigationTab = { tab: NavigationTab ->
         viewModel.hapticFeedback(haptics)
@@ -130,6 +133,9 @@ fun MainScaffold(
                     )
                 }
             }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHost)
         }
     ) { innerPadding ->
         LaunchedEffect(isPortraitMode) {
@@ -165,6 +171,7 @@ fun MainScaffold(
                     .fillMaxSize(),
                 viewModel = viewModel,
                 navController = navController,
+                snackbarHost = snackbarHost,
                 onVibrate = {
                     viewModel.hapticFeedback(haptics)
                 },

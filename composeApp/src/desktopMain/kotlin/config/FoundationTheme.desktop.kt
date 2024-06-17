@@ -1,6 +1,7 @@
 package config
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -8,6 +9,8 @@ import androidx.compose.runtime.getValue
 import bridge.supplies.foundation.DarkColorScheme
 import bridge.supplies.foundation.LightColorScheme
 import bridge.supplies.foundation.Typography
+import com.materialkolor.PaletteStyle
+import com.materialkolor.rememberDynamicColorScheme
 import data.MainViewModel
 
 @Composable
@@ -15,22 +18,40 @@ actual fun FoundationTheme(
     viewModel: MainViewModel,
     content: @Composable () -> Unit
 ) {
-    val useDarkTheme by viewModel.useDarkTheme.collectAsState()
+    val useColorTheme by viewModel.useColorTheme.collectAsState()
+    val usePalette by viewModel.usePalette.collectAsState()
+    val useDarkMode by viewModel.useDarkMode.collectAsState()
     
-    val darkTheme = when (useDarkTheme) {
-        -1 -> isSystemInDarkTheme()
-        0 -> false
-        else -> true
+    val darkMode = when (useDarkMode) {
+        DarkMode.AUTO -> isSystemInDarkTheme()
+        DarkMode.LIGHT -> false
+        DarkMode.DARK -> true
     }
     
-    val colorScheme =
-        when {
-            darkTheme ->
+    val colorScheme: ColorScheme = when {
+        useColorTheme == ColorTheme.RED || useColorTheme == ColorTheme.GREEN || useColorTheme == ColorTheme.BLUE -> {
+            rememberDynamicColorScheme(
+                seedColor = useColorTheme.color,
+                isDark = darkMode,
+                style = usePalette.paletteStyle
+            )
+        }
+        
+        useColorTheme == ColorTheme.OFF -> {
+            rememberDynamicColorScheme(
+                seedColor = useColorTheme.color,
+                isDark = darkMode,
+                style = PaletteStyle.Monochrome
+            )
+        }
+        
+        else -> {
+            if (darkMode)
                 DarkColorScheme
-            
-            else ->
+            else
                 LightColorScheme
         }
+    }
     
     MaterialTheme(
         colorScheme = colorScheme,

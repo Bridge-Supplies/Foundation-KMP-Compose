@@ -3,6 +3,7 @@ package config
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -17,6 +18,8 @@ import androidx.core.view.WindowCompat
 import bridge.supplies.foundation.DarkColorScheme
 import bridge.supplies.foundation.LightColorScheme
 import bridge.supplies.foundation.Typography
+import com.materialkolor.PaletteStyle
+import com.materialkolor.rememberDynamicColorScheme
 import data.MainViewModel
 
 @Composable
@@ -24,31 +27,48 @@ actual fun FoundationTheme(
     viewModel: MainViewModel,
     content: @Composable () -> Unit
 ) {
-    val useDarkTheme by viewModel.useDarkTheme.collectAsState()
-    val useDynamicColors by viewModel.useDynamicColors.collectAsState()
+    val useColorTheme by viewModel.useColorTheme.collectAsState()
+    val usePalette by viewModel.usePalette.collectAsState()
+    val useDarkMode by viewModel.useDarkMode.collectAsState()
     
-    val darkTheme = when (useDarkTheme) {
-        -1 -> isSystemInDarkTheme()
-        0 -> false
-        else -> true
+    val darkMode = when (useDarkMode) {
+        DarkMode.AUTO -> isSystemInDarkTheme()
+        DarkMode.LIGHT -> false
+        DarkMode.DARK -> true
     }
     
-    val colorScheme =
-        when {
-            useDynamicColors && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val context = LocalContext.current
-                if (darkTheme)
-                    dynamicDarkColorScheme(context)
-                else
-                    dynamicLightColorScheme(context)
-            }
-            
-            darkTheme ->
+    val colorScheme: ColorScheme = when {
+        useColorTheme == ColorTheme.AUTO && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkMode)
+                dynamicDarkColorScheme(context)
+            else
+                dynamicLightColorScheme(context)
+        }
+        
+        useColorTheme == ColorTheme.RED || useColorTheme == ColorTheme.GREEN || useColorTheme == ColorTheme.BLUE -> {
+            rememberDynamicColorScheme(
+                seedColor = useColorTheme.color,
+                isDark = darkMode,
+                style = usePalette.paletteStyle
+            )
+        }
+        
+        useColorTheme == ColorTheme.OFF -> {
+            rememberDynamicColorScheme(
+                seedColor = useColorTheme.color,
+                isDark = darkMode,
+                style = PaletteStyle.Monochrome
+            )
+        }
+        
+        else -> {
+            if (darkMode)
                 DarkColorScheme
-            
-            else ->
+            else
                 LightColorScheme
         }
+    }
     
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -56,7 +76,7 @@ actual fun FoundationTheme(
             (view.context as Activity).window.apply {
                 statusBarColor = colorScheme.surface.toArgb()
                 navigationBarColor = colorScheme.secondaryContainer.toArgb()
-                WindowCompat.getInsetsController(this, view).isAppearanceLightStatusBars = !darkTheme
+                WindowCompat.getInsetsController(this, view).isAppearanceLightStatusBars = !darkMode
             }
         }
     }
