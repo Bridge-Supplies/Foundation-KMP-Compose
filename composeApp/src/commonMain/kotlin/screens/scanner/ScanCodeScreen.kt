@@ -71,7 +71,7 @@ fun ScanCodeScreen(
     }
     
     val onScanResult: (String) -> Unit = { scannedString ->
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.Main) {
             val decryptedCode = scannedString.decryptAndUncompress()
             if (decryptedCode != null) {
                 onScanSuccess(decryptedCode.message)
