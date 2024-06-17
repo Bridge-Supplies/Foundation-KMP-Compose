@@ -14,6 +14,10 @@ enum class Prefs(
     val key: String,
     val defaultValue: Any
 ) {
+    ENCRYPTED_SHARE(
+        "${SETTINGS_KEY}_encrypted_share",
+        true
+    ),
     DARK_MODE(
         "${SETTINGS_KEY}_dark_mode",
         -1
@@ -33,10 +37,23 @@ class DataRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     companion object {
+        private val ENCRYPTED_SHARE_KEY = booleanPreferencesKey(Prefs.ENCRYPTED_SHARE.key)
         private val DARK_MODE_KEY = intPreferencesKey(Prefs.DARK_MODE.key)
         private val DYNAMIC_COLORS_KEY = booleanPreferencesKey(Prefs.DYNAMIC_COLORS.key)
         private val VIBRATION_KEY = booleanPreferencesKey(Prefs.VIBRATION.key)
     }
+    
+    // ENCRYPTED SHARE (for QR generation/scanning)
+    suspend fun setEncryptedShare(encryptedShare: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[ENCRYPTED_SHARE_KEY] = encryptedShare
+        }
+    }
+    
+    fun getEncryptedShareFlow(): Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[ENCRYPTED_SHARE_KEY] ?: Prefs.ENCRYPTED_SHARE.defaultValue as Boolean
+        }
     
     // DARK MODE (-1 auto, 0 light, 1 dark)
     suspend fun setDarkMode(darkMode: Int) {

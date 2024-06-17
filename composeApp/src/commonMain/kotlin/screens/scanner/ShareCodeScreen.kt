@@ -43,9 +43,12 @@ import config.Feature
 import config.bitmapFromBytes
 import config.isPortraitMode
 import data.MainViewModel
+import data.SharedData
 import data.compressAndEncrypt
 import data.hideAndClearFocus
+import data.serializeData
 import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.generate_qr_code_encrypted_text
 import foundation.composeapp.generated.resources.generate_qr_code_text
 import foundation.composeapp.generated.resources.scanner_button_text
 import kotlinx.coroutines.Dispatchers
@@ -70,16 +73,25 @@ fun ShareCodeScreen(
     
     val isPortraitMode = isPortraitMode()
     val coroutineScope = rememberCoroutineScope()
+    val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     
     val liveText by viewModel.sharedText.collectAsState()
-    var encryptedText by remember { mutableStateOf(liveText.compressAndEncrypt()) }
+    var processedText by remember {
+        val sharedData = SharedData(liveText)
+        val processed = if (useEncryptedShare) sharedData.compressAndEncrypt() else serializeData(sharedData)
+        mutableStateOf(processed)
+    }
     
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.Default) {
             viewModel.sharedText.debounce(250).distinctUntilChanged().collect {
-                encryptedText = it.compressAndEncrypt()
+                val sharedData = SharedData(it)
+                val processed = if (useEncryptedShare) sharedData.compressAndEncrypt() else serializeData(sharedData)
+                if (processedText != processed) {
+                    processedText = processed
+                }
             }
         }
     }
@@ -103,7 +115,7 @@ fun ShareCodeScreen(
                     .clickable {
                         keyboardController.hideAndClearFocus(focusManager)
                     },
-                text = encryptedText,
+                text = processedText ?: "",
                 isPortraitMode = isPortraitMode,
                 color = primaryColor,
                 backgroundColor = onPrimaryColor,
@@ -115,6 +127,7 @@ fun ShareCodeScreen(
                     .weight(1f),
                 text = liveText,
                 supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
+                encryptionEnabled = useEncryptedShare,
                 setSharedText = {
                     viewModel.setSharedText(it)
                 },
@@ -143,7 +156,7 @@ fun ShareCodeScreen(
                     .clickable {
                         keyboardController.hideAndClearFocus(focusManager)
                     },
-                text = encryptedText,
+                text = processedText ?: "",
                 isPortraitMode = isPortraitMode,
                 color = primaryColor,
                 backgroundColor = onPrimaryColor,
@@ -156,6 +169,7 @@ fun ShareCodeScreen(
                     .padding(start = 8.dp),
                 text = liveText,
                 supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
+                encryptionEnabled = useEncryptedShare,
                 setSharedText = {
                     viewModel.setSharedText(it)
                 },
@@ -177,7 +191,7 @@ fun CodeDisplay(
     backgroundColor: Color,
     cardColor: Color
 ) {
-    val qrBytes by remember(text) {
+    val qrBitmap by remember(text) {
         derivedStateOf {
             val bytes = QRCode.ofSquares()
                 .withColor(color.toArgb())
@@ -199,7 +213,7 @@ fun CodeDisplay(
                 .aspectRatio(1f)
                 .fillMaxSize()
                 .padding(8.dp),
-            bitmap = qrBytes,
+            bitmap = qrBitmap,
             contentDescription = text
         )
     }
@@ -209,6 +223,7 @@ fun CodeDisplay(
 fun CodeReader(
     modifier: Modifier,
     text: String,
+    encryptionEnabled: Boolean,
     supportsScanning: Boolean,
     setSharedText: (String) -> Unit,
     onClickScanner: () -> Unit
@@ -230,7 +245,14 @@ fun CodeReader(
                 .weight(1f)
                 .padding(bottom = if (supportsScanning) 8.dp else 0.dp),
             value = text,
-            label = { Text(stringResource(Res.string.generate_qr_code_text)) },
+            label = {
+                Text(
+                    text = if (encryptionEnabled)
+                            stringResource(Res.string.generate_qr_code_encrypted_text)
+                        else
+                            stringResource(Res.string.generate_qr_code_text)
+                )
+            },
             onValueChange = {
                 setSharedText(it)
             },

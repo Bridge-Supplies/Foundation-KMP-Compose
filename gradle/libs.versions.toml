@@ -6,8 +6,8 @@ app-copyright = "© 2024 Bridge Supplies. All rights reserved."
 app-vendor = "Bridge Supplies"
 app-packageName = "bridge.supplies.foundation"
 app-mainName = ".Foundation"
-app-versionName = "1.1.2" # "Version"
-app-versionCode = "202406150" # "Build"
+app-versionName = "1.1.3" # "Version"
+app-versionCode = "202406160" # "Build"
 android-minSdk = "28"
 android-targetSdk = "34"
 android-compileSdk = "34"
@@ -57,7 +57,7 @@ chaintech-qrkit = { module = "network.chaintech:qr-kit", version.ref = "chaintec
 g0dkar-qrcode-kotlin = { module = "io.github.g0dkar:qrcode-kotlin", version.ref = "g0dkar-qrcode-kotlin" } # Android/iOS/Desktop generation
 soywiz-korlibs-krypto = { module = "com.soywiz.korlibs.krypto:krypto", version.ref = "korlibs-krypto" } # Encryption/Decryption
 soywiz-korlibs-compression = { module = "com.soywiz:korlibs-compression", version.ref = "korlibs-compression" } # Zipping/unzipping
-soywiz-korlibs-compression-deflate = { module = "com.soywiz:korlibs-compression-deflate", version.ref = "korlibs-compression" } # Zipping/unzipping
+soywiz-korlibs-compression-deflate = { module = "com.soywiz:korlibs-compression-deflate", version.ref = "korlibs-compression" } # GZIP
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

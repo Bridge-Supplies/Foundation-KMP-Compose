@@ -31,12 +31,20 @@ import config.Feature
 import config.isPortraitMode
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.app_settings_encryption_subtitle
+import foundation.composeapp.generated.resources.app_settings_encryption_title
+import foundation.composeapp.generated.resources.app_settings_title
 import foundation.composeapp.generated.resources.navigation_settings_about
+import foundation.composeapp.generated.resources.system_settings_title
 import foundation.composeapp.generated.resources.theme_settings_auto
 import foundation.composeapp.generated.resources.theme_settings_dark
+import foundation.composeapp.generated.resources.theme_settings_dark_mode_subtitle
+import foundation.composeapp.generated.resources.theme_settings_dark_mode_title
+import foundation.composeapp.generated.resources.theme_settings_dynamic_colors_subtitle
 import foundation.composeapp.generated.resources.theme_settings_dynamic_colors_title
 import foundation.composeapp.generated.resources.theme_settings_light
 import foundation.composeapp.generated.resources.theme_settings_title
+import foundation.composeapp.generated.resources.theme_settings_vibration_subtitle
 import foundation.composeapp.generated.resources.theme_settings_vibration_title
 import org.jetbrains.compose.resources.stringResource
 
@@ -52,6 +60,7 @@ fun SettingsOptionsScreen(
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
     
     val isPortraitMode = isPortraitMode()
+    val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val useDarkTheme by viewModel.useDarkTheme.collectAsState()
     val useDynamicColors by viewModel.useDynamicColors.collectAsState()
     val useVibration by viewModel.useVibration.collectAsState()
@@ -67,21 +76,34 @@ fun SettingsOptionsScreen(
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        ThemeOptions(
+        AppSettings(
+            viewModel = viewModel,
+            useEncryptedShare = useEncryptedShare,
+            onUseEncryptedShare = { enabled ->
+                viewModel.useEncryptedShare(enabled)
+                onVibrate()
+            }
+        )
+        
+        SystemSettings(
+            viewModel = viewModel,
+            useVibration = useVibration,
+            onUseVibration = { enabled ->
+                viewModel.useVibration(enabled)
+                onVibrate()
+            }
+        )
+        
+        ThemeSettings(
             viewModel = viewModel,
             useDarkTheme = useDarkTheme,
             useDynamicColors = useDynamicColors,
-            useVibration = useVibration,
             onUseDynamicColors = { enabled ->
                 viewModel.useDynamicColors(enabled)
                 onVibrate()
             },
             onUseDarkTheme = { option ->
                 viewModel.useDarkTheme(option)
-                onVibrate()
-            },
-            onUseVibration = { enabled ->
-                viewModel.useVibration(enabled)
                 onVibrate()
             }
         )
@@ -106,16 +128,11 @@ fun SettingsOptionsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ThemeOptions(
+fun AppSettings(
     viewModel: MainViewModel,
-    useDarkTheme: Int, // -1 = auto (system default), 0 = light theme, 1 = dark theme
-    useDynamicColors: Boolean,
-    useVibration: Boolean,
-    onUseDynamicColors: (Boolean) -> Unit,
-    onUseDarkTheme: (Int) -> Unit,
-    onUseVibration: (Boolean) -> Unit,
+    useEncryptedShare: Boolean,
+    onUseEncryptedShare: (Boolean) -> Unit
 ) {
     val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
@@ -130,12 +147,182 @@ fun ThemeOptions(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(bottom = 16.dp)
+    ) {
+        Text(
+            text = stringResource(Res.string.app_settings_title),
+            style = MaterialTheme.typography.titleLarge,
+            color = onSurfaceColor,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentHeight()
+                    .padding(end = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.app_settings_encryption_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = onSurfaceColor,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+                
+                Text(
+                    text = stringResource(Res.string.app_settings_encryption_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = onSurfaceColor,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+            }
+            
+            Switch(
+                checked = useEncryptedShare,
+                colors = switchColors,
+                onCheckedChange = {
+                    onUseEncryptedShare(it)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun SystemSettings(
+    viewModel: MainViewModel,
+    useVibration: Boolean,
+    onUseVibration: (Boolean) -> Unit
+) {
+    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+    
+    val switchColors = SwitchDefaults.colors(
+        checkedTrackColor = primaryColor,
+        checkedBorderColor = onPrimaryColor
+    )
+    
+    if (viewModel.supportsFeature(Feature.VIBRATION)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(bottom = 16.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.system_settings_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = onSurfaceColor,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentHeight()
+                        .padding(end = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.theme_settings_vibration_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = onSurfaceColor,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+                    
+                    Text(
+                        text = stringResource(Res.string.theme_settings_vibration_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = onSurfaceColor,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+                }
+                
+                Switch(
+                    checked = useVibration,
+                    colors = switchColors,
+                    onCheckedChange = {
+                        onUseVibration(it)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThemeSettings(
+    viewModel: MainViewModel,
+    useDarkTheme: Int, // -1 = auto (system default), 0 = light theme, 1 = dark theme
+    useDynamicColors: Boolean,
+    onUseDynamicColors: (Boolean) -> Unit,
+    onUseDarkTheme: (Int) -> Unit,
+) {
+    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+    
+    val switchColors = SwitchDefaults.colors(
+        checkedTrackColor = primaryColor,
+        checkedBorderColor = onPrimaryColor
+    )
+    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(bottom = 16.dp)
     ) {
         Text(
             text = stringResource(Res.string.theme_settings_title),
             style = MaterialTheme.typography.titleLarge,
             color = onSurfaceColor,
             modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+        
+        Text(
+            text = stringResource(Res.string.theme_settings_dark_mode_title),
+            style = MaterialTheme.typography.bodyLarge,
+            color = onSurfaceColor,
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+        )
+        
+        Text(
+            text = stringResource(Res.string.theme_settings_dark_mode_subtitle),
+            style = MaterialTheme.typography.bodySmall,
+            color = onSurfaceColor,
+            modifier = Modifier
+                .wrapContentHeight()
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
@@ -171,48 +358,38 @@ fun ThemeOptions(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .wrapContentHeight()
             ) {
-                Text(
-                    text = stringResource(Res.string.theme_settings_dynamic_colors_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = onSurfaceColor,
+                Column(
                     modifier = Modifier
                         .weight(1f)
+                        .wrapContentHeight()
                         .padding(end = 8.dp)
-                )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.theme_settings_dynamic_colors_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = onSurfaceColor,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+                    
+                    Text(
+                        text = stringResource(Res.string.theme_settings_dynamic_colors_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = onSurfaceColor,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+                }
                 
                 Switch(
                     checked = useDynamicColors,
                     colors = switchColors,
                     onCheckedChange = {
                         onUseDynamicColors(it)
-                    }
-                )
-            }
-        }
-        
-        if (viewModel.supportsFeature(Feature.VIBRATION)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(Res.string.theme_settings_vibration_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = onSurfaceColor,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
-                )
-                
-                Switch(
-                    checked = useVibration,
-                    colors = switchColors,
-                    onCheckedChange = {
-                        onUseVibration(it)
                     }
                 )
             }

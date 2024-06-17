@@ -28,6 +28,10 @@ class MainViewModel(
     
     // SETTINGS
     
+    private val _useEncryptedShare = MutableStateFlow(Prefs.ENCRYPTED_SHARE.defaultValue as Boolean)
+    var useEncryptedShare = _useEncryptedShare.asStateFlow()
+        private set
+    
     private val _useDarkTheme = MutableStateFlow(Prefs.DARK_MODE.defaultValue as Int)
     var useDarkTheme = _useDarkTheme.asStateFlow()
         private set
@@ -59,15 +63,23 @@ class MainViewModel(
     
     private fun launchFlows() {
         launch {
+            repository.getEncryptedShareFlow().collectLatest {
+                _useEncryptedShare.value = it
+            }
+        }
+        
+        launch {
             repository.getDarkModeFlow().collectLatest {
                 _useDarkTheme.value = it
             }
         }
+        
         launch {
             repository.getDynamicColorsFlow().collectLatest {
                 _useDynamicColors.value = it
             }
         }
+        
         launch {
             repository.getVibrationFlow().collectLatest {
                 _useVibration.value = it
@@ -89,6 +101,13 @@ class MainViewModel(
     
     fun supportsFeature(feature: Feature) =
         platform.supportsFeature(feature)
+    
+    fun useEncryptedShare(enabled: Boolean) {
+        _useEncryptedShare.value = enabled
+        launch {
+            repository.setEncryptedShare(enabled)
+        }
+    }
     
     fun useDarkTheme(option: Int) {
         _useDarkTheme.value = option

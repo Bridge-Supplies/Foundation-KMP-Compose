@@ -20,6 +20,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -152,6 +153,7 @@ fun NavigationGraph(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
     navController: NavHostController,
+    snackbarHost: SnackbarHostState,
     onVibrate: () -> Unit,
     onCloseApplication: () -> Unit
 ) {
@@ -239,8 +241,9 @@ fun NavigationGraph(
             ) {
                 ScanCodeScreen(
                     viewModel = viewModel,
+                    snackbarHost = snackbarHost,
                     onVibrate = onVibrate,
-                    onComplete = {
+                    onCloseScanner = {
                         navController.navigateUp()
                     }
                 )
