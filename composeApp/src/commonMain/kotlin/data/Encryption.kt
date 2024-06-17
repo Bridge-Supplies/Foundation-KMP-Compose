@@ -20,7 +20,8 @@ data class SharedData(
     @SerialName("m") val message: String
 )
 
-fun serializeData(data: SharedData): String = Json.encodeToString(data)
+fun serializeData(data: SharedData): String =
+    Json.encodeToString(data)
 
 fun deserializeData(json: String): SharedData? = try {
     Json.decodeFromString<SharedData>(json)

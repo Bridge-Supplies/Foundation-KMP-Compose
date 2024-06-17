@@ -51,12 +51,6 @@ import screens.scanner.ShareCodeScreen
 import screens.settings.SettingsAboutScreen
 import screens.settings.SettingsOptionsScreen
 
-@Composable
-expect fun BackHandler(
-    enabled: Boolean = true,
-    onBack: () -> Unit = { }
-)
-
 // SCREENS
 
 enum class NavigationTab(
@@ -149,6 +143,12 @@ enum class Screen(
 // COMPOSABLES
 
 @Composable
+expect fun BackHandler(
+    enabled: Boolean = true,
+    onBack: () -> Unit = { }
+)
+
+@Composable
 fun NavigationGraph(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
@@ -177,7 +177,7 @@ fun NavigationGraph(
                 }
                 
                 LaunchedEffect(Unit) {
-                    delay(1500)
+                    delay(1000)
                     navController.popBackStack()
                     selectNavigationTab(navController, NavigationTab.HOME)
                 }
@@ -258,7 +258,7 @@ fun NavigationGraph(
                 route = Screen.SETTINGS_OPTIONS.route
             ) {
                 BackHandler {
-                    selectNavigationTab(navController, NavigationTab.SHARE)
+                    selectNavigationTab(navController, NavigationTab.HOME)
                 }
                 
                 SettingsOptionsScreen(
@@ -422,15 +422,15 @@ fun BottomNavigationBar(
 
 // UTILITIES
 
-fun NavBackStackEntry.getCurrentScreen(): Screen =
-    Screen.entries.find { it.route == destination.route } ?: Screen.LANDING
-
 fun Screen.getNavigationTab(): NavigationTab? {
     val selectedTab = NavigationTab.entries.find { navigationTab ->
         navigationTab.screens.contains(this)
     }
     return selectedTab
 }
+
+fun NavBackStackEntry.getCurrentScreen(): Screen =
+    Screen.entries.find { it.route == destination.route } ?: Screen.LANDING
 
 fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
     val currentScreen = getCurrentScreen()
@@ -469,7 +469,7 @@ fun navigateToScreen(
 ) {
     // TODO: set up + test cross-screen navigation
 //    val targetNavigationTab = screen.getNavigationTab()
-//    val currentNavigationTab = navController.currentBackStackEntry?.getCurrentScreen()?.getNavigationTab()
+//    val currentNavigationTab = navController.currentBackStackEntry?.getSelectedNavigationTab()
 //
 //    if (targetNavigationTab != null && targetNavigationTab != currentNavigationTab) {
 //        selectNavigationTab(navController, targetNavigationTab)

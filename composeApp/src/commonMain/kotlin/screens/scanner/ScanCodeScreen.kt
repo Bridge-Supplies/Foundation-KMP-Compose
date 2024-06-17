@@ -38,12 +38,7 @@ fun ScanCodeScreen(
     onVibrate: () -> Unit,
     onCloseScanner: () -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceVariant
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val primaryColor = MaterialTheme.colorScheme.secondary
-    val onPrimaryColor = MaterialTheme.colorScheme.onSecondary
-    
-    val isPortraitMode = isPortraitMode()
+    val background = MaterialTheme.colorScheme.background
     val coroutineScope = rememberCoroutineScope()
     
     val onScanSuccess: (String) -> Unit = {
@@ -81,10 +76,9 @@ fun ScanCodeScreen(
         }
     }
     
-    
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
+            .background(background)
             .fillMaxSize()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,12 +95,4 @@ fun ScanCodeScreen(
             }
         )
     }
-}
-
-private fun onSuccess() {
-
-}
-
-private fun onError() {
-
 }
