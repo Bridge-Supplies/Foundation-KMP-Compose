@@ -68,15 +68,18 @@ fun MainScaffold(
     val platform = remember { getPlatform() }
     val haptics = LocalHapticFeedback.current
     val navController = rememberNavController()
+    val isNavigatingTopLevel = remember { mutableStateOf(false) }
     val snackbarHost = remember { SnackbarHostState() }
     
     val onSelectNavigationTab = { tab: NavigationTab ->
         viewModel.hapticFeedback(haptics)
+        isNavigatingTopLevel.value = true
         selectNavigationTab(navController, tab)
     }
     
     val onNavigateBack: () -> Unit = {
         viewModel.hapticFeedback(haptics)
+        isNavigatingTopLevel.value = false
         navController.navigateUp()
     }
     
@@ -173,6 +176,7 @@ fun MainScaffold(
                     .fillMaxSize(),
                 viewModel = viewModel,
                 navController = navController,
+                isNavigatingTopLevel = isNavigatingTopLevel,
                 snackbarHost = snackbarHost,
                 onVibrate = {
                     viewModel.hapticFeedback(haptics)
