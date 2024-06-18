@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
@@ -35,7 +36,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import config.ColorSchemeStyle
 import config.PlatformType
+import config.getAppliedColorScheme
 import config.getPlatform
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
@@ -290,6 +293,7 @@ fun TopBar(
     canNavigateBack: Boolean,
     onNavigateBack: () -> Unit = {}
 ) {
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val platform = remember { getPlatform() }
     val appName = stringResource(Res.string.app_name)
     val title = remember(currentScreen) {
@@ -307,7 +311,10 @@ fun TopBar(
     if (platform.type == PlatformType.ANDROID) {
         TopAppBar(
             title = {
-                TopBarText(title)
+                TopBarText(
+                    text = title,
+                    textColor = colorScheme.onContentColor
+                )
             },
             navigationIcon = {
                 TopBarNavIcon(canNavigateBack, onNavigateBack)
@@ -316,7 +323,10 @@ fun TopBar(
     } else {
         CenterAlignedTopAppBar(
             title = {
-                TopBarText(title)
+                TopBarText(
+                    text = title,
+                    textColor = colorScheme.onContentColor
+                )
             },
             navigationIcon = {
                 TopBarNavIcon(canNavigateBack, onNavigateBack)
@@ -327,12 +337,13 @@ fun TopBar(
 
 @Composable
 fun TopBarText(
-    text: String
+    text: String,
+    textColor: Color
 ) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = textColor,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
     )

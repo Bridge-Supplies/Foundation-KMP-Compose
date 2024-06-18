@@ -17,7 +17,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,8 +38,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import config.ColorSchemeStyle
 import config.Feature
 import config.bitmapFromBytes
+import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import data.SharedData
@@ -66,18 +67,14 @@ fun ShareCodeScreen(
     onVibrate: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceVariant
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val primaryColor = MaterialTheme.colorScheme.secondary
-    val onPrimaryColor = MaterialTheme.colorScheme.onSecondary
-    
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.VARIANT)
     val isPortraitMode = isPortraitMode()
-    val coroutineScope = rememberCoroutineScope()
-    val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    
+    val coroutineScope = rememberCoroutineScope()
+    val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val liveText by viewModel.sharedText.collectAsState()
+    
     var processedText by remember {
         val sharedData = SharedData(liveText)
         val processed = if (useEncryptedShare) sharedData.compressAndEncrypt() else serializeData(sharedData)
@@ -100,7 +97,7 @@ fun ShareCodeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(surfaceContainerColor)
+                .background(colorScheme.contentColor)
                 .padding(
                     vertical = 16.dp,
                     horizontal = 16.dp
@@ -117,9 +114,9 @@ fun ShareCodeScreen(
                     },
                 text = processedText ?: "",
                 isPortraitMode = isPortraitMode,
-                color = primaryColor,
-                backgroundColor = onPrimaryColor,
-                cardColor = onSurfaceColor
+                color = colorScheme.buttonColor,
+                backgroundColor = colorScheme.onButtonColor,
+                cardColor = colorScheme.onContentColor
             )
             
             CodeReader(
@@ -141,7 +138,7 @@ fun ShareCodeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(surfaceContainerColor)
+                .background(colorScheme.contentColor)
                 .padding(
                     vertical = 16.dp,
                     horizontal = viewModel.platform.landscapeContentPadding
@@ -158,9 +155,9 @@ fun ShareCodeScreen(
                     },
                 text = processedText ?: "",
                 isPortraitMode = isPortraitMode,
-                color = primaryColor,
-                backgroundColor = onPrimaryColor,
-                cardColor = onSurfaceColor
+                color = colorScheme.buttonColor,
+                backgroundColor = colorScheme.onButtonColor,
+                cardColor = colorScheme.onContentColor
             )
             
             CodeReader(
@@ -228,10 +225,7 @@ fun CodeReader(
     setSharedText: (String) -> Unit,
     onClickScanner: () -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceVariant
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val primaryColor = MaterialTheme.colorScheme.secondary
-    val onPrimaryColor = MaterialTheme.colorScheme.onSecondary
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.VARIANT)
     
     Column(
         modifier = modifier
@@ -278,8 +272,8 @@ fun CodeReader(
                     onClickScanner()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = primaryColor,
-                    contentColor = onPrimaryColor
+                    containerColor = colorScheme.buttonColor,
+                    contentColor = colorScheme.onButtonColor
                 )
             ) {
                 Text(stringResource(Res.string.scanner_button_text))

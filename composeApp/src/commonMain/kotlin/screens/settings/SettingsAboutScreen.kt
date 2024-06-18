@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import config.ColorSchemeStyle
+import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
@@ -26,17 +28,13 @@ fun SettingsAboutScreen(
     viewModel: MainViewModel,
     onVibrate: () -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
-    
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(surfaceContainerColor)
+            .background(colorScheme.contentColor)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,
@@ -50,7 +48,7 @@ fun SettingsAboutScreen(
         Text(
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
-            color = onSurfaceColor,
+            color = colorScheme.onContentColor,
             text = text,
             modifier = Modifier
                 .fillMaxWidth()

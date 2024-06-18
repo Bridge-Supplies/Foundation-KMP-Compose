@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,8 +27,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import config.ColorSchemeStyle
 import config.FoundationTheme
 import config.PlatformType
+import config.getAppliedColorScheme
 import config.getPlatform
 import config.isPortraitMode
 import data.MainViewModel
@@ -62,6 +63,7 @@ fun MainScaffold(
     onShowSystemUi: (Boolean) -> Unit,
     onCloseApplication: () -> Unit
 ) {
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val platform = remember { getPlatform() }
     val haptics = LocalHapticFeedback.current
@@ -103,7 +105,7 @@ fun MainScaffold(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainer),
+            .background(colorScheme.contentColor),
         topBar = {
             AnimatedVisibility(
                 visible = currentlySelectedTab != null,

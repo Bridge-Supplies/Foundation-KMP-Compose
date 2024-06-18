@@ -1,5 +1,6 @@
 package config
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.materialkolor.PaletteStyle
@@ -80,4 +81,45 @@ enum class DarkMode(
     DARK(
         Res.string.theme_settings_dark_mode_dark
     )
+}
+
+enum class ColorSchemeStyle {
+    PRIMARY,
+    VARIANT
+}
+
+data class AppliedColorScheme(
+    val backgroundColor: Color,
+    val onBackgroundColor: Color,
+    val contentColor: Color,
+    val onContentColor: Color,
+    val buttonColor: Color,
+    val onButtonColor: Color
+)
+
+@Composable
+fun getAppliedColorScheme(
+    colorSchemeStyle: ColorSchemeStyle
+): AppliedColorScheme = when (colorSchemeStyle) {
+    ColorSchemeStyle.PRIMARY -> {
+        AppliedColorScheme(
+            backgroundColor = MaterialTheme.colorScheme.background,
+            onBackgroundColor = MaterialTheme.colorScheme.onBackground,
+            contentColor = MaterialTheme.colorScheme.surfaceContainer,
+            onContentColor = MaterialTheme.colorScheme.onSurface,
+            buttonColor = MaterialTheme.colorScheme.primary,
+            onButtonColor = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+    
+    ColorSchemeStyle.VARIANT -> {
+        AppliedColorScheme(
+            backgroundColor = MaterialTheme.colorScheme.background,
+            onBackgroundColor = MaterialTheme.colorScheme.onBackground,
+            contentColor = MaterialTheme.colorScheme.surfaceVariant,
+            onContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            buttonColor = MaterialTheme.colorScheme.secondary,
+            onButtonColor = MaterialTheme.colorScheme.onSecondary
+        )
+    }
 }
