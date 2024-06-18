@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -193,6 +192,7 @@ fun NavigationGraph(
     isNavigatingTopLevel: MutableState<Boolean>,
     snackbarHost: SnackbarHostState,
     onVibrate: () -> Unit,
+    onNavigateBack: () -> Unit,
     onCloseApplication: () -> Unit
 ) {
     // Note: iOS does not propagate composition changes through NavHost
@@ -248,7 +248,7 @@ fun NavigationGraph(
                 HomeInfoScreen(
                     viewModel = viewModel,
                     onVibrate = onVibrate,
-                    onNavTest = {
+                    onNavigateDateScreen = {
                         isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.HOME_DATE)
                     }
@@ -258,6 +258,10 @@ fun NavigationGraph(
             composable(
                 route = Screen.HOME_DATE.route
             ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
                 HomeDateScreen(
                     viewModel = viewModel,
                     onVibrate = onVibrate
@@ -290,6 +294,10 @@ fun NavigationGraph(
             composable(
                 route = Screen.SHARE_SCAN.route
             ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
                 ScanCodeScreen(
                     viewModel = viewModel,
                     snackbarHost = snackbarHost,
@@ -327,6 +335,10 @@ fun NavigationGraph(
             composable(
                 route = Screen.SETTINGS_ABOUT.route
             ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
                 SettingsAboutScreen(
                     viewModel = viewModel,
                     onVibrate = onVibrate

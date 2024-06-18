@@ -99,12 +99,6 @@ fun MainScaffold(
         onDispose { navController.removeOnDestinationChangedListener(listener) }
     }
     
-    // default back handler
-    BackHandler(
-        enabled = true,
-        onBack = onNavigateBack
-    )
-    
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -181,6 +175,7 @@ fun MainScaffold(
                 onVibrate = {
                     viewModel.hapticFeedback(haptics)
                 },
+                onNavigateBack = onNavigateBack,
                 onCloseApplication = onCloseApplication
             )
         }
