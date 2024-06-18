@@ -299,10 +299,10 @@ fun TopBar(
     val title = remember(currentScreen) {
         when {
             currentlySelectedTab != null && currentScreen != null && currentlySelectedTab.startDestination != currentScreen ->
-                "$appName > ${currentlySelectedTab.title} > ${currentScreen.title}"
+                "${currentlySelectedTab.title} > ${currentScreen.title}"
             
             currentlySelectedTab != null ->
-                "$appName > ${currentlySelectedTab.title}"
+                currentlySelectedTab.title
             
             else -> appName
         }
