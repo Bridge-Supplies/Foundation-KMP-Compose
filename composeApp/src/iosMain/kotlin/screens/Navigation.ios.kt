@@ -2,6 +2,7 @@ package screens
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -17,6 +18,9 @@ actual fun BackHandler(
     // no-op
 }
 
+actual val TRANSITION_ENTER_MS = 450
+actual val TRANSITION_EXIT_MS = 300
+actual val TRANSITION_EASING = LinearOutSlowInEasing
 actual val TRANSITION_OFFSET_DIV = 4
 
 actual fun ScreenEnterTransition(): EnterTransition =

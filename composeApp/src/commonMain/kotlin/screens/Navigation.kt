@@ -3,6 +3,7 @@ package screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -158,9 +159,9 @@ expect fun BackHandler(
     onBack: () -> Unit = { }
 )
 
-val TRANSITION_EASING = LinearOutSlowInEasing
-val TRANSITION_ENTER_MS = 450
-val TRANSITION_EXIT_MS = 300
+expect val TRANSITION_ENTER_MS: Int
+expect val TRANSITION_EXIT_MS: Int
+expect val TRANSITION_EASING: Easing
 expect val TRANSITION_OFFSET_DIV: Int
 
 fun TopLevelEnterTransition(): EnterTransition =
@@ -197,33 +198,10 @@ fun NavigationGraph(
     // Note: iOS does not propagate composition changes through NavHost
     // Params must be declared inside each composable(), ie isPortraitMode()
     
-    val enterTransition: EnterTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelEnterTransition()
-        } else {
-            ScreenEnterTransition()
-        }
-    
-    val exitTransition: ExitTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelExitTransition()
-        } else {
-            ScreenExitTransition()
-        }
-    
-    val popEnterTransition: EnterTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelEnterTransition()
-        } else {
-            ScreenPopEnterTransition()
-        }
-    
-    val popExitTransition: ExitTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelExitTransition()
-        } else {
-            ScreenPopExitTransition()
-        }
+    val enterTransition = if (isNavigatingTopLevel.value) TopLevelEnterTransition() else ScreenEnterTransition()
+    val exitTransition = if (isNavigatingTopLevel.value) TopLevelExitTransition() else ScreenExitTransition()
+    val popEnterTransition = if (isNavigatingTopLevel.value) TopLevelEnterTransition() else ScreenPopEnterTransition()
+    val popExitTransition = if (isNavigatingTopLevel.value) TopLevelExitTransition() else ScreenPopExitTransition()
     
     NavHost(
         modifier = modifier,
@@ -233,7 +211,6 @@ fun NavigationGraph(
         exitTransition = { exitTransition },
         popEnterTransition = { popEnterTransition },
         popExitTransition = { popExitTransition }
-    
     ) {
         navigation(
             route = "landing_navigation",
