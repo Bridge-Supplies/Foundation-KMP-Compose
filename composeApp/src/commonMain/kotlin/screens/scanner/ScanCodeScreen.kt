@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -13,7 +12,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import config.isPortraitMode
+import config.ColorSchemeStyle
+import config.getAppliedColorScheme
 import data.MainViewModel
 import data.decryptAndUncompress
 import foundation.composeapp.generated.resources.Res
@@ -38,12 +38,7 @@ fun ScanCodeScreen(
     onVibrate: () -> Unit,
     onCloseScanner: () -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceVariant
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val primaryColor = MaterialTheme.colorScheme.secondary
-    val onPrimaryColor = MaterialTheme.colorScheme.onSecondary
-    
-    val isPortraitMode = isPortraitMode()
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.VARIANT)
     val coroutineScope = rememberCoroutineScope()
     
     val onScanSuccess: (String) -> Unit = {
@@ -81,10 +76,9 @@ fun ScanCodeScreen(
         }
     }
     
-    
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
+            .background(colorScheme.backgroundColor)
             .fillMaxSize()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,12 +95,4 @@ fun ScanCodeScreen(
             }
         )
     }
-}
-
-private fun onSuccess() {
-
-}
-
-private fun onError() {
-
 }

@@ -6,9 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import bridge.supplies.foundation.DarkColorScheme
-import bridge.supplies.foundation.LightColorScheme
-import bridge.supplies.foundation.Typography
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
 import data.MainViewModel

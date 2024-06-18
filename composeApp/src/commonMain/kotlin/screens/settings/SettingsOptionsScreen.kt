@@ -28,10 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import config.ColorSchemeStyle
 import config.ColorTheme
 import config.DarkMode
 import config.Feature
 import config.Palette
+import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
@@ -57,11 +59,7 @@ fun SettingsOptionsScreen(
     onVibrate: () -> Unit,
     onNavigateToAbout: () -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
-    
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val useColorTheme by viewModel.useColorTheme.collectAsState()
@@ -72,7 +70,7 @@ fun SettingsOptionsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(surfaceContainerColor)
+            .background(colorScheme.contentColor)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,
@@ -124,8 +122,8 @@ fun SettingsOptionsScreen(
                 onVibrate()
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = primaryColor,
-                contentColor = onPrimaryColor
+                containerColor = colorScheme.buttonColor,
+                contentColor = colorScheme.onButtonColor
             )
         ) {
             Text(stringResource(Res.string.navigation_settings_about))
@@ -141,14 +139,10 @@ fun GeneralSettings(
     onUseEncryptedShare: (Boolean) -> Unit,
     onUseVibration: (Boolean) -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
-    
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val switchColors = SwitchDefaults.colors(
-        checkedTrackColor = primaryColor,
-        checkedBorderColor = onPrimaryColor
+        checkedTrackColor = colorScheme.buttonColor,
+        checkedBorderColor = colorScheme.onButtonColor
     )
     
     Column(
@@ -160,7 +154,7 @@ fun GeneralSettings(
         Text(
             text = stringResource(Res.string.app_settings_title),
             style = MaterialTheme.typography.titleLarge,
-            color = onSurfaceColor,
+            color = colorScheme.onContentColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp)
@@ -182,7 +176,7 @@ fun GeneralSettings(
                 Text(
                     text = stringResource(Res.string.app_settings_encryption_title),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = onSurfaceColor,
+                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -191,7 +185,7 @@ fun GeneralSettings(
                 Text(
                     text = stringResource(Res.string.app_settings_encryption_subtitle),
                     style = MaterialTheme.typography.bodySmall,
-                    color = onSurfaceColor,
+                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -223,7 +217,7 @@ fun GeneralSettings(
                     Text(
                         text = stringResource(Res.string.theme_settings_vibration_title),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onSurfaceColor,
+                        color = colorScheme.onContentColor,
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
@@ -232,7 +226,7 @@ fun GeneralSettings(
                     Text(
                         text = stringResource(Res.string.theme_settings_vibration_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = onSurfaceColor,
+                        color = colorScheme.onContentColor,
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
@@ -262,10 +256,7 @@ fun ThemeSettings(
     onUsePalette: (Palette) -> Unit,
     onUseDarkMode: (DarkMode) -> Unit,
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceContainer
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     
     Column(
         modifier = Modifier
@@ -276,7 +267,7 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_title),
             style = MaterialTheme.typography.titleLarge,
-            color = onSurfaceColor,
+            color = colorScheme.onContentColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp)
@@ -285,7 +276,7 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_color_theme_title),
             style = MaterialTheme.typography.bodyLarge,
-            color = onSurfaceColor,
+            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
@@ -294,11 +285,11 @@ fun ThemeSettings(
         
         Text(
             text = if (viewModel.supportsFeature(Feature.DYNAMIC_COLORS))
-                    stringResource(Res.string.theme_settings_color_theme_subtitle)
-                else
-                    stringResource(Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors),
+                stringResource(Res.string.theme_settings_color_theme_subtitle)
+            else
+                stringResource(Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors),
             style = MaterialTheme.typography.bodySmall,
-            color = onSurfaceColor,
+            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
@@ -341,7 +332,7 @@ fun ThemeSettings(
                 Text(
                     text = stringResource(Res.string.theme_settings_palette_title),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = onSurfaceColor,
+                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -351,7 +342,7 @@ fun ThemeSettings(
                 Text(
                     text = stringResource(Res.string.theme_settings_palette_subtitle),
                     style = MaterialTheme.typography.bodySmall,
-                    color = onSurfaceColor,
+                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -385,7 +376,7 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_dark_mode_title),
             style = MaterialTheme.typography.bodyLarge,
-            color = onSurfaceColor,
+            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
@@ -395,7 +386,7 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_dark_mode_subtitle),
             style = MaterialTheme.typography.bodySmall,
-            color = onSurfaceColor,
+            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()

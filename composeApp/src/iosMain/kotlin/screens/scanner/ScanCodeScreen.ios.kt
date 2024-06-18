@@ -13,7 +13,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.dp
+import config.ColorSchemeStyle
+import config.getAppliedColorScheme
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.camera_flash_button_text
 import foundation.composeapp.generated.resources.import_button_text
@@ -38,11 +39,7 @@ actual fun CodeScannerLayout(
     onCompletion: (String) -> Unit,
     onFailure: (String) -> Unit
 ) {
-    val surfaceContainerColor = MaterialTheme.colorScheme.surfaceVariant
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val primaryColor = MaterialTheme.colorScheme.secondary
-    val onPrimaryColor = MaterialTheme.colorScheme.onSecondary
-    
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.VARIANT)
     var flashlightOn by remember { mutableStateOf(false) }
     var launchGallery by remember { mutableStateOf(false) }
     
@@ -95,8 +92,8 @@ actual fun CodeScannerLayout(
                     onVibrate()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = primaryColor,
-                    contentColor = onPrimaryColor
+                    containerColor = colorScheme.buttonColor,
+                    contentColor = colorScheme.onButtonColor
                 )
             ) {
                 Text(stringResource(Res.string.import_button_text))

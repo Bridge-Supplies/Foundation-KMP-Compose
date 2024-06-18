@@ -1,6 +1,12 @@
 package screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -25,8 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
@@ -35,7 +43,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import config.ColorSchemeStyle
 import config.PlatformType
+import config.getAppliedColorScheme
 import config.getPlatform
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
@@ -50,12 +60,6 @@ import screens.scanner.ScanCodeScreen
 import screens.scanner.ShareCodeScreen
 import screens.settings.SettingsAboutScreen
 import screens.settings.SettingsOptionsScreen
-
-@Composable
-expect fun BackHandler(
-    enabled: Boolean = true,
-    onBack: () -> Unit = { }
-)
 
 // SCREENS
 
@@ -149,10 +153,43 @@ enum class Screen(
 // COMPOSABLES
 
 @Composable
+expect fun BackHandler(
+    enabled: Boolean = true,
+    onBack: () -> Unit = { }
+)
+
+val TRANSITION_EASING = LinearOutSlowInEasing
+val TRANSITION_ENTER_MS = 450
+val TRANSITION_EXIT_MS = 300
+expect val TRANSITION_OFFSET_DIV: Int
+
+fun TopLevelEnterTransition(): EnterTransition =
+    fadeIn(
+        animationSpec = tween(
+            durationMillis = TRANSITION_ENTER_MS,
+            easing = TRANSITION_EASING
+        )
+    )
+
+fun TopLevelExitTransition(): ExitTransition =
+    fadeOut(
+        animationSpec = tween(
+            durationMillis = TRANSITION_EXIT_MS,
+            easing = TRANSITION_EASING
+        )
+    )
+
+expect fun ScreenEnterTransition(): EnterTransition
+expect fun ScreenExitTransition(): ExitTransition
+expect fun ScreenPopEnterTransition(): EnterTransition
+expect fun ScreenPopExitTransition(): ExitTransition
+
+@Composable
 fun NavigationGraph(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
     navController: NavHostController,
+    isNavigatingTopLevel: MutableState<Boolean>,
     snackbarHost: SnackbarHostState,
     onVibrate: () -> Unit,
     onCloseApplication: () -> Unit
@@ -160,14 +197,47 @@ fun NavigationGraph(
     // Note: iOS does not propagate composition changes through NavHost
     // Params must be declared inside each composable(), ie isPortraitMode()
     
+    val enterTransition: EnterTransition =
+        if (isNavigatingTopLevel.value) {
+            TopLevelEnterTransition()
+        } else {
+            ScreenEnterTransition()
+        }
+    
+    val exitTransition: ExitTransition =
+        if (isNavigatingTopLevel.value) {
+            TopLevelExitTransition()
+        } else {
+            ScreenExitTransition()
+        }
+    
+    val popEnterTransition: EnterTransition =
+        if (isNavigatingTopLevel.value) {
+            TopLevelEnterTransition()
+        } else {
+            ScreenPopEnterTransition()
+        }
+    
+    val popExitTransition: ExitTransition =
+        if (isNavigatingTopLevel.value) {
+            TopLevelExitTransition()
+        } else {
+            ScreenPopExitTransition()
+        }
+    
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = "landing_navigation"
+        startDestination = "landing_navigation",
+        enterTransition = { enterTransition },
+        exitTransition = { exitTransition },
+        popEnterTransition = { popEnterTransition },
+        popExitTransition = { popExitTransition }
+    
     ) {
         navigation(
             route = "landing_navigation",
-            startDestination = Screen.LANDING.route
+            startDestination = Screen.LANDING.route,
         ) {
             composable(
                 route = Screen.LANDING.route
@@ -177,7 +247,8 @@ fun NavigationGraph(
                 }
                 
                 LaunchedEffect(Unit) {
-                    delay(1500)
+                    isNavigatingTopLevel.value = true
+                    delay(1000)
                     navController.popBackStack()
                     selectNavigationTab(navController, NavigationTab.HOME)
                 }
@@ -201,6 +272,7 @@ fun NavigationGraph(
                     viewModel = viewModel,
                     onVibrate = onVibrate,
                     onNavTest = {
+                        isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.HOME_DATE)
                     }
                 )
@@ -224,6 +296,7 @@ fun NavigationGraph(
                 route = Screen.SHARE_GENERATE.route
             ) {
                 BackHandler {
+                    isNavigatingTopLevel.value = true
                     selectNavigationTab(navController, NavigationTab.HOME)
                 }
                 
@@ -231,6 +304,7 @@ fun NavigationGraph(
                     viewModel = viewModel,
                     onVibrate = onVibrate,
                     onNavigateToScanner = {
+                        isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.SHARE_SCAN)
                     }
                 )
@@ -244,6 +318,7 @@ fun NavigationGraph(
                     snackbarHost = snackbarHost,
                     onVibrate = onVibrate,
                     onCloseScanner = {
+                        isNavigatingTopLevel.value = false
                         navController.navigateUp()
                     }
                 )
@@ -258,13 +333,15 @@ fun NavigationGraph(
                 route = Screen.SETTINGS_OPTIONS.route
             ) {
                 BackHandler {
-                    selectNavigationTab(navController, NavigationTab.SHARE)
+                    isNavigatingTopLevel.value = true
+                    selectNavigationTab(navController, NavigationTab.HOME)
                 }
                 
                 SettingsOptionsScreen(
                     viewModel = viewModel,
                     onVibrate = onVibrate,
                     onNavigateToAbout = {
+                        isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.SETTINGS_ABOUT)
                     }
                 )
@@ -290,15 +367,16 @@ fun TopBar(
     canNavigateBack: Boolean,
     onNavigateBack: () -> Unit = {}
 ) {
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val platform = remember { getPlatform() }
     val appName = stringResource(Res.string.app_name)
     val title = remember(currentScreen) {
         when {
             currentlySelectedTab != null && currentScreen != null && currentlySelectedTab.startDestination != currentScreen ->
-                "$appName > ${currentlySelectedTab.title} > ${currentScreen.title}"
+                currentScreen.title
             
             currentlySelectedTab != null ->
-                "$appName > ${currentlySelectedTab.title}"
+                currentlySelectedTab.title
             
             else -> appName
         }
@@ -307,7 +385,10 @@ fun TopBar(
     if (platform.type == PlatformType.ANDROID) {
         TopAppBar(
             title = {
-                TopBarText(title)
+                TopBarText(
+                    text = title,
+                    textColor = colorScheme.onContentColor
+                )
             },
             navigationIcon = {
                 TopBarNavIcon(canNavigateBack, onNavigateBack)
@@ -316,7 +397,10 @@ fun TopBar(
     } else {
         CenterAlignedTopAppBar(
             title = {
-                TopBarText(title)
+                TopBarText(
+                    text = title,
+                    textColor = colorScheme.onContentColor
+                )
             },
             navigationIcon = {
                 TopBarNavIcon(canNavigateBack, onNavigateBack)
@@ -327,12 +411,13 @@ fun TopBar(
 
 @Composable
 fun TopBarText(
-    text: String
+    text: String,
+    textColor: Color
 ) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = textColor,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
     )
@@ -422,15 +507,15 @@ fun BottomNavigationBar(
 
 // UTILITIES
 
-fun NavBackStackEntry.getCurrentScreen(): Screen =
-    Screen.entries.find { it.route == destination.route } ?: Screen.LANDING
-
 fun Screen.getNavigationTab(): NavigationTab? {
     val selectedTab = NavigationTab.entries.find { navigationTab ->
         navigationTab.screens.contains(this)
     }
     return selectedTab
 }
+
+fun NavBackStackEntry.getCurrentScreen(): Screen =
+    Screen.entries.find { it.route == destination.route } ?: Screen.LANDING
 
 fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
     val currentScreen = getCurrentScreen()
@@ -439,27 +524,32 @@ fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
 }
 
 fun selectNavigationTab(
-    navController: NavController,
+    navController: NavHostController,
     navigationTab: NavigationTab
 ) {
-    val currentlySelectedTab = navController.currentBackStackEntry?.getSelectedNavigationTab()
+    val currentScreen = navController.currentBackStackEntry?.getCurrentScreen()
+    val currentlySelectedTab = currentScreen?.getNavigationTab()
     
-    navController.navigate(navigationTab.route) {
-        if (currentlySelectedTab?.route == navigationTab.route) {
-            // if already on the selected tab, clear its backstack
-            popUpTo(navigationTab.route) {
-                inclusive = true
-            }
-        } else {
-            // otherwise save & clear current backstack
-            popUpTo(currentlySelectedTab?.route ?: return@navigate) {
-                saveState = true
-                inclusive = true
+    if (navigationTab.startDestination != currentScreen) {
+        navController.navigate(
+            route = navigationTab.route
+        ) {
+            launchSingleTop = true
+            restoreState = true
+            
+            if (currentlySelectedTab?.route == navigationTab.route) {
+                // if already on the selected tab, clear its backstack
+                popUpTo(navigationTab.route) {
+                    inclusive = true
+                }
+            } else {
+                // otherwise save & clear current backstack
+                popUpTo(currentlySelectedTab?.route ?: return@navigate) {
+                    saveState = true
+                    inclusive = true
+                }
             }
         }
-        
-        launchSingleTop = true
-        restoreState = true
     }
 }
 
@@ -469,7 +559,7 @@ fun navigateToScreen(
 ) {
     // TODO: set up + test cross-screen navigation
 //    val targetNavigationTab = screen.getNavigationTab()
-//    val currentNavigationTab = navController.currentBackStackEntry?.getCurrentScreen()?.getNavigationTab()
+//    val currentNavigationTab = navController.currentBackStackEntry?.getSelectedNavigationTab()
 //
 //    if (targetNavigationTab != null && targetNavigationTab != currentNavigationTab) {
 //        selectNavigationTab(navController, targetNavigationTab)
