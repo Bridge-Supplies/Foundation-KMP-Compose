@@ -86,10 +86,3 @@ actual val viewModelModule = module {
 actual val dataStoreModule = module {
     single { DataRepository(dataStore()) }
 }
-
-
-// Code scanning
-
-actual fun bitmapFromBytes(bytes: ByteArray): ImageBitmap {
-    return Image.makeFromEncoded(bytes).toComposeImageBitmap()
-}

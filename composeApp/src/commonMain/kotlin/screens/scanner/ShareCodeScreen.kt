@@ -40,7 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import config.ColorSchemeStyle
 import config.Feature
-import config.bitmapFromBytes
+import data.bitmapFromBytes
 import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel

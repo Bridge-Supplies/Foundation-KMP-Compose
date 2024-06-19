@@ -35,6 +35,10 @@ class MainViewModel(
     var useEncryptedShare = _useEncryptedShare.asStateFlow()
         private set
     
+    private val _useFullscreenLandscape = MutableStateFlow(Prefs.FULLSCREEN_LANDSCAPE.defaultValue as Boolean)
+    var useFullscreenLandscape = _useFullscreenLandscape.asStateFlow()
+        private set
+    
     private val _useColorTheme = MutableStateFlow(Prefs.COLOR_THEME.defaultValue as ColorTheme)
     var useColorTheme = _useColorTheme.asStateFlow()
         private set
@@ -72,6 +76,12 @@ class MainViewModel(
         launch {
             repository.getEncryptedShareFlow().collectLatest {
                 _useEncryptedShare.value = it
+            }
+        }
+        
+        launch {
+            repository.getFullscreenLandscapeFlow().collectLatest {
+                _useFullscreenLandscape.value = it
             }
         }
         
@@ -119,6 +129,13 @@ class MainViewModel(
         _useEncryptedShare.value = enabled
         launch {
             repository.setEncryptedShare(enabled)
+        }
+    }
+    
+    fun useFullscreenLandscape(enabled: Boolean) {
+        _useFullscreenLandscape.value = enabled
+        launch {
+            repository.setFullscreenLandscape(enabled)
         }
     }
     

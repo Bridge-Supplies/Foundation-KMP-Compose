@@ -39,6 +39,8 @@ import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_settings_encryption_subtitle
 import foundation.composeapp.generated.resources.app_settings_encryption_title
+import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_subtitle
+import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_title
 import foundation.composeapp.generated.resources.app_settings_title
 import foundation.composeapp.generated.resources.navigation_settings_about
 import foundation.composeapp.generated.resources.theme_settings_color_theme_subtitle
@@ -62,6 +64,7 @@ fun SettingsOptionsScreen(
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
+    val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
     val useColorTheme by viewModel.useColorTheme.collectAsState()
     val usePalette by viewModel.usePalette.collectAsState()
     val useDarkMode by viewModel.useDarkMode.collectAsState()
@@ -81,9 +84,14 @@ fun SettingsOptionsScreen(
         GeneralSettings(
             viewModel = viewModel,
             useEncryptedShare = useEncryptedShare,
+            useFullscreenLandscape = useFullscreenLandscape,
             useVibration = useVibration,
             onUseEncryptedShare = { enabled ->
                 viewModel.useEncryptedShare(enabled)
+                onVibrate()
+            },
+            onUseFullscreenLandscape = { enabled ->
+                viewModel.useFullscreenLandscape(enabled)
                 onVibrate()
             },
             onUseVibration = { enabled ->
@@ -135,8 +143,10 @@ fun SettingsOptionsScreen(
 fun GeneralSettings(
     viewModel: MainViewModel,
     useEncryptedShare: Boolean,
+    useFullscreenLandscape: Boolean,
     useVibration: Boolean,
     onUseEncryptedShare: (Boolean) -> Unit,
+    onUseFullscreenLandscape: (Boolean) -> Unit,
     onUseVibration: (Boolean) -> Unit
 ) {
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
@@ -199,6 +209,48 @@ fun GeneralSettings(
                     onUseEncryptedShare(it)
                 }
             )
+        }
+        
+        if (viewModel.supportsFeature(Feature.FULLSCREEN_LANDSCAPE)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentHeight()
+                        .padding(end = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.app_settings_fullscreen_landscape_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = colorScheme.onContentColor,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+                    
+                    Text(
+                        text = stringResource(Res.string.app_settings_fullscreen_landscape_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorScheme.onContentColor,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    )
+                }
+                
+                Switch(
+                    checked = useFullscreenLandscape,
+                    colors = switchColors,
+                    onCheckedChange = {
+                        onUseFullscreenLandscape(it)
+                    }
+                )
+            }
         }
         
         if (viewModel.supportsFeature(Feature.VIBRATION)) {

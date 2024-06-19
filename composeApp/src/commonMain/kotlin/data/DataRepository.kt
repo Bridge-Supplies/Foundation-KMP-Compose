@@ -23,6 +23,10 @@ enum class Prefs(
         "${SETTINGS_KEY}_encrypted_share",
         true
     ),
+    FULLSCREEN_LANDSCAPE(
+        "${SETTINGS_KEY}_fullscreen_landscape",
+        true
+    ),
     COLOR_THEME(
         "${SETTINGS_KEY}_color_theme",
         if (getPlatform().supportsFeature(Feature.DYNAMIC_COLORS)) ColorTheme.AUTO else ColorTheme.OFF
@@ -47,6 +51,7 @@ class DataRepository(
 ) {
     companion object {
         private val ENCRYPTED_SHARE_KEY = booleanPreferencesKey(Prefs.ENCRYPTED_SHARE.key)
+        private val FULLSCREEN_LANDSCAPE_KEY = booleanPreferencesKey(Prefs.FULLSCREEN_LANDSCAPE.key)
         private val COLOR_THEME_KEY = intPreferencesKey(Prefs.COLOR_THEME.key)
         private val PALETTE_STYLE_KEY = intPreferencesKey(Prefs.PALETTE_STYLE.key)
         private val DARK_MODE_KEY = intPreferencesKey(Prefs.DARK_MODE.key)
@@ -63,6 +68,18 @@ class DataRepository(
     fun getEncryptedShareFlow(): Flow<Boolean> =
         dataStore.data.map { preferences ->
             preferences[ENCRYPTED_SHARE_KEY] ?: Prefs.ENCRYPTED_SHARE.defaultValue as Boolean
+        }
+    
+    // FULLSCREEN LANDSCAPE
+    suspend fun setFullscreenLandscape(fullscreenLandscape: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[FULLSCREEN_LANDSCAPE_KEY] = fullscreenLandscape
+        }
+    }
+    
+    fun getFullscreenLandscapeFlow(): Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[FULLSCREEN_LANDSCAPE_KEY] ?: Prefs.FULLSCREEN_LANDSCAPE.defaultValue as Boolean
         }
     
     // COLOR THEMING (Dynamic colors available on Android 12+)

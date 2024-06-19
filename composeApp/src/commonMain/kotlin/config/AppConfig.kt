@@ -14,7 +14,7 @@ enum class PlatformType {
 }
 
 enum class Feature {
-    FULLSCREEN,
+    FULLSCREEN_LANDSCAPE,
     DYNAMIC_COLORS,
     VIBRATION,
     CODE_SCANNING,
@@ -60,8 +60,3 @@ expect val platformModule: Module
 expect val dataStoreModule: Module
 
 expect val viewModelModule: Module
-
-
-// Code scanning
-
-expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap

@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +69,7 @@ fun MainScaffold(
     val platform = remember { getPlatform() }
     val haptics = LocalHapticFeedback.current
     val navController = rememberNavController()
+    val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
     val isNavigatingTopLevel = remember { mutableStateOf(false) }
     val snackbarHost = remember { SnackbarHostState() }
     
@@ -137,8 +139,12 @@ fun MainScaffold(
             SnackbarHost(hostState = snackbarHost)
         }
     ) { innerPadding ->
-        LaunchedEffect(isPortraitMode) {
-            onShowSystemUi(isPortraitMode)
+        LaunchedEffect(isPortraitMode, useFullscreenLandscape) {
+            if (isPortraitMode || !useFullscreenLandscape) {
+                onShowSystemUi(true)
+            } else {
+                onShowSystemUi(false)
+            }
         }
         
         Row(

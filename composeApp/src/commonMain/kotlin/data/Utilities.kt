@@ -2,6 +2,7 @@ package data
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,3 +33,5 @@ fun getDateDisplayString(
 ): String {
     return now.toLocalDateTime(zone).toString().substringBefore('T')
 }
+
+expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap
