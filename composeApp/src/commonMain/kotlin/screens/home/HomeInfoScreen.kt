@@ -46,7 +46,7 @@ fun HomeInfoScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.contentColor)
+            .background(colorScheme.backgroundColor)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,

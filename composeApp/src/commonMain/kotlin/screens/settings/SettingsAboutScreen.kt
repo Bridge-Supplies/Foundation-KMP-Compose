@@ -34,7 +34,7 @@ fun SettingsAboutScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.contentColor)
+            .background(colorScheme.backgroundColor)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,
@@ -47,7 +47,7 @@ fun SettingsAboutScreen(
         
         Text(
             style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Start,
             color = colorScheme.onContentColor,
             text = text,
             modifier = Modifier

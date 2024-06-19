@@ -19,7 +19,7 @@ actual fun BackHandler(
 }
 
 actual val TRANSITION_ENTER_MS = 200
-actual val TRANSITION_EXIT_MS = 150
+actual val TRANSITION_EXIT_MS = 100
 actual val TRANSITION_EASING = FastOutLinearInEasing
 actual val TRANSITION_OFFSET_DIV = 10
 

@@ -6,8 +6,9 @@
 
     <string name="app_about_platform">Platform: %1$s</string>
     <string name="app_about_orientation">Orientation: %1$s</string>
-    <string name="app_about_today">Today's date: %1$s</string>
-    <string name="app_about_elapsed_seconds">Elapsed seconds: %1$s</string>
+    <string name="app_date_elapsed_seconds">Elapsed seconds: %1$s</string>
+    <string name="app_date_today">Today's date: %1$s</string>
+    <string name="app_date_selected">Selected date: %1$s</string>
     <string name="app_about_build">App version: %1$s</string>
     <string name="app_about_version">App build: %1$s</string>
 

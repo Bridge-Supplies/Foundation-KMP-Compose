@@ -97,7 +97,7 @@ fun ShareCodeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.contentColor)
+                .background(colorScheme.backgroundColor)
                 .padding(
                     vertical = 16.dp,
                     horizontal = 16.dp
@@ -138,7 +138,7 @@ fun ShareCodeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.contentColor)
+                .background(colorScheme.backgroundColor)
                 .padding(
                     vertical = 16.dp,
                     horizontal = viewModel.platform.landscapeContentPadding

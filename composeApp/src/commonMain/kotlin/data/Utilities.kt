@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.currentKoinScope
@@ -25,8 +26,9 @@ fun SoftwareKeyboardController?.hideAndClearFocus(focusManager: FocusManager?) {
     focusManager?.clearFocus()
 }
 
-fun todaysDate(): String {
-    val now = Clock.System.now()
-    val zone = TimeZone.currentSystemDefault()
+fun getDateDisplayString(
+    now: Instant = Clock.System.now(),
+    zone: TimeZone = TimeZone.currentSystemDefault()
+): String {
     return now.toLocalDateTime(zone).toString().substringBefore('T')
 }
