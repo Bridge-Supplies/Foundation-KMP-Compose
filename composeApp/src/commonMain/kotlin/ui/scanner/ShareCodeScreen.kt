@@ -1,4 +1,4 @@
-package screens.scanner
+package ui.scanner
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,11 +40,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import config.ColorSchemeStyle
 import config.Feature
-import data.bitmapFromBytes
 import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import data.SharedData
+import data.bitmapFromBytes
 import data.compressAndEncrypt
 import data.hideAndClearFocus
 import data.serializeData

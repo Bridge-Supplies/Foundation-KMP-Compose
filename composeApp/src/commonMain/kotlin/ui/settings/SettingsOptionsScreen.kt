@@ -1,4 +1,4 @@
-package screens.settings
+package ui.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background

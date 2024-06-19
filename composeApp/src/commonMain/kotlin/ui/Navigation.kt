@@ -1,4 +1,4 @@
-package screens
+package ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -53,13 +53,13 @@ import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.navigation_back
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
-import screens.home.HomeDateScreen
-import screens.home.HomeInfoScreen
-import screens.landing.LandingScreen
-import screens.scanner.ScanCodeScreen
-import screens.scanner.ShareCodeScreen
-import screens.settings.SettingsAboutScreen
-import screens.settings.SettingsOptionsScreen
+import ui.home.HomeDateScreen
+import ui.home.HomeInfoScreen
+import ui.landing.LandingScreen
+import ui.scanner.ScanCodeScreen
+import ui.scanner.ShareCodeScreen
+import ui.settings.SettingsAboutScreen
+import ui.settings.SettingsOptionsScreen
 
 // SCREENS
 
@@ -278,7 +278,7 @@ fun NavigationGraph(
             ) {
                 BackHandler {
                     isNavigatingTopLevel.value = true
-                    selectNavigationTab(navController, NavigationTab.HOME)
+                    selectNavigationTab(navController, NavigationTab.HOME, onVibrate)
                 }
                 
                 ShareCodeScreen(
@@ -319,7 +319,7 @@ fun NavigationGraph(
             ) {
                 BackHandler {
                     isNavigatingTopLevel.value = true
-                    selectNavigationTab(navController, NavigationTab.HOME)
+                    selectNavigationTab(navController, NavigationTab.HOME, onVibrate)
                 }
                 
                 SettingsOptionsScreen(
@@ -514,12 +514,14 @@ fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
 
 fun selectNavigationTab(
     navController: NavHostController,
-    navigationTab: NavigationTab
+    navigationTab: NavigationTab,
+    onVibrate: () -> Unit = {}
 ) {
     val currentScreen = navController.currentBackStackEntry?.getCurrentScreen()
     val currentlySelectedTab = currentScreen?.getNavigationTab()
     
     if (navigationTab.startDestination != currentScreen) {
+        onVibrate()
         navController.navigate(
             route = navigationTab.route
         ) {

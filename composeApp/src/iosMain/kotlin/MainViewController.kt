@@ -1,5 +1,5 @@
 import androidx.compose.ui.window.ComposeUIViewController
-import screens.App
+import ui.App
 
 fun MainViewController() = ComposeUIViewController(
     configure = {

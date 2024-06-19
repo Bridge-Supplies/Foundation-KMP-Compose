@@ -31,7 +31,11 @@ fun getDateDisplayString(
     now: Instant = Clock.System.now(),
     zone: TimeZone = TimeZone.currentSystemDefault()
 ): String {
-    return now.toLocalDateTime(zone).toString().substringBefore('T')
+    val localDateTime = now.toLocalDateTime(zone)
+    val month = localDateTime.month.name.lowercase().replaceFirstChar { it.uppercase() }
+    val day = localDateTime.dayOfMonth
+    val year = localDateTime.year
+    return "$month $day, $year"
 }
 
 expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap

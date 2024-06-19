@@ -49,7 +49,12 @@
     <string name="theme_settings_palette_tonal">Tonal</string>
     <string name="theme_settings_palette_vibrant">Vibrant</string>
 
-    <string name="navigation_home_date">Today's date</string>
+    <string name="navigation_home_date">Date selector</string>
+    <string name="navigation_home_date_select">Select a date</string>
     <string name="navigation_settings_about">About app</string>
     <string name="navigation_back">Back</string>
+    <string name="navigation_close">Close</string>
+    <string name="navigation_confirm">Confirm</string>
+    <string name="navigation_cancel">Cancel</string>
+
 </resources>

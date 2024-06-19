@@ -1,4 +1,4 @@
-package screens
+package ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -34,9 +35,11 @@ import config.PlatformType
 import config.getAppliedColorScheme
 import config.getPlatform
 import config.isPortraitMode
+import data.ActiveBottomSheet
 import data.MainViewModel
 import data.koinViewModel
 import org.koin.compose.KoinContext
+import ui.sheets.DatePickerBottomSheet
 
 @Composable
 fun App(
@@ -66,21 +69,28 @@ fun MainScaffold(
 ) {
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
+    
     val platform = remember { getPlatform() }
-    val haptics = LocalHapticFeedback.current
     val navController = rememberNavController()
-    val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
     val isNavigatingTopLevel = remember { mutableStateOf(false) }
     val snackbarHost = remember { SnackbarHostState() }
     
-    val onSelectNavigationTab = { tab: NavigationTab ->
+    val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
+    val currentBottomSheet by viewModel.currentBottomSheet.collectAsState()
+    
+    val haptics = LocalHapticFeedback.current
+    val onVibrate: () -> Unit = {
         viewModel.hapticFeedback(haptics)
+    }
+    
+    val onSelectNavigationTab = { tab: NavigationTab ->
         isNavigatingTopLevel.value = true
-        selectNavigationTab(navController, tab)
+        selectNavigationTab(navController, tab, onVibrate)
     }
     
     val onNavigateBack: () -> Unit = {
-        viewModel.hapticFeedback(haptics)
+        onVibrate()
         isNavigatingTopLevel.value = false
         navController.navigateUp()
     }
@@ -178,12 +188,27 @@ fun MainScaffold(
                 navController = navController,
                 isNavigatingTopLevel = isNavigatingTopLevel,
                 snackbarHost = snackbarHost,
-                onVibrate = {
-                    viewModel.hapticFeedback(haptics)
-                },
+                onVibrate = onVibrate,
                 onNavigateBack = onNavigateBack,
                 onCloseApplication = onCloseApplication
             )
+        }
+        
+        when (currentBottomSheet) {
+            is ActiveBottomSheet.None -> {
+                /* no-op */
+            }
+            
+            is ActiveBottomSheet.DatePicker -> {
+                val sheetData = (currentBottomSheet as ActiveBottomSheet.DatePicker)
+                DatePickerBottomSheet(
+                    viewModel = viewModel,
+                    coroutineScope = coroutineScope,
+                    colorScheme = colorScheme,
+                    selectedDate = sheetData.selectedDate,
+                    onVibrate = onVibrate
+                )
+            }
         }
     }
 }

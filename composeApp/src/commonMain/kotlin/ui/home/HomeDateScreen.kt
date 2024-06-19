@@ -1,22 +1,20 @@
-package screens.home
+package ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import config.ColorSchemeStyle
-import config.PlatformType
 import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
@@ -34,12 +31,12 @@ import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_date_elapsed_seconds
 import foundation.composeapp.generated.resources.app_date_selected
 import foundation.composeapp.generated.resources.app_date_today
+import foundation.composeapp.generated.resources.navigation_home_date_select
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDateScreen(
     viewModel: MainViewModel,
@@ -50,6 +47,15 @@ fun HomeDateScreen(
     val timer by viewModel.timer.collectAsState()
     val now = Clock.System.now()
     val todaysDate by remember(now) { mutableStateOf(getDateDisplayString(now)) }
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val selectedDateDisplay by remember(selectedDate) {
+        derivedStateOf {
+            getDateDisplayString(
+                now = Instant.fromEpochMilliseconds(selectedDate),
+                zone = TimeZone.UTC
+            )
+        }
+    }
     
     Column(
         modifier = Modifier
@@ -62,18 +68,6 @@ fun HomeDateScreen(
             ),
         horizontalAlignment = Alignment.Start,
     ) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = now.toEpochMilliseconds(),
-            initialDisplayMode = if (viewModel.platform.type == PlatformType.DESKTOP) DisplayMode.Input else DisplayMode.Picker
-        )
-        
-        val selectedDateDisplay = if (datePickerState.selectedDateMillis != null) {
-            getDateDisplayString(
-                now = Instant.fromEpochMilliseconds(datePickerState.selectedDateMillis!!),
-                zone = TimeZone.UTC
-            )
-        } else { "" }
-        
         val text = stringResource(Res.string.app_date_elapsed_seconds, timer) + "\n" +
             stringResource(Res.string.app_date_today, todaysDate) + "\n" +
             stringResource(Res.string.app_date_selected, selectedDateDisplay)
@@ -88,17 +82,22 @@ fun HomeDateScreen(
                 .padding(bottom = 16.dp)
         )
         
-        ElevatedCard(
-            modifier = Modifier,
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = colorScheme.contentColor
+        Spacer(Modifier.weight(1f))
+        
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            onClick = {
+                viewModel.showDatePickerSheet(selectedDate)
+                onVibrate()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.buttonColor,
+                contentColor = colorScheme.onButtonColor
             )
         ) {
-            DatePicker(
-                state = datePickerState,
-                modifier = Modifier
-                    .padding(8.dp)
-            )
+            Text(stringResource(Res.string.navigation_home_date_select))
         }
     }
 }

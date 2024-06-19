@@ -1,7 +1,6 @@
 package config
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
 import org.koin.core.module.Module
 
