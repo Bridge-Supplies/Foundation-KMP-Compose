@@ -37,7 +37,7 @@ import org.jetbrains.compose.resources.stringResource
 fun HomeInfoScreen(
     viewModel: MainViewModel,
     onVibrate: () -> Unit,
-    onNavTest: () -> Unit
+    onNavigateDateScreen: () -> Unit
 ) {
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
@@ -85,7 +85,7 @@ fun HomeInfoScreen(
                 .fillMaxWidth()
                 .padding(top = 8.dp),
             onClick = {
-                onNavTest()
+                onNavigateDateScreen()
                 onVibrate()
             },
             colors = ButtonDefaults.buttonColors(

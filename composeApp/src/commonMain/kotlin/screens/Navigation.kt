@@ -3,7 +3,7 @@ package screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -158,9 +158,9 @@ expect fun BackHandler(
     onBack: () -> Unit = { }
 )
 
-val TRANSITION_EASING = LinearOutSlowInEasing
-val TRANSITION_ENTER_MS = 450
-val TRANSITION_EXIT_MS = 300
+expect val TRANSITION_ENTER_MS: Int
+expect val TRANSITION_EXIT_MS: Int
+expect val TRANSITION_EASING: Easing
 expect val TRANSITION_OFFSET_DIV: Int
 
 fun TopLevelEnterTransition(): EnterTransition =
@@ -192,38 +192,16 @@ fun NavigationGraph(
     isNavigatingTopLevel: MutableState<Boolean>,
     snackbarHost: SnackbarHostState,
     onVibrate: () -> Unit,
+    onNavigateBack: () -> Unit,
     onCloseApplication: () -> Unit
 ) {
     // Note: iOS does not propagate composition changes through NavHost
     // Params must be declared inside each composable(), ie isPortraitMode()
     
-    val enterTransition: EnterTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelEnterTransition()
-        } else {
-            ScreenEnterTransition()
-        }
-    
-    val exitTransition: ExitTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelExitTransition()
-        } else {
-            ScreenExitTransition()
-        }
-    
-    val popEnterTransition: EnterTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelEnterTransition()
-        } else {
-            ScreenPopEnterTransition()
-        }
-    
-    val popExitTransition: ExitTransition =
-        if (isNavigatingTopLevel.value) {
-            TopLevelExitTransition()
-        } else {
-            ScreenPopExitTransition()
-        }
+    val enterTransition = if (isNavigatingTopLevel.value) TopLevelEnterTransition() else ScreenEnterTransition()
+    val exitTransition = if (isNavigatingTopLevel.value) TopLevelExitTransition() else ScreenExitTransition()
+    val popEnterTransition = if (isNavigatingTopLevel.value) TopLevelEnterTransition() else ScreenPopEnterTransition()
+    val popExitTransition = if (isNavigatingTopLevel.value) TopLevelExitTransition() else ScreenPopExitTransition()
     
     NavHost(
         modifier = modifier,
@@ -233,7 +211,6 @@ fun NavigationGraph(
         exitTransition = { exitTransition },
         popEnterTransition = { popEnterTransition },
         popExitTransition = { popExitTransition }
-    
     ) {
         navigation(
             route = "landing_navigation",
@@ -271,7 +248,7 @@ fun NavigationGraph(
                 HomeInfoScreen(
                     viewModel = viewModel,
                     onVibrate = onVibrate,
-                    onNavTest = {
+                    onNavigateDateScreen = {
                         isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.HOME_DATE)
                     }
@@ -281,6 +258,10 @@ fun NavigationGraph(
             composable(
                 route = Screen.HOME_DATE.route
             ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
                 HomeDateScreen(
                     viewModel = viewModel,
                     onVibrate = onVibrate
@@ -313,6 +294,10 @@ fun NavigationGraph(
             composable(
                 route = Screen.SHARE_SCAN.route
             ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
                 ScanCodeScreen(
                     viewModel = viewModel,
                     snackbarHost = snackbarHost,
@@ -350,6 +335,10 @@ fun NavigationGraph(
             composable(
                 route = Screen.SETTINGS_ABOUT.route
             ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
                 SettingsAboutScreen(
                     viewModel = viewModel,
                     onVibrate = onVibrate
