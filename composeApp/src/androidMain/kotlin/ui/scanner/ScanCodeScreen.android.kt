@@ -1,4 +1,4 @@
-package screens.scanner
+package ui.scanner
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

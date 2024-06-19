@@ -1,7 +1,6 @@
 package config
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
 import org.koin.core.module.Module
 
@@ -14,7 +13,7 @@ enum class PlatformType {
 }
 
 enum class Feature {
-    FULLSCREEN,
+    FULLSCREEN_LANDSCAPE,
     DYNAMIC_COLORS,
     VIBRATION,
     CODE_SCANNING,
@@ -60,8 +59,3 @@ expect val platformModule: Module
 expect val dataStoreModule: Module
 
 expect val viewModelModule: Module
-
-
-// Code scanning
-
-expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap

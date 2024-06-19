@@ -1,4 +1,4 @@
-package screens.scanner
+package ui.scanner
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,11 +40,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import config.ColorSchemeStyle
 import config.Feature
-import config.bitmapFromBytes
 import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import data.SharedData
+import data.bitmapFromBytes
 import data.compressAndEncrypt
 import data.hideAndClearFocus
 import data.serializeData
@@ -97,7 +97,7 @@ fun ShareCodeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.contentColor)
+                .background(colorScheme.backgroundColor)
                 .padding(
                     vertical = 16.dp,
                     horizontal = 16.dp
@@ -138,7 +138,7 @@ fun ShareCodeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.contentColor)
+                .background(colorScheme.backgroundColor)
                 .padding(
                     vertical = 16.dp,
                     horizontal = viewModel.platform.landscapeContentPadding

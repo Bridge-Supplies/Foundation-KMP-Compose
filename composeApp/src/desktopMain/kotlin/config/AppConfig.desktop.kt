@@ -3,8 +3,6 @@ package config
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
@@ -13,7 +11,6 @@ import bridge.supplies.foundation.BuildConfig
 import data.DataRepository
 import data.MainViewModel
 import data.dataStore
-import org.jetbrains.skia.Image
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -77,11 +74,4 @@ actual val viewModelModule = module {
 
 actual val dataStoreModule = module {
     single { DataRepository(dataStore()) }
-}
-
-
-// Code scanning
-
-actual fun bitmapFromBytes(bytes: ByteArray): ImageBitmap {
-    return Image.makeFromEncoded(bytes).toComposeImageBitmap()
 }

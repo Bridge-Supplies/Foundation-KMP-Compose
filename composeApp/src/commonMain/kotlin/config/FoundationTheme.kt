@@ -93,6 +93,8 @@ data class AppliedColorScheme(
     val onBackgroundColor: Color,
     val contentColor: Color,
     val onContentColor: Color,
+    val cardColor: Color,
+    val onCardColor: Color,
     val buttonColor: Color,
     val onButtonColor: Color
 )
@@ -103,10 +105,12 @@ fun getAppliedColorScheme(
 ): AppliedColorScheme = when (colorSchemeStyle) {
     ColorSchemeStyle.PRIMARY -> {
         AppliedColorScheme(
-            backgroundColor = MaterialTheme.colorScheme.background,
-            onBackgroundColor = MaterialTheme.colorScheme.onBackground,
+            backgroundColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            onBackgroundColor = MaterialTheme.colorScheme.onSurface,
             contentColor = MaterialTheme.colorScheme.surfaceContainer,
             onContentColor = MaterialTheme.colorScheme.onSurface,
+            cardColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            onCardColor = MaterialTheme.colorScheme.onSurface,
             buttonColor = MaterialTheme.colorScheme.primary,
             onButtonColor = MaterialTheme.colorScheme.onPrimary
         )
@@ -114,10 +118,12 @@ fun getAppliedColorScheme(
     
     ColorSchemeStyle.VARIANT -> {
         AppliedColorScheme(
-            backgroundColor = MaterialTheme.colorScheme.background,
-            onBackgroundColor = MaterialTheme.colorScheme.onBackground,
+            backgroundColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            onBackgroundColor = MaterialTheme.colorScheme.onSurface,
             contentColor = MaterialTheme.colorScheme.surfaceVariant,
             onContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            cardColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            onCardColor = MaterialTheme.colorScheme.onSurface,
             buttonColor = MaterialTheme.colorScheme.secondary,
             onButtonColor = MaterialTheme.colorScheme.onSecondary
         )

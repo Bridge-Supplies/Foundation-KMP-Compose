@@ -1,15 +1,12 @@
 package config
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -31,11 +28,11 @@ actual fun getPlatform() = object : Platform {
     override val name = "Android ${Build.VERSION.SDK_INT}"
     override val version = BuildConfig.APP_VERSION
     override val build = BuildConfig.APP_BUILD
-    override val landscapeContentPadding: Dp = 16.dp
+    override val landscapeContentPadding: Dp = 32.dp
     override val supportedFeatures: List<Feature>
         get() {
             val features = mutableListOf(
-                Feature.FULLSCREEN,
+                Feature.FULLSCREEN_LANDSCAPE,
                 Feature.VIBRATION,
                 Feature.CODE_SCANNING,
                 Feature.CODE_UPLOADING
@@ -131,11 +128,4 @@ actual val viewModelModule = module {
 
 actual val dataStoreModule = module {
     single { DataRepository(dataStore(get())) }
-}
-
-
-// Code scanning
-
-actual fun bitmapFromBytes(bytes: ByteArray): ImageBitmap {
-    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size).asImageBitmap()
 }

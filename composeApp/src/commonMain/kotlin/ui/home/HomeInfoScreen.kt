@@ -1,4 +1,4 @@
-package screens.home
+package ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,7 +46,7 @@ fun HomeInfoScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.contentColor)
+            .background(colorScheme.backgroundColor)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,

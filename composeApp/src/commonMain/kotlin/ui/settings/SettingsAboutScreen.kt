@@ -1,4 +1,4 @@
-package screens.home
+package ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -10,10 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -22,26 +18,23 @@ import config.ColorSchemeStyle
 import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
-import data.todaysDate
 import foundation.composeapp.generated.resources.Res
-import foundation.composeapp.generated.resources.app_about_elapsed_seconds
-import foundation.composeapp.generated.resources.app_about_today
+import foundation.composeapp.generated.resources.app_about_build
+import foundation.composeapp.generated.resources.app_about_version
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun HomeDateScreen(
+fun SettingsAboutScreen(
     viewModel: MainViewModel,
     onVibrate: () -> Unit
 ) {
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
-    val timer by viewModel.timer.collectAsState()
-    val todaysDate by remember { mutableStateOf(todaysDate()) }
     
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.contentColor)
+            .background(colorScheme.backgroundColor)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,
@@ -49,12 +42,12 @@ fun HomeDateScreen(
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val text = stringResource(Res.string.app_about_today, todaysDate) + "\n" +
-            stringResource(Res.string.app_about_elapsed_seconds, timer)
+        val text = stringResource(Res.string.app_about_version, viewModel.platform.version) + "\n" +
+            stringResource(Res.string.app_about_build, viewModel.platform.build)
         
         Text(
             style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Start,
             color = colorScheme.onContentColor,
             text = text,
             modifier = Modifier

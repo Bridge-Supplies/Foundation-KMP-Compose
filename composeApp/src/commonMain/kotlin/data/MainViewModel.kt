@@ -15,6 +15,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+
+sealed class ActiveBottomSheet {
+    data object None : ActiveBottomSheet()
+    
+    data class DatePicker(
+        var selectedDate: Long
+    ) : ActiveBottomSheet()
+}
 
 class MainViewModel(
     val platform: Platform,
@@ -35,6 +44,10 @@ class MainViewModel(
     var useEncryptedShare = _useEncryptedShare.asStateFlow()
         private set
     
+    private val _useFullscreenLandscape = MutableStateFlow(Prefs.FULLSCREEN_LANDSCAPE.defaultValue as Boolean)
+    var useFullscreenLandscape = _useFullscreenLandscape.asStateFlow()
+        private set
+    
     private val _useColorTheme = MutableStateFlow(Prefs.COLOR_THEME.defaultValue as ColorTheme)
     var useColorTheme = _useColorTheme.asStateFlow()
         private set
@@ -52,6 +65,14 @@ class MainViewModel(
         private set
     
     // SESSION
+    
+    private val _currentBottomSheet: MutableStateFlow<ActiveBottomSheet> = MutableStateFlow(ActiveBottomSheet.None)
+    var currentBottomSheet = _currentBottomSheet.asStateFlow()
+        private set
+    
+    private val _selectedDate = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
+    var selectedDate = _selectedDate.asStateFlow()
+        private set
     
     private val _sharedText = MutableStateFlow("")
     var sharedText = _sharedText.asStateFlow()
@@ -72,6 +93,12 @@ class MainViewModel(
         launch {
             repository.getEncryptedShareFlow().collectLatest {
                 _useEncryptedShare.value = it
+            }
+        }
+        
+        launch {
+            repository.getFullscreenLandscapeFlow().collectLatest {
+                _useFullscreenLandscape.value = it
             }
         }
         
@@ -122,6 +149,13 @@ class MainViewModel(
         }
     }
     
+    fun useFullscreenLandscape(enabled: Boolean) {
+        _useFullscreenLandscape.value = enabled
+        launch {
+            repository.setFullscreenLandscape(enabled)
+        }
+    }
+    
     fun useColorTheme(option: ColorTheme) {
         _useColorTheme.value = option
         launch {
@@ -150,6 +184,10 @@ class MainViewModel(
         }
     }
     
+    fun setSelectedDate(selectedDate: Long) {
+        _selectedDate.value = selectedDate
+    }
+    
     fun setSharedText(text: String) {
         _sharedText.value = text
     }
@@ -158,5 +196,19 @@ class MainViewModel(
         if (useVibration.value && supportsFeature(Feature.VIBRATION)) {
             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
+    }
+    
+    // BOTTOM SHEETS
+    
+    private fun setBottomSheet(sheet: ActiveBottomSheet) {
+        _currentBottomSheet.value = sheet
+    }
+    
+    fun hideBottomSheet() {
+        _currentBottomSheet.value = ActiveBottomSheet.None
+    }
+    
+    fun showDatePickerSheet(selectedDate: Long) {
+        setBottomSheet(ActiveBottomSheet.DatePicker(selectedDate))
     }
 }

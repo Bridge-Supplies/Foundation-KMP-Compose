@@ -6,7 +6,7 @@ import androidx.compose.ui.window.rememberWindowState
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
-import screens.App
+import ui.App
 import java.awt.Dimension
 
 class Foundation {

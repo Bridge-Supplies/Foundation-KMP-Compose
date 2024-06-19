@@ -1,4 +1,4 @@
-package screens.landing
+package ui.landing
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

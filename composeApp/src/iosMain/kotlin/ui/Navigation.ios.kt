@@ -1,8 +1,8 @@
-package screens
+package ui
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -15,19 +15,17 @@ actual fun BackHandler(
     enabled: Boolean,
     onBack: () -> Unit
 ) {
-    androidx.activity.compose.BackHandler(enabled, onBack)
+    // no-op
 }
 
-actual val TRANSITION_ENTER_MS = 300
-actual val TRANSITION_EXIT_MS = 200
-actual val TRANSITION_EASING = FastOutSlowInEasing
-actual val TRANSITION_OFFSET_DIV = 6
+actual val TRANSITION_ENTER_MS = 450
+actual val TRANSITION_EXIT_MS = 300
+actual val TRANSITION_EASING = LinearOutSlowInEasing
+actual val TRANSITION_OFFSET_DIV = 4
 
 actual fun ScreenEnterTransition(): EnterTransition =
-    fadeIn(
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    ) + slideInHorizontally(
-        initialOffsetX = { it / TRANSITION_OFFSET_DIV },
+    slideInHorizontally(
+        initialOffsetX = { it },
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     )
 
@@ -48,9 +46,7 @@ actual fun ScreenPopEnterTransition(): EnterTransition =
     )
 
 actual fun ScreenPopExitTransition(): ExitTransition =
-    fadeOut(
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    ) + slideOutHorizontally(
-        targetOffsetX = { it / TRANSITION_OFFSET_DIV },
+    slideOutHorizontally(
+        targetOffsetX = { it },
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     )
