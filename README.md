@@ -6,17 +6,16 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 
 ### Android
 
-https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5b-847d-4b10-a4ec-cfcffc35ed14
-
-<img width="200" alt="android_home" src="/demo/android_home_v1_1_0.png"><img width="200" alt="android_qr" src="/demo/android_share_v1_1_0.png"><img width="200" alt="android_settings" src="/demo/android_settings_v1_1_0.png">
+<img width="125" alt="android_home" src="/demo/Android/v1_1_7_pixel_8_1_home.png"> <img width="125" alt="android_qr" src="/demo/Android/v1_1_7_pixel_8_2_date.png"> <img width="125" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_3_share.png"> <img width="125" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_4_scan.png"> <img width="125" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_5_settings.png">
 
 ### iOS
-<img width="200" alt="ios_home" src="/demo/ios_home_v1_1_0.png"><img width="200" alt="ios_qr" src="/demo/ios_share_v1_1_0.png"><img width="200" alt="ios_settings" src="/demo/ios_settings_v1_1_0.png">
+<img width="125" alt="android_home" src="/demo/iOS/v1_1_7_iphone_15_1_home.png"> <img width="125" alt="android_qr" src="/demo/iOS/v1_1_7_iphone_15_2_date.png"> <img width="125" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_3_share.png"> <img width="125" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_4_scan.png"> <img width="125" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_5_settings.png">
 
 ### Desktop JVM
-<img width="600" alt="macos_home" src="/demo/macos_home_landscape_v1_1_0.png">
-<img width="600" alt="macos_qr" src="/demo/macos_share_landscape_v1_1_0.png">
-<img width="600" alt="macos_settings" src="/demo/macos_settings_landscape_v1_1_0.png">
+<img width="600" alt="macos_home" src="/demo/Desktop/v1_1_7_macos_1_home.png">
+<img width="600" alt="macos_qr" src="/demo/Desktop/v1_1_7_macos_2_date.png">
+<img width="600" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_3_share.png">
+<img width="600" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_5_settings.png">
 
 </br></br>
 
@@ -75,24 +74,26 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5
     - `DataStore.kt` and `DataRepository.kt` contain the `DataStore Preferences` `expect` implementation and wrapper
     - `FoundationTheme.kt` `expect`s a Theme definition for each platform
     - `MainViewModel.kt` contains the `ViewModel` and `DataStore` implementations injected with `Koin`
-    - `Navigation.kt` and `/screens` contain Composable definitions for each screen
+    - `Navigation.kt` and `/ui` contain Composable definitions for each screen
   - `/androidMain` is for Android-specific code.
     - `Foundation.android.kt` is the `Application` definition to initialize libraries (Koin)
     - `MainActivity.kt` displays the shared `App` Composable
-    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and screens
+    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
   - `/iosMain` is for iOS-specific code.
     - `MainViewController.kt` initializes libraries (Koin) and displays shared `App` Composable
-    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and screens
+    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
   - `/desktopMain` is for JVM-specific code.
     - `Foundation.desktop.kt` contains the `main()` class to initialize libraries (Koin) and display shared `App` Composable
-     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and screens
+     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
 * `/iosApp` contains the iOS Xcode project files.
   - `Config.xcconfig` declares iOS package and app name
   - `ContentView.swift` displays the `MainViewController`'s implementation of the shared `App` Composable
   - `iOSApp.swift` displays the `ContentView` as the `App` controller
   - `Info.plist` contains build definitions, permissions
+  - `project.pbxproj` contains build version information
 * `/gradle` contains shared Gradle package versions
-  - `libs.versions.toml` defines bulid info (package name, versionCode, versionName, supported Android SDKs) and package libraries
+  - `libs.versions.toml` defines build info (package name, versionCode, versionName, supported Android SDKs) and package libraries
+    - App build/version here applies to Android and Desktop, iOS must modify `project.pbxproj` manually
 
 
 ## Template cloning instructions
@@ -123,6 +124,7 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/eeda2d5
     - `Packaging` > `Product Name`: for app name ("Foundation_")
     - `Packaging` > `Product Bundle Identifier`: bundle ID
     - `General` > `Identity` > `Display Name`, `Bundle Identifier`, `Version`, `Build`
+    - Can also manually edit `project.pbxproj` to update build version information
 - Desktop
   - `libs.versions.toml`
     - `app-name`: display name on window
@@ -180,4 +182,3 @@ encryptionKey=dataTransferEncryptionKey
   - _TBD_
 - Desktop
   - _TBD_
-
