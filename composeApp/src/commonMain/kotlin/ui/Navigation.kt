@@ -30,7 +30,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -51,7 +50,6 @@ import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.navigation_back
-import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import ui.home.HomeDateScreen
 import ui.home.HomeInfoScreen
@@ -223,14 +221,11 @@ fun NavigationGraph(
                     onCloseApplication()
                 }
                 
-                LaunchedEffect(Unit) {
+                LandingScreen() {
                     isNavigatingTopLevel.value = true
-                    delay(1000)
                     navController.popBackStack()
                     selectNavigationTab(navController, NavigationTab.HOME)
                 }
-                
-                LandingScreen()
             }
         }
         
