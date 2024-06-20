@@ -155,7 +155,7 @@ android {
             resValue("string", "app_name", libs.versions.app.name.get() + " (Debug)")
             
             isMinifyEnabled = false
-            isDebuggable = false
+            isDebuggable = true
         }
     }
     
