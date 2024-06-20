@@ -2,20 +2,27 @@
 ## Presented by [Bridge Supplies](https://bridge.supplies)
 ### Active Development - W.I.P.
 
-This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
+This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 
 ### Android
 
-<img width="125" alt="android_home" src="/demo/Android/v1_1_7_pixel_8_1_home.png"> <img width="125" alt="android_qr" src="/demo/Android/v1_1_7_pixel_8_2_date.png"> <img width="125" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_3_share.png"> <img width="125" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_4_scan.png"> <img width="125" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_5_settings.png">
+<img width="150" alt="android_home" src="/demo/Android/v1_1_7_pixel_8_1_home.png"> <img width="150" alt="android_qr" src="/demo/Android/v1_1_7_pixel_8_2_date.png"> <img width="150" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_3_share.png"> <img width="150" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_4_scan.png"> <img width="150" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_5_settings.png">
+
+https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/dc8d9ef4-2d40-4b69-8a00-9aab8a5ff08d
 
 ### iOS
-<img width="125" alt="android_home" src="/demo/iOS/v1_1_7_iphone_15_1_home.png"> <img width="125" alt="android_qr" src="/demo/iOS/v1_1_7_iphone_15_2_date.png"> <img width="125" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_3_share.png"> <img width="125" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_4_scan.png"> <img width="125" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_5_settings.png">
+
+<img width="150" alt="android_home" src="/demo/iOS/v1_1_7_iphone_15_1_home.png"> <img width="150" alt="android_qr" src="/demo/iOS/v1_1_7_iphone_15_2_date.png"> <img width="150" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_3_share.png"> <img width="150" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_4_scan.png"> <img width="150" alt="android_settings" src="/demo/iOS/v1_1_7_iphone_15_5_settings.png">
+
+https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/2ca54262-2837-4800-a547-cb4b5a425787
 
 ### Desktop JVM
-<img width="600" alt="macos_home" src="/demo/Desktop/v1_1_7_macos_1_home.png">
-<img width="600" alt="macos_qr" src="/demo/Desktop/v1_1_7_macos_2_date.png">
-<img width="600" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_3_share.png">
-<img width="600" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_5_settings.png">
+
+<img width="375" alt="macos_home" src="/demo/Desktop/v1_1_7_macos_1_home.png"> <img width="375" alt="macos_qr" src="/demo/Desktop/v1_1_7_macos_2_date.png">
+</br>
+<img width="375" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_3_share.png"> <img width="375" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_5_settings.png">
+
+https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/dcfb58c6-bb92-40a0-9313-5aead5d68e21
 
 </br></br>
 
@@ -29,7 +36,8 @@ This is a biased [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
   - Android/iOS can scan and import codes
   - All platforms can generate codes
   - Encryption and compression support
-- Utilities for orientation, build configurations, and theme settings
+- Utilities for orientation, build configurations, and customizable theming
+- Platform-specific screen transition animations
 
 
 ## Multiplatform libraries
