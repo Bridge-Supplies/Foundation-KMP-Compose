@@ -4,6 +4,19 @@
 
 This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 
+## Features
+- Material You theming
+- Nested, multiple-backstack navigation
+  - Adaptive BottomBar and NavigationRail
+  - TopAppBar back button handling
+- Easily share information between apps offline via QR codes
+  - Android/iOS can scan and import codes
+  - All platforms can generate codes
+  - Encryption and compression support
+- Utilities for orientation, build configurations, and customizable theming
+- Platform-specific screen transition animations
+
+## Screenshots
 ### Android
 
 <img width="150" alt="android_home" src="/demo/Android/v1_1_7_pixel_8_1_home.png"> <img width="150" alt="android_qr" src="/demo/Android/v1_1_7_pixel_8_2_date.png"> <img width="150" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_3_share.png"> <img width="150" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_4_scan.png"> <img width="150" alt="android_settings" src="/demo/Android/v1_1_7_pixel_8_5_settings.png">
@@ -23,22 +36,6 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/2ca5426
 <img width="375" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_3_share.png"> <img width="375" alt="macos_settings" src="/demo/Desktop/v1_1_7_macos_5_settings.png">
 
 https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/dcfb58c6-bb92-40a0-9313-5aead5d68e21
-
-</br></br>
-
-
-## Features
-- Material You theming
-- Nested, multiple-backstack navigation
-  - Adaptive BottomBar and NavigationRail
-  - TopAppBar back button handling
-- Easily share information between apps offline via QR codes
-  - Android/iOS can scan and import codes
-  - All platforms can generate codes
-  - Encryption and compression support
-- Utilities for orientation, build configurations, and customizable theming
-- Platform-specific screen transition animations
-
 
 ## Multiplatform libraries
 
