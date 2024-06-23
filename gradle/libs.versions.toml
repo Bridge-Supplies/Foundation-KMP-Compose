@@ -12,7 +12,7 @@ android-minSdk = "28"
 android-targetSdk = "34"
 android-compileSdk = "34"
 #packages
-agp = "8.2.2"
+agp = "8.3.2"
 junit = "4.13.2"
 androidx-core-ktx = "1.13.1"
 androidx-activity-compose = "1.9.0"
