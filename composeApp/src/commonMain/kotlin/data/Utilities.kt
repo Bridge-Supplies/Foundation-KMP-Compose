@@ -39,3 +39,5 @@ fun getDateDisplayString(
 }
 
 expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap
+
+expect fun randomUuid(): String
