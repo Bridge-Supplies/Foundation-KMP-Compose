@@ -95,7 +95,7 @@ private class CircularRevealShape(
             Path().apply {
                 val startingOffset = offset ?: Offset(size.width / 2f, size.height / 2f)
                 // end result slightly larger than full screen
-                val revealRadius = max(size.width, size.height) * progress * 0.55f
+                val revealRadius = max(size.width, size.height) * progress * 0.7f
                 
                 addOval(
                     Rect(
