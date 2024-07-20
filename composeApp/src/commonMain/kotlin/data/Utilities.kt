@@ -7,9 +7,10 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.todayIn
 import org.koin.compose.currentKoinScope
 
 @Composable
@@ -27,17 +28,24 @@ fun SoftwareKeyboardController?.hideAndClearFocus(focusManager: FocusManager?) {
     focusManager?.clearFocus()
 }
 
-fun getDateDisplayString(
-    now: Instant = Clock.System.now(),
-    zone: TimeZone = TimeZone.currentSystemDefault()
-): String {
-    val localDateTime = now.toLocalDateTime(zone)
-    val month = localDateTime.month.name.lowercase().replaceFirstChar { it.uppercase() }
-    val day = localDateTime.dayOfMonth
-    val year = localDateTime.year
-    return "$month $day, $year"
-}
-
 expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap
 
 expect fun randomUuid(): String
+
+fun getDateDisplay(
+    date: LocalDate
+): String {
+    val month = date.month.name.lowercase().replaceFirstChar { it.uppercase() }
+    val day = date.dayOfMonth
+    val year = date.year
+    return "$month $day, $year"
+}
+
+fun getTodayDate(): LocalDate {
+    return Clock.System.todayIn(TimeZone.currentSystemDefault())
+}
+
+fun getTodayUtcMs(): Long {
+    val today = getTodayDate()
+    return today.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
+}

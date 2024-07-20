@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import config.AppliedColorScheme
 import config.PlatformType
 import data.MainViewModel
+import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.navigation_close
 import foundation.composeapp.generated.resources.navigation_confirm
@@ -32,7 +33,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +102,7 @@ fun DatePickerBottomSheet(
     viewModel: MainViewModel,
     coroutineScope: CoroutineScope,
     colorScheme: AppliedColorScheme,
-    selectedDate: Long = Clock.System.now().toEpochMilliseconds(),
+    selectedDate: Long = getTodayUtcMs(),
     onVibrate: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(true)

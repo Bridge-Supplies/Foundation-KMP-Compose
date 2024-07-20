@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 
 sealed class ActiveBottomSheet {
     data object None : ActiveBottomSheet()
@@ -70,7 +69,7 @@ class MainViewModel(
     var currentBottomSheet = _currentBottomSheet.asStateFlow()
         private set
     
-    private val _selectedDate = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
+    private val _selectedDate = MutableStateFlow(getTodayUtcMs())
     var selectedDate = _selectedDate.asStateFlow()
         private set
     
