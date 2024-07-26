@@ -36,6 +36,7 @@ import config.Palette
 import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
+import data.systemAppSettings
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_settings_encryption_subtitle
 import foundation.composeapp.generated.resources.app_settings_encryption_title
@@ -54,6 +55,8 @@ import foundation.composeapp.generated.resources.theme_settings_title
 import foundation.composeapp.generated.resources.theme_settings_vibration_subtitle
 import foundation.composeapp.generated.resources.theme_settings_vibration_title
 import org.jetbrains.compose.resources.stringResource
+import ui.AppBarAction
+import ui.Screen
 
 @Composable
 fun SettingsOptionsScreen(
@@ -69,6 +72,21 @@ fun SettingsOptionsScreen(
     val usePalette by viewModel.usePalette.collectAsState()
     val useDarkMode by viewModel.useDarkMode.collectAsState()
     val useVibration by viewModel.useVibration.collectAsState()
+    val appBarAction by viewModel.activeAppBarAction.collectAsState()
+    
+    Screen.SETTINGS_OPTIONS.actions.forEach { action ->
+        if (appBarAction == action) {
+            when (action) {
+                AppBarAction.SETTINGS -> {
+                    systemAppSettings()
+                    viewModel.consumeAppBarAction()
+                    onVibrate()
+                }
+                
+                else -> {}
+            }
+        }
+    }
     
     Column(
         modifier = Modifier

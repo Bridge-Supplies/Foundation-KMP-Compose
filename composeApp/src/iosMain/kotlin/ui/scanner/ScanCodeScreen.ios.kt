@@ -1,5 +1,6 @@
 package ui.scanner
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import foundation.composeapp.generated.resources.camera_flash_button_text
 import foundation.composeapp.generated.resources.import_button_text
 import org.jetbrains.compose.resources.stringResource
 import qrscanner.QrScanner
+import ui.CircularReveal
 
 @Composable
 actual fun CodeScannerLayout(
@@ -43,24 +45,36 @@ actual fun CodeScannerLayout(
     var flashlightOn by remember { mutableStateOf(false) }
     var launchGallery by remember { mutableStateOf(false) }
     
+    val shape = RoundedCornerShape(size = 12.dp)
+    
     Column(
         modifier = modifier
     ) {
-        QrScanner(
+        CircularReveal(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
                 .weight(1f)
                 .clipToBounds()
-                .clip(shape = RoundedCornerShape(size = 12.dp)),
-            flashlightOn = flashlightOn,
-            launchGallery = launchGallery,
-            onCompletion = onCompletion,
-            onGalleryCallBackHandler = {
-                launchGallery = it
-            },
-            onFailure = onFailure
-        )
+                .clip(shape = shape)
+                .background(colorScheme.cardColor),
+            startDelayMs = 500,
+            revealDurationMs = 800
+        ) {
+            QrScanner(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(6.dp)
+                    .clipToBounds()
+                    .clip(shape = shape),
+                flashlightOn = flashlightOn,
+                launchGallery = launchGallery,
+                onCompletion = onCompletion,
+                onGalleryCallBackHandler = {
+                    launchGallery = it
+                },
+                onFailure = onFailure
+            )
+        }
         
         Row(
             modifier = Modifier

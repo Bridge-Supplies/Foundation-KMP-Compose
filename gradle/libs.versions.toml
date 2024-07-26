@@ -6,23 +6,23 @@ app-copyright = "© 2024 Bridge Supplies. All rights reserved."
 app-vendor = "Bridge Supplies"
 app-packageName = "bridge.supplies.foundation"
 app-mainName = ".Foundation"
-app-versionName = "1.1.7" # "Version"
-app-versionCode = "202406200" # "Build"
+app-versionName = "1.1.8" # "Version"
+app-versionCode = "202407250" # "Build"
 android-minSdk = "28"
 android-targetSdk = "34"
 android-compileSdk = "34"
 #packages
-agp = "8.2.2"
+agp = "8.3.2"
 junit = "4.13.2"
 androidx-core-ktx = "1.13.1"
-androidx-activity-compose = "1.9.0"
+androidx-activity-compose = "1.9.1"
 compose = "1.6.8"
 compose-plugin = "1.6.10"
 kotlin = "2.0.0"
 kotlinx-datetime = "0.6.0"
 kotlinx-coroutines = "1.9.0-RC"
 kotlinx-serialization-json = "1.6.3"
-lifecycle-viewmodel = "2.8.2"
+lifecycle-viewmodel = "2.8.4"
 koin = "3.6.0-alpha3"
 koin-compose = "3.6.0-alpha3"
 koin-compose-multiplatform = "1.2.0-alpha3"
@@ -34,6 +34,7 @@ buildconfig = "5.3.5"
 korlibs-krypto = "4.0.10"
 korlibs-compression = "6.0.0-alpha2"
 material-kolor = "1.7.0"
+license-report = "2.8"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -69,3 +70,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gmazzo-buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
+jk1-license-report = { id = "com.github.jk1.dependency-license-report", version.ref = "license-report" }

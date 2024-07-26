@@ -26,15 +26,16 @@ import config.ColorSchemeStyle
 import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
-import data.getDateDisplayString
+import data.getDateDisplay
+import data.getTodayDate
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_date_elapsed_seconds
 import foundation.composeapp.generated.resources.app_date_selected
 import foundation.composeapp.generated.resources.app_date_today
 import foundation.composeapp.generated.resources.navigation_home_date_select
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -45,14 +46,13 @@ fun HomeDateScreen(
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val timer by viewModel.timer.collectAsState()
-    val now = Clock.System.now()
-    val todaysDate by remember(now) { mutableStateOf(getDateDisplayString(now)) }
+    val now = getTodayDate()
+    val todaysDate by remember(now) { mutableStateOf(getDateDisplay(now)) }
     val selectedDate by viewModel.selectedDate.collectAsState()
     val selectedDateDisplay by remember(selectedDate) {
         derivedStateOf {
-            getDateDisplayString(
-                now = Instant.fromEpochMilliseconds(selectedDate),
-                zone = TimeZone.UTC
+            getDateDisplay(
+                Instant.fromEpochMilliseconds(selectedDate).toLocalDateTime(TimeZone.UTC).date
             )
         }
     }

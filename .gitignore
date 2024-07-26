@@ -38,3 +38,4 @@ google-services.json
 keystore.properties
 *.preferences_pb
 /.kotlin
+composeApp/src/commonMain/composeResources/files/json/licenses.json

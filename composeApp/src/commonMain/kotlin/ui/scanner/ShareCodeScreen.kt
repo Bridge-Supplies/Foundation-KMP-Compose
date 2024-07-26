@@ -52,6 +52,7 @@ import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.generate_qr_code_encrypted_text
 import foundation.composeapp.generated.resources.generate_qr_code_text
 import foundation.composeapp.generated.resources.scanner_button_text
+import foundation.composeapp.generated.resources.share_button_text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -67,7 +68,7 @@ fun ShareCodeScreen(
     onVibrate: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.VARIANT)
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -93,6 +94,11 @@ fun ShareCodeScreen(
         }
     }
     
+    val onShareApp = {
+        onVibrate()
+        viewModel.showShareSheet()
+    }
+    
     if (isPortraitMode) {
         Column(
             modifier = Modifier
@@ -106,14 +112,13 @@ fun ShareCodeScreen(
         ) {
             CodeDisplay(
                 modifier = Modifier
-                    .weight(2.2f)
+                    .weight(1f)
                     .wrapContentHeight()
                     .padding(bottom = 8.dp)
                     .clickable {
                         keyboardController.hideAndClearFocus(focusManager)
                     },
                 text = processedText ?: "",
-                isPortraitMode = isPortraitMode,
                 color = colorScheme.buttonColor,
                 backgroundColor = colorScheme.onButtonColor,
                 cardColor = colorScheme.onContentColor
@@ -121,13 +126,14 @@ fun ShareCodeScreen(
             
             CodeReader(
                 modifier = Modifier
-                    .weight(1f),
+                    .wrapContentHeight(),
                 text = liveText,
                 supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
                 encryptionEnabled = useEncryptedShare,
                 setSharedText = {
                     viewModel.setSharedText(it)
                 },
+                onShareApp = onShareApp,
                 onClickScanner = {
                     onVibrate()
                     onNavigateToScanner()
@@ -145,35 +151,35 @@ fun ShareCodeScreen(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CodeDisplay(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
-                    .wrapContentWidth()
-                    .clickable {
-                        keyboardController.hideAndClearFocus(focusManager)
-                    },
-                text = processedText ?: "",
-                isPortraitMode = isPortraitMode,
-                color = colorScheme.buttonColor,
-                backgroundColor = colorScheme.onButtonColor,
-                cardColor = colorScheme.onContentColor
-            )
-            
             CodeReader(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 8.dp),
+                    .padding(end = 8.dp),
                 text = liveText,
                 supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
                 encryptionEnabled = useEncryptedShare,
                 setSharedText = {
                     viewModel.setSharedText(it)
                 },
+                onShareApp = onShareApp,
                 onClickScanner = {
                     onVibrate()
                     onNavigateToScanner()
                 }
+            )
+            
+            CodeDisplay(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
+                    .wrapContentWidth()
+                    .clickable {
+                        keyboardController.hideAndClearFocus(focusManager)
+                    },
+                text = processedText ?: "",
+                color = colorScheme.buttonColor,
+                backgroundColor = colorScheme.onButtonColor,
+                cardColor = colorScheme.onContentColor
             )
         }
     }
@@ -183,7 +189,6 @@ fun ShareCodeScreen(
 fun CodeDisplay(
     modifier: Modifier,
     text: String,
-    isPortraitMode: Boolean,
     color: Color,
     backgroundColor: Color,
     cardColor: Color
@@ -223,9 +228,10 @@ fun CodeReader(
     encryptionEnabled: Boolean,
     supportsScanning: Boolean,
     setSharedText: (String) -> Unit,
+    onShareApp: () -> Unit,
     onClickScanner: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.VARIANT)
+    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     
     Column(
         modifier = modifier
@@ -234,9 +240,10 @@ fun CodeReader(
         val focusManager = LocalFocusManager.current
         
         OutlinedTextField(
+            minLines = 4,
+            maxLines = 4,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .padding(bottom = if (supportsScanning) 8.dp else 0.dp),
             value = text,
             label = {
@@ -263,20 +270,41 @@ fun CodeReader(
             )
         )
         
-        if (supportsScanning) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
             Button(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
+                    .weight(1f)
+                    .padding(end = if (supportsScanning) 4.dp else 0.dp),
                 onClick = {
-                    onClickScanner()
+                    onShareApp()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.buttonColor,
                     contentColor = colorScheme.onButtonColor
                 )
             ) {
-                Text(stringResource(Res.string.scanner_button_text))
+                Text(stringResource(Res.string.share_button_text))
+            }
+            
+            if (supportsScanning) {
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    onClick = {
+                        onClickScanner()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorScheme.buttonColor,
+                        contentColor = colorScheme.onButtonColor
+                    )
+                ) {
+                    Text(stringResource(Res.string.scanner_button_text))
+                }
             }
         }
     }

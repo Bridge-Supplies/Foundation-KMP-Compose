@@ -1,19 +1,33 @@
 <resources>
-    <!-- Overwritten by Gradle -->
+    <string name="developer_name">Presented by Bridge Supplies</string>
+    <!-- Version information overwritten by Gradle -->
     <string name="app_name">Foundation</string>
-    <string name="app_version">1.0.0</string>
-    <string name="app_build">202401010</string>
+    <string name="app_version"></string>
+    <string name="app_build"></string>
 
     <string name="app_about_platform">Platform: %1$s</string>
     <string name="app_about_orientation">Orientation: %1$s</string>
     <string name="app_date_elapsed_seconds">Elapsed seconds: %1$s</string>
     <string name="app_date_today">Today's date: %1$s</string>
     <string name="app_date_selected">Selected date: %1$s</string>
-    <string name="app_about_build">App version: %1$s</string>
-    <string name="app_about_version">App build: %1$s</string>
+    <string name="app_about_build">Version: %1$s</string>
+    <string name="app_about_version">Build: %1$s</string>
+
+    <string name="tab_home_title">Home</string>
+    <string name="tab_share_title">Share</string>
+    <string name="tab_settings_title">Settings</string>
+    <string name="screen_landing_title">Landing</string>
+    <string name="screen_home_info_title">Info</string>
+    <string name="screen_home_date_title">Date</string>
+    <string name="screen_generate_code_title">Share Code</string>
+    <string name="screen_scan_code_title">Scanner</string>
+    <string name="screen_options_title">Options</string>
+    <string name="screen_about_title">About</string>
 
     <string name="generate_qr_code_text">Text to share</string>
     <string name="generate_qr_code_encrypted_text">Encrypted text to share</string>
+    <string name="share_button_text">Share app</string>
+    <string name="share_sheet_copy_text">Copy to clipboard</string>
     <string name="scanner_button_text">Scan code</string>
     <string name="generate_button_text">Generate code</string>
     <string name="import_button_text">Import code</string>
@@ -48,6 +62,9 @@
     <string name="theme_settings_palette_neutral">Neutral</string>
     <string name="theme_settings_palette_tonal">Tonal</string>
     <string name="theme_settings_palette_vibrant">Vibrant</string>
+    <string name="settings_about_app_title">Application</string>
+    <string name="settings_about_licenses_title">Licenses</string>
+    <string name="settings_about_licenses_unknown">Unknown</string>
 
     <string name="navigation_home_date">Date selector</string>
     <string name="navigation_home_date_select">Select a date</string>
@@ -56,5 +73,7 @@
     <string name="navigation_close">Close</string>
     <string name="navigation_confirm">Confirm</string>
     <string name="navigation_cancel">Cancel</string>
+
+    <string name="action_settings">System settings</string>
 
 </resources>

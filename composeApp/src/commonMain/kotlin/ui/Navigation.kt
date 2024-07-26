@@ -7,8 +7,10 @@ import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
@@ -36,11 +38,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import config.ColorSchemeStyle
 import config.PlatformType
@@ -50,6 +55,17 @@ import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.navigation_back
+import foundation.composeapp.generated.resources.screen_about_title
+import foundation.composeapp.generated.resources.screen_generate_code_title
+import foundation.composeapp.generated.resources.screen_home_date_title
+import foundation.composeapp.generated.resources.screen_home_info_title
+import foundation.composeapp.generated.resources.screen_landing_title
+import foundation.composeapp.generated.resources.screen_options_title
+import foundation.composeapp.generated.resources.screen_scan_code_title
+import foundation.composeapp.generated.resources.tab_home_title
+import foundation.composeapp.generated.resources.tab_settings_title
+import foundation.composeapp.generated.resources.tab_share_title
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import ui.home.HomeDateScreen
 import ui.home.HomeInfoScreen
@@ -62,7 +78,7 @@ import ui.settings.SettingsOptionsScreen
 // SCREENS
 
 enum class NavigationTab(
-    val title: String,
+    val titleRes: StringResource,
     val route: String,
     val icon: ImageVector,
     val filled: ImageVector,
@@ -70,7 +86,7 @@ enum class NavigationTab(
     val screens: List<Screen>
 ) {
     HOME(
-        "Home",
+        Res.string.tab_home_title,
         "home",
         Icons.Outlined.Home,
         Icons.Filled.Home,
@@ -82,7 +98,7 @@ enum class NavigationTab(
     ),
     
     SHARE(
-        "Share",
+        Res.string.tab_share_title,
         "share",
         Icons.Outlined.QrCode,
         Icons.Filled.QrCode,
@@ -94,7 +110,7 @@ enum class NavigationTab(
     ),
     
     SETTINGS(
-        "Settings",
+        Res.string.tab_settings_title,
         "settings",
         Icons.Outlined.Settings,
         Icons.Filled.Settings,
@@ -107,45 +123,75 @@ enum class NavigationTab(
 }
 
 enum class Screen(
-    val title: String,
-    val route: String
+    val titleRes: StringResource,
+    val route: String,
+    val arg: NavArgument? = null,
+    val actions: List<AppBarAction>
 ) {
     // LANDING
     LANDING(
-        "Landing",
-        "landing"
+        Res.string.screen_landing_title,
+        "landing",
+        null,
+        emptyList()
     ),
     
     // HOME
     HOME_INFO(
-        "Info",
-        "home_info"
+        Res.string.screen_home_info_title,
+        "home_info",
+        null,
+        emptyList()
     ),
     HOME_DATE(
-        "Date",
-        "home_date"
+        Res.string.screen_home_date_title,
+        "home_date",
+        null,
+        emptyList()
     ),
     
     // SHARE
     SHARE_GENERATE(
-        "Generate Code",
-        "share_generate"
+        Res.string.screen_generate_code_title,
+        "share_generate",
+        null,
+        emptyList()
     ),
     SHARE_SCAN(
-        "Scan Code",
-        "share_scan"
+        Res.string.screen_scan_code_title,
+        "share_scan",
+        null,
+        emptyList()
     ),
     
     // SETTINGS
     SETTINGS_OPTIONS(
-        "Options",
-        "settings_options"
+        Res.string.screen_options_title,
+        "settings_options",
+        null,
+        listOf(AppBarAction.SETTINGS)
     ),
     SETTINGS_ABOUT(
-        "About",
-        "settings_about"
-    )
+        Res.string.screen_about_title,
+        "settings_about",
+        null,
+        emptyList()
+    );
+    
+    fun getNavRoute(): String {
+        return route + (arg?.key?.let { "/{$it}" } ?: "")
+    }
 }
+
+enum class NavArgument(
+    val key: String,
+    val type: NavType<*>
+) {
+    USER_ID("userId", NavType.StringType)
+}
+
+fun arg(argument: NavArgument): NamedNavArgument =
+    navArgument(argument.key) { type = argument.type }
 
 
 // COMPOSABLES
@@ -343,9 +389,32 @@ fun NavigationGraph(
     }
 }
 
+@Composable
+fun TopAppBarAction(
+    isVisible: Boolean,
+    appBarAction: AppBarAction,
+    onAction: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        modifier = Modifier
+            .wrapContentWidth()
+            .fillMaxHeight()
+    ) {
+        IconButton(
+            onClick = {
+                onAction()
+            }
+        ) {
+            Icon(appBarAction.icon, contentDescription = stringResource(appBarAction.labelRes))
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
+    viewModel: MainViewModel,
     currentlySelectedTab: NavigationTab?,
     currentScreen: Screen?,
     canNavigateBack: Boolean,
@@ -353,16 +422,26 @@ fun TopBar(
 ) {
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val platform = remember { getPlatform() }
-    val appName = stringResource(Res.string.app_name)
     val title = remember(currentScreen) {
         when {
             currentlySelectedTab != null && currentScreen != null && currentlySelectedTab.startDestination != currentScreen ->
-                currentScreen.title
+                currentScreen.titleRes
             
             currentlySelectedTab != null ->
-                currentlySelectedTab.title
+                currentlySelectedTab.titleRes
             
-            else -> appName
+            else -> Res.string.app_name
+        }
+    }
+    
+    val actions: @Composable() (RowScope.() -> Unit) = {
+        AppBarAction.entries.forEach { appBarAction ->
+            TopAppBarAction(
+                isVisible = currentScreen?.actions?.contains(appBarAction) ?: false,
+                appBarAction = appBarAction
+            ) {
+                viewModel.startAppBarAction(appBarAction)
+            }
         }
     }
     
@@ -370,25 +449,27 @@ fun TopBar(
         TopAppBar(
             title = {
                 TopBarText(
-                    text = title,
+                    text = stringResource(title),
                     textColor = colorScheme.onContentColor
                 )
             },
             navigationIcon = {
                 TopBarNavIcon(canNavigateBack, onNavigateBack)
-            }
+            },
+            actions = actions
         )
     } else {
         CenterAlignedTopAppBar(
             title = {
                 TopBarText(
-                    text = title,
+                    text = stringResource(title),
                     textColor = colorScheme.onContentColor
                 )
             },
             navigationIcon = {
                 TopBarNavIcon(canNavigateBack, onNavigateBack)
-            }
+            },
+            actions = actions
         )
     }
 }
@@ -445,10 +526,10 @@ fun SideNavigationRail(
                 icon = {
                     Icon(
                         imageVector = if (selected) item.filled else item.icon,
-                        contentDescription = item.title
+                        contentDescription = stringResource(item.titleRes)
                     )
                 },
-                label = { Text(item.title) },
+                label = { Text(stringResource(item.titleRes)) },
                 selected = selected,
                 onClick = {
                     onSelectNavigationTab(item)
@@ -475,10 +556,10 @@ fun BottomNavigationBar(
                 icon = {
                     Icon(
                         imageVector = if (selected) item.filled else item.icon,
-                        contentDescription = item.title
+                        contentDescription = stringResource(item.titleRes)
                     )
                 },
-                label = { Text(item.title) },
+                label = { Text(stringResource(item.titleRes)) },
                 selected = selected,
                 onClick = {
                     onSelectNavigationTab(item)

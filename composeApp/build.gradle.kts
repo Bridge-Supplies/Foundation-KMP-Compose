@@ -1,3 +1,4 @@
+import com.github.jk1.license.render.JsonReportRenderer
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import java.io.FileInputStream
@@ -10,6 +11,29 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.gmazzo.buildconfig)
+    alias(libs.plugins.jk1.license.report)
+}
+
+licenseReport {
+    renderers = arrayOf(
+        JsonReportRenderer("licenses.json")
+    )
+    outputDir = "${project.layout.projectDirectory}/reports/licenses"
+}
+
+tasks.register("prepareLicenseReport") {
+    dependsOn("generateLicenseReport")
+    doLast {
+        copy {
+            from("${project.layout.projectDirectory}/reports/licenses/licenses.json")
+            into("src/commonMain/composeResources/files/json")
+        }
+        delete("${project.layout.projectDirectory}/reports")
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn("prepareLicenseReport")
 }
 
 fun getKeystoreProperties(): Properties {

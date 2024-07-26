@@ -40,6 +40,7 @@ import data.MainViewModel
 import data.koinViewModel
 import org.koin.compose.KoinContext
 import ui.sheets.DatePickerBottomSheet
+import ui.sheets.ShareAppBottomSheet
 
 @Composable
 fun App(
@@ -122,6 +123,7 @@ fun MainScaffold(
                     .fillMaxWidth()
             ) {
                 TopBar(
+                    viewModel = viewModel,
                     currentlySelectedTab = currentlySelectedTab,
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
@@ -206,6 +208,16 @@ fun MainScaffold(
                     coroutineScope = coroutineScope,
                     colorScheme = colorScheme,
                     selectedDate = sheetData.selectedDate,
+                    onVibrate = onVibrate
+                )
+            }
+            
+            is ActiveBottomSheet.ShareApp -> {
+                val sheetData = (currentBottomSheet as ActiveBottomSheet.ShareApp)
+                ShareAppBottomSheet(
+                    viewModel = viewModel,
+                    coroutineScope = coroutineScope,
+                    colorScheme = colorScheme,
                     onVibrate = onVibrate
                 )
             }

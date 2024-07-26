@@ -20,11 +20,11 @@ data class SharedData(
     @SerialName("m") val message: String
 )
 
-fun serializeData(data: SharedData): String =
+inline fun <reified T> serializeData(data: T): String =
     Json.encodeToString(data)
 
-fun deserializeData(json: String): SharedData? = try {
-    Json.decodeFromString<SharedData>(json)
+inline fun <reified T> deserializeData(json: String): T? = try {
+    Json.decodeFromString<T>(json)
 } catch (e: Exception) {
     null
 }
@@ -52,7 +52,7 @@ fun String.decryptAndUncompress(): SharedData? {
         val decryptedBytes = AES.decryptAesCbc(Hex.decode(this), key, key, Padding.PKCS7Padding)
         val uncompressedBytes = GZIP.uncompress(decryptedBytes)
         val jsonString = uncompressedBytes.toString(UTF8)
-        val data = deserializeData(jsonString)
+        val data = deserializeData<SharedData>(jsonString)
         data
     } catch (e: Exception) {
         null
@@ -63,7 +63,7 @@ fun String.decryptAndUncompress(): SharedData? {
     } else {
         // attempt to parse from plaintext
         return try {
-            deserializeData(this)
+            deserializeData<SharedData>(this)
         } catch (e: Exception) {
             null
         }
