@@ -32,6 +32,10 @@ expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap
 
 expect fun randomUuid(): String
 
+expect fun browseWeb(url: String): Boolean
+
+expect fun systemAppSettings()
+
 fun getDateDisplay(
     date: LocalDate
 ): String {

@@ -22,6 +22,7 @@ actual fun getPlatform() = object : Platform {
     override val name = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
     override val version = platform.Foundation.NSBundle.mainBundle.infoDictionary?.get("CFBundleShortVersionString") as? String ?: ""
     override val build = platform.Foundation.NSBundle.mainBundle.infoDictionary?.get("CFBundleVersion") as? String ?: ""
+    override val shareUrl = "https://github.com/Bridge-Supplies/Foundation-KMP-Compose"
     override val landscapeContentPadding: Dp = 64.dp
     override val supportedFeatures = listOf(
         Feature.VIBRATION,

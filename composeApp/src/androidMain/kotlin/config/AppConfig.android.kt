@@ -28,6 +28,7 @@ actual fun getPlatform() = object : Platform {
     override val name = "Android ${Build.VERSION.SDK_INT}"
     override val version = BuildConfig.APP_VERSION
     override val build = BuildConfig.APP_BUILD
+    override val shareUrl = "https://github.com/Bridge-Supplies/Foundation-KMP-Compose"
     override val landscapeContentPadding: Dp = 32.dp
     override val supportedFeatures: List<Feature>
         get() {

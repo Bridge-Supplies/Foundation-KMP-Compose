@@ -25,6 +25,7 @@ interface Platform {
     val name: String
     val version: String // ex: 1.0.0
     val build: String // ex: 202401010
+    val shareUrl: String
     val landscapeContentPadding: Dp
     val supportedFeatures: List<Feature>
     

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import ui.AppBarAction
 
 sealed class ActiveBottomSheet {
     data object None : ActiveBottomSheet()
@@ -22,6 +23,8 @@ sealed class ActiveBottomSheet {
     data class DatePicker(
         var selectedDate: Long
     ) : ActiveBottomSheet()
+    
+    data object ShareApp : ActiveBottomSheet()
 }
 
 class MainViewModel(
@@ -37,7 +40,11 @@ class MainViewModel(
     }
     
     
-    // SETTINGS
+    // FOUNDATION
+    
+    private val _licenses = MutableStateFlow(LicenseMap())
+    var licenses = _licenses.asStateFlow()
+        private set
     
     private val _useEncryptedShare = MutableStateFlow(Prefs.ENCRYPTED_SHARE.defaultValue as Boolean)
     var useEncryptedShare = _useEncryptedShare.asStateFlow()
@@ -80,8 +87,10 @@ class MainViewModel(
     private val _timer = MutableStateFlow(0)
     val timer = _timer.asStateFlow()
     
+    private val _activeAppBarAction = MutableStateFlow<AppBarAction?>(null)
+    var activeAppBarAction = _activeAppBarAction.asStateFlow()
+        private set
     
-    // SETUP
     
     init {
         launchFlows()
@@ -89,6 +98,23 @@ class MainViewModel(
     }
     
     private fun launchFlows() {
+        
+        // FOUNDATION
+        
+        launch {
+            _licenses.value = LicenseMap(
+                loadLicenseFile().licenses
+                    .sortedBy {
+                        it.moduleName
+                    }
+                    .groupBy {
+                        it.moduleLicenseUrl
+                            .replaceFirst(oldValue = "https://", newValue = "")
+                            .replaceFirst(oldValue = "http://", newValue = "")
+                    }
+            )
+        }
+        
         launch {
             repository.getEncryptedShareFlow().collectLatest {
                 _useEncryptedShare.value = it
@@ -209,5 +235,19 @@ class MainViewModel(
     
     fun showDatePickerSheet(selectedDate: Long) {
         setBottomSheet(ActiveBottomSheet.DatePicker(selectedDate))
+    }
+    
+    fun showShareSheet() {
+        setBottomSheet(ActiveBottomSheet.ShareApp)
+    }
+    
+    // APP BAR ACTIONS
+    
+    fun startAppBarAction(action: AppBarAction) {
+        _activeAppBarAction.value = action
+    }
+    
+    fun consumeAppBarAction() {
+        _activeAppBarAction.value = null
     }
 }

@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -37,12 +39,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.action_settings
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.StringResource
 import kotlin.math.max
+
+enum class AppBarAction(
+    val labelRes: StringResource,
+    val icon: ImageVector
+) {
+    SETTINGS(
+        Res.string.action_settings,
+        Icons.Default.Settings
+    )
+}
+
 
 // Adapted for multiplatform from: https://dev.to/bmonjoie/jetpack-compose-reveal-effect-1fao
 
