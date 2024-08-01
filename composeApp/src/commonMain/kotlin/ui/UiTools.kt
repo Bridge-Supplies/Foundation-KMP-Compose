@@ -14,12 +14,19 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -40,10 +47,17 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import config.AppliedColorScheme
+import data.hideAndClearFocus
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.action_settings
 import kotlinx.coroutines.delay
@@ -131,6 +145,68 @@ private class CircularRevealShape(
     }
 }
 
+@Composable
+fun TextInput(
+    modifier: Modifier = Modifier,
+    colorScheme: AppliedColorScheme,
+    text: String,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.Sentences,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    minLines: Int = 1,
+    maxLines: Int = 1,
+    maxTextLength: Int? = null,
+    hintText: String? = null,
+    onValueChange: (String) -> Unit
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    
+    var noteText by remember(text) {
+        mutableStateOf(text)
+    }
+    
+    LaunchedEffect(noteText) {
+        onValueChange(noteText)
+    }
+    
+    OutlinedTextField(
+        modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth(),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedTextColor = colorScheme.onCardColor,
+            focusedTextColor = colorScheme.onCardColor
+        ),
+        value = noteText,
+        onValueChange = {
+            noteText = if (maxTextLength != null) it.take(maxTextLength) else it
+        },
+        label = {
+            if (hintText != null) {
+                Text(hintText)
+            }
+        },
+        keyboardOptions = KeyboardOptions(
+            autoCorrect = true,
+            capitalization = capitalization,
+            keyboardType = keyboardType,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                keyboardController.hideAndClearFocus(focusManager)
+            }
+        ),
+        minLines = minLines,
+        maxLines = maxLines,
+        supportingText = {
+            if (maxTextLength != null) {
+                Text("${noteText.length}/$maxTextLength")
+            }
+        }
+    )
+}
+
 
 // Scrollable edge fade lists
 
@@ -164,27 +240,56 @@ fun EdgeFadeGrid(
         }
     }
     
-    Box(
-        modifier = modifier
-    ) {
-        gridContent()
-        
-        AnimatedEdgeFade(
-            colorScheme = colorScheme,
-            isVisible = showStartEdgeFade,
-            orientation = orientation,
-            isStartEdge = true,
-            fadeSize = fadeSize
-        )
-        
-        AnimatedEdgeFade(
-            colorScheme = colorScheme,
-            isVisible = showEndEdgeFade,
-            orientation = orientation,
-            isStartEdge = false,
-            fadeSize = fadeSize
-        )
+    EdgeFadeBase(
+        modifier = modifier,
+        colorScheme = colorScheme,
+        showStartEdgeFade = showStartEdgeFade,
+        showEndEdgeFade = showEndEdgeFade,
+        orientation = orientation,
+        fadeSize = fadeSize,
+        content = gridContent
+    )
+}
+
+@Composable
+fun EdgeFadeStaggeredGrid(
+    modifier: Modifier = Modifier,
+    colorScheme: ColorScheme = MaterialTheme.colorScheme,
+    gridState: LazyStaggeredGridState,
+    fadeSize: Dp = 24.dp,
+    gridContent: @Composable () -> Unit
+) {
+    val orientation = gridState.layoutInfo.orientation
+    
+    val showStartEdgeFade by remember {
+        derivedStateOf {
+            gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0
+        }
     }
+    
+    val showEndEdgeFade by remember {
+        derivedStateOf {
+            val layoutInfo = gridState.layoutInfo
+            if (layoutInfo.visibleItemsInfo.isNotEmpty()) {
+                val lastVisibleItemInfo = layoutInfo.visibleItemsInfo.last()
+                val lastItemBottom = lastVisibleItemInfo.offset.y + lastVisibleItemInfo.size.height
+                // Check if the last item's end edge is below the viewport's end (indicating it's not fully visible)
+                lastItemBottom > layoutInfo.viewportEndOffset
+            } else {
+                false
+            }
+        }
+    }
+    
+    EdgeFadeBase(
+        modifier = modifier,
+        colorScheme = colorScheme,
+        showStartEdgeFade = showStartEdgeFade,
+        showEndEdgeFade = showEndEdgeFade,
+        orientation = orientation,
+        fadeSize = fadeSize,
+        content = gridContent
+    )
 }
 
 
@@ -215,10 +320,31 @@ fun EdgeFadeList(
         }
     }
     
+    EdgeFadeBase(
+        modifier = modifier,
+        colorScheme = colorScheme,
+        showStartEdgeFade = showStartEdgeFade,
+        showEndEdgeFade = showEndEdgeFade,
+        orientation = orientation,
+        fadeSize = fadeSize,
+        content = listContent
+    )
+}
+
+@Composable
+fun EdgeFadeBase(
+    modifier: Modifier = Modifier,
+    colorScheme: ColorScheme = MaterialTheme.colorScheme,
+    showStartEdgeFade: Boolean,
+    showEndEdgeFade: Boolean,
+    orientation: Orientation,
+    fadeSize: Dp = 24.dp,
+    content: @Composable () -> Unit
+) {
     Box(
         modifier = modifier
     ) {
-        listContent()
+        content()
         
         AnimatedEdgeFade(
             colorScheme = colorScheme,

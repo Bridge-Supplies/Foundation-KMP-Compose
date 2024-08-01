@@ -60,6 +60,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import qrcode.QRCode
+import ui.TextInput
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -236,38 +237,19 @@ fun CodeReader(
     Column(
         modifier = modifier
     ) {
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val focusManager = LocalFocusManager.current
-        
-        OutlinedTextField(
-            minLines = 4,
-            maxLines = 4,
+        TextInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = if (supportsScanning) 8.dp else 0.dp),
-            value = text,
-            label = {
-                Text(
-                    text = if (encryptionEnabled)
-                        stringResource(Res.string.generate_qr_code_encrypted_text)
-                    else
-                        stringResource(Res.string.generate_qr_code_text)
-                )
-            },
+            colorScheme = colorScheme,
+            minLines = 4,
+            maxLines = 4,
+            text = text,
+            hintText = if (encryptionEnabled) stringResource(Res.string.generate_qr_code_encrypted_text)
+                else stringResource(Res.string.generate_qr_code_text),
             onValueChange = {
                 setSharedText(it)
-            },
-            keyboardOptions = KeyboardOptions(
-                autoCorrect = true,
-                capitalization = KeyboardCapitalization.Sentences,
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    keyboardController.hideAndClearFocus(focusManager)
-                }
-            )
+            }
         )
         
         Row(
