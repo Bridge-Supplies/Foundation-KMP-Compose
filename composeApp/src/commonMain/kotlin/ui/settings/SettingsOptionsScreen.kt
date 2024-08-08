@@ -42,6 +42,8 @@ import foundation.composeapp.generated.resources.app_settings_encryption_subtitl
 import foundation.composeapp.generated.resources.app_settings_encryption_title
 import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_subtitle
 import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_title
+import foundation.composeapp.generated.resources.app_settings_landing_tips_subtitle
+import foundation.composeapp.generated.resources.app_settings_landing_tips_title
 import foundation.composeapp.generated.resources.app_settings_title
 import foundation.composeapp.generated.resources.navigation_settings_about
 import foundation.composeapp.generated.resources.theme_settings_color_theme_subtitle
@@ -66,6 +68,7 @@ fun SettingsOptionsScreen(
 ) {
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
+    val useLandingTips by viewModel.useLandingTips.collectAsState()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
     val useColorTheme by viewModel.useColorTheme.collectAsState()
@@ -101,9 +104,14 @@ fun SettingsOptionsScreen(
     ) {
         GeneralSettings(
             viewModel = viewModel,
+            useLandingTips = useLandingTips,
             useEncryptedShare = useEncryptedShare,
             useFullscreenLandscape = useFullscreenLandscape,
             useVibration = useVibration,
+            onUseLandingTips = { enabled ->
+                viewModel.useLandingTips(enabled)
+                onVibrate()
+            },
             onUseEncryptedShare = { enabled ->
                 viewModel.useEncryptedShare(enabled)
                 onVibrate()
@@ -160,9 +168,11 @@ fun SettingsOptionsScreen(
 @Composable
 fun GeneralSettings(
     viewModel: MainViewModel,
+    useLandingTips: Boolean,
     useEncryptedShare: Boolean,
     useFullscreenLandscape: Boolean,
     useVibration: Boolean,
+    onUseLandingTips: (Boolean) -> Unit,
     onUseEncryptedShare: (Boolean) -> Unit,
     onUseFullscreenLandscape: (Boolean) -> Unit,
     onUseVibration: (Boolean) -> Unit
@@ -187,6 +197,46 @@ fun GeneralSettings(
                 .fillMaxWidth()
                 .padding(bottom = 4.dp)
         )
+        
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentHeight()
+                    .padding(end = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.app_settings_landing_tips_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colorScheme.onContentColor,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+                
+                Text(
+                    text = stringResource(Res.string.app_settings_landing_tips_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colorScheme.onContentColor,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+            }
+            
+            Switch(
+                checked = useLandingTips,
+                colors = switchColors,
+                onCheckedChange = {
+                    onUseLandingTips(it)
+                }
+            )
+        }
         
         Row(
             verticalAlignment = Alignment.CenterVertically,

@@ -36,7 +36,7 @@ actual fun getPlatform() = object : Platform {
                 Feature.FULLSCREEN_LANDSCAPE,
                 Feature.VIBRATION,
                 Feature.CODE_SCANNING,
-                Feature.CODE_UPLOADING
+                Feature.CODE_IMPORTING
             )
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

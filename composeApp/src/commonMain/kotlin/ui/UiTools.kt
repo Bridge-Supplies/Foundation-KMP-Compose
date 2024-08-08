@@ -80,8 +80,8 @@ enum class AppBarAction(
 @Composable
 fun CircularReveal(
     modifier: Modifier = Modifier,
-    startDelayMs: Int = TRANSITION_ENTER_MS,
-    revealDurationMs: Int = 1000,
+    startDelayMs: Int,
+    revealDurationMs: Int,
     onCompleted: (suspend () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {

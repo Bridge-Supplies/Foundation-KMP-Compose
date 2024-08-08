@@ -267,7 +267,9 @@ fun NavigationGraph(
                     onCloseApplication()
                 }
                 
-                LandingScreen() {
+                LandingScreen(
+                    viewModel = viewModel
+                ) {
                     isNavigatingTopLevel.value = true
                     navController.popBackStack()
                     selectNavigationTab(navController, NavigationTab.HOME)

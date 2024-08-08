@@ -19,6 +19,10 @@ enum class Prefs(
     val key: String,
     val defaultValue: Any
 ) {
+    LANDING_TIPS(
+        "${SETTINGS_KEY}_landing_tips",
+        true
+    ),
     ENCRYPTED_SHARE(
         "${SETTINGS_KEY}_encrypted_share",
         true
@@ -50,6 +54,7 @@ class DataRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     companion object {
+        private val LANDING_TIPS_KEY = booleanPreferencesKey(Prefs.LANDING_TIPS.key)
         private val ENCRYPTED_SHARE_KEY = booleanPreferencesKey(Prefs.ENCRYPTED_SHARE.key)
         private val FULLSCREEN_LANDSCAPE_KEY = booleanPreferencesKey(Prefs.FULLSCREEN_LANDSCAPE.key)
         private val COLOR_THEME_KEY = intPreferencesKey(Prefs.COLOR_THEME.key)
@@ -57,6 +62,18 @@ class DataRepository(
         private val DARK_MODE_KEY = intPreferencesKey(Prefs.DARK_MODE.key)
         private val VIBRATION_KEY = booleanPreferencesKey(Prefs.VIBRATION.key)
     }
+    
+    // LANDING TIPS
+    suspend fun setLandingTips(landingTips: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[LANDING_TIPS_KEY] = landingTips
+        }
+    }
+    
+    fun getLandingTipsFlow(): Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[LANDING_TIPS_KEY] ?: Prefs.LANDING_TIPS.defaultValue as Boolean
+        }
     
     // ENCRYPTED SHARE (for QR generation/scanning)
     suspend fun setEncryptedShare(encryptedShare: Boolean) {

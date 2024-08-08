@@ -27,7 +27,7 @@ actual fun getPlatform() = object : Platform {
     override val supportedFeatures = listOf(
         Feature.VIBRATION,
         Feature.CODE_SCANNING,
-        Feature.CODE_UPLOADING
+        Feature.CODE_IMPORTING
     )
 }
 

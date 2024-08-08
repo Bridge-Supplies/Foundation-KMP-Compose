@@ -46,6 +46,10 @@ class MainViewModel(
     var licenses = _licenses.asStateFlow()
         private set
     
+    private val _useLandingTips = MutableStateFlow(Prefs.FULLSCREEN_LANDSCAPE.defaultValue as Boolean)
+    var useLandingTips = _useLandingTips.asStateFlow()
+        private set
+    
     private val _useEncryptedShare = MutableStateFlow(Prefs.ENCRYPTED_SHARE.defaultValue as Boolean)
     var useEncryptedShare = _useEncryptedShare.asStateFlow()
         private set
@@ -116,6 +120,12 @@ class MainViewModel(
         }
         
         launch {
+            repository.getLandingTipsFlow().collectLatest {
+                _useLandingTips.value = it
+            }
+        }
+        
+        launch {
             repository.getEncryptedShareFlow().collectLatest {
                 _useEncryptedShare.value = it
             }
@@ -152,7 +162,6 @@ class MainViewModel(
         }
     }
     
-    
     // UTILITIES
     
     private fun startTimer() {
@@ -166,6 +175,16 @@ class MainViewModel(
     
     fun supportsFeature(feature: Feature) =
         platform.supportsFeature(feature)
+    
+    
+    // FOUNDATION
+    
+    fun useLandingTips(enabled: Boolean) {
+        _useLandingTips.value = enabled
+        launch {
+            repository.setLandingTips(enabled)
+        }
+    }
     
     fun useEncryptedShare(enabled: Boolean) {
         _useEncryptedShare.value = enabled

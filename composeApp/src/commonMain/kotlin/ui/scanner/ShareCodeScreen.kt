@@ -11,13 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,9 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import config.ColorSchemeStyle
 import config.Feature
@@ -233,6 +227,7 @@ fun CodeReader(
     onClickScanner: () -> Unit
 ) {
     val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
+    val hintText = if (encryptionEnabled) stringResource(Res.string.generate_qr_code_encrypted_text) else stringResource(Res.string.generate_qr_code_text)
     
     Column(
         modifier = modifier
@@ -245,8 +240,7 @@ fun CodeReader(
             minLines = 4,
             maxLines = 4,
             text = text,
-            hintText = if (encryptionEnabled) stringResource(Res.string.generate_qr_code_encrypted_text)
-                else stringResource(Res.string.generate_qr_code_text),
+            hintText = hintText,
             onValueChange = {
                 setSharedText(it)
             }
