@@ -28,7 +28,7 @@
     <string name="landing_tip_dark_mode">This device supports automatic\nlight/dark mode in Settings.</string>
     <string name="landing_tip_theme_colors">When manually setting a color theme,\nyou can pick the color's intensity.</string>
     <!--  tied to feature  -->
-    <string name="landing_tip_fullscreen_landscape">If landscape orientation is cramped,\ndisable fullscreen mode in Settings.</string>
+    <string name="landing_tip_fullscreen_landscape">If landscape orientation is cramped,\nenable fullscreen mode in Settings.</string>
     <string name="landing_tip_dynamic_colors">This device supports adaptive color theming.\nLook for "Auto" in Settings.</string>
     <string name="landing_tip_vibration">Prefer no vibrations?\nDisable haptic feedback in Settings.</string>
     <string name="landing_tip_code_scanning">You can read messages by scanning\nshared QR codes with the camera.</string>

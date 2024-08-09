@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,8 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import config.ColorSchemeStyle
-import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.License
 import data.MainViewModel
@@ -48,7 +45,7 @@ import foundation.composeapp.generated.resources.developer_name
 import foundation.composeapp.generated.resources.settings_about_licenses_title
 import foundation.composeapp.generated.resources.settings_about_licenses_unknown
 import org.jetbrains.compose.resources.stringResource
-import ui.EdgeFadeList
+import ui.EdgeFadeLazyList
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -56,19 +53,18 @@ fun SettingsAboutScreen(
     viewModel: MainViewModel,
     onVibrate: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val licenses by viewModel.licenses.collectAsState()
     
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.backgroundColor),
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val listState = rememberLazyListState()
         
-        EdgeFadeList(
+        EdgeFadeLazyList(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
@@ -90,7 +86,6 @@ fun SettingsAboutScreen(
                     Text(
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Start,
-                        color = colorScheme.onContentColor,
                         text = stringResource(Res.string.app_name),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -105,7 +100,6 @@ fun SettingsAboutScreen(
                     Text(
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Start,
-                        color = colorScheme.onContentColor,
                         text = text,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -119,11 +113,7 @@ fun SettingsAboutScreen(
                         onClick = {
                             onVibrate()
                             browseWeb("https://bridge.supplies/")
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colorScheme.buttonColor,
-                            contentColor = colorScheme.onButtonColor
-                        )
+                        }
                     ) {
                         Text(stringResource(Res.string.developer_name))
                     }
@@ -133,7 +123,6 @@ fun SettingsAboutScreen(
                     Text(
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Start,
-                        color = colorScheme.onContentColor,
                         text = stringResource(Res.string.settings_about_licenses_title),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -155,7 +144,7 @@ fun SettingsAboutScreen(
                             } else null
                         
                         LicenseHeader(
-                            backgroundColor = colorScheme.backgroundColor,
+                            backgroundColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                             moduleLicense = licenseTitle,
                             moduleLicenseUrl = licenseUrl,
                             onViewLicenseUrl = onViewLicenseUrl

@@ -21,11 +21,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import config.ColorSchemeStyle
 import config.LANDING_SCREEN_LONG_DURATION_MS
 import config.LANDING_SCREEN_REVEAL_DURATION_MS
 import config.LANDING_SCREEN_SHORT_DURATION_MS
-import config.getAppliedColorScheme
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_name
@@ -40,7 +38,6 @@ fun LandingScreen(
     viewModel: MainViewModel,
     onLandingCompleted: suspend () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val useLandingTips by viewModel.useLandingTips.collectAsState()
     val landingMessage by remember(useLandingTips) {
         if (useLandingTips) {
@@ -71,12 +68,12 @@ fun LandingScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.backgroundColor)
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         ) {
             Image(
                 painter = painterResource(Res.drawable.ic_launcher_foreground),
                 contentDescription = stringResource(Res.string.app_name),
-                colorFilter = ColorFilter.tint(color = colorScheme.onBackgroundColor),
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface),
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier
                     .width(200.dp)

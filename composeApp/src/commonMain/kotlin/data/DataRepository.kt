@@ -29,7 +29,7 @@ enum class Prefs(
     ),
     FULLSCREEN_LANDSCAPE(
         "${SETTINGS_KEY}_fullscreen_landscape",
-        true
+        false
     ),
     COLOR_THEME(
         "${SETTINGS_KEY}_color_theme",

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import config.ColorSchemeStyle
-import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import data.getDateDisplay
@@ -43,7 +40,6 @@ fun HomeDateScreen(
     viewModel: MainViewModel,
     onVibrate: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val timer by viewModel.timer.collectAsState()
     val now = getTodayDate()
@@ -60,7 +56,7 @@ fun HomeDateScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.backgroundColor)
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,
@@ -75,7 +71,6 @@ fun HomeDateScreen(
         Text(
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Start,
-            color = colorScheme.onContentColor,
             text = text,
             modifier = Modifier
                 .fillMaxWidth()
@@ -91,11 +86,7 @@ fun HomeDateScreen(
             onClick = {
                 viewModel.showDatePickerSheet(selectedDate)
                 onVibrate()
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.buttonColor,
-                contentColor = colorScheme.onButtonColor
-            )
+            }
         ) {
             Text(stringResource(Res.string.navigation_home_date_select))
         }

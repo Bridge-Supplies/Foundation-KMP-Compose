@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import config.AppliedColorScheme
 import config.PlatformType
 import config.isPortraitMode
 import data.MainViewModel
@@ -101,7 +99,6 @@ fun SimpleBottomSheet(
 fun DatePickerBottomSheet(
     viewModel: MainViewModel,
     coroutineScope: CoroutineScope,
-    colorScheme: AppliedColorScheme,
     selectedDate: Long = getTodayUtcMs(),
     onVibrate: () -> Unit
 ) {
@@ -120,13 +117,6 @@ fun DatePickerBottomSheet(
                 onVibrate()
             }
     }
-    
-    val buttonColors = ButtonColors(
-        containerColor = colorScheme.buttonColor,
-        contentColor = colorScheme.onButtonColor,
-        disabledContainerColor = colorScheme.buttonColor,
-        disabledContentColor = colorScheme.onButtonColor
-    )
     
     val closeSheet: () -> Unit = {
         coroutineScope.hideSheet(sheetState, viewModel)
@@ -149,12 +139,10 @@ fun DatePickerBottomSheet(
                 viewModel.setSelectedDate(datePickerState.selectedDateMillis ?: selectedDate)
                 closeSheet()
             },
-            colors = buttonColors,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(top = 8.dp)
-                .padding(horizontal = 8.dp),
+                .padding(top = 8.dp),
         ) {
             Text(stringResource(Res.string.navigation_confirm))
         }
@@ -166,18 +154,10 @@ fun DatePickerBottomSheet(
 fun ShareAppBottomSheet(
     viewModel: MainViewModel,
     coroutineScope: CoroutineScope,
-    colorScheme: AppliedColorScheme,
     onVibrate: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(true)
     val clipboardManager = LocalClipboardManager.current
-    
-    val buttonColors = ButtonColors(
-        containerColor = colorScheme.buttonColor,
-        contentColor = colorScheme.onButtonColor,
-        disabledContainerColor = colorScheme.buttonColor,
-        disabledContentColor = colorScheme.onButtonColor
-    )
     
     val closeSheet: () -> Unit = {
         coroutineScope.hideSheet(sheetState, viewModel)
@@ -192,7 +172,6 @@ fun ShareAppBottomSheet(
         Text(
             text = stringResource(Res.string.share_button_text),
             style = MaterialTheme.typography.headlineMedium,
-            color = colorScheme.onContentColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -203,9 +182,9 @@ fun ShareAppBottomSheet(
                 .wrapContentWidth()
                 .height(if (isPortraitMode()) 256.dp else 200.dp),
             text = viewModel.platform.shareUrl,
-            color = colorScheme.buttonColor,
-            backgroundColor = colorScheme.onButtonColor,
-            cardColor = colorScheme.onContentColor
+            color = MaterialTheme.colorScheme.primary,
+            backgroundColor = MaterialTheme.colorScheme.onPrimary,
+            cardColor = MaterialTheme.colorScheme.onSurface
         )
         
         Button(
@@ -213,7 +192,6 @@ fun ShareAppBottomSheet(
                 clipboardManager.setText(AnnotatedString(viewModel.platform.shareUrl))
                 closeSheet()
             },
-            colors = buttonColors,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()

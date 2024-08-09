@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,9 +32,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import config.ColorSchemeStyle
 import config.Feature
-import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import data.SharedData
@@ -63,7 +61,6 @@ fun ShareCodeScreen(
     onVibrate: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -98,7 +95,7 @@ fun ShareCodeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.backgroundColor)
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(
                     vertical = 16.dp,
                     horizontal = 16.dp
@@ -114,9 +111,9 @@ fun ShareCodeScreen(
                         keyboardController.hideAndClearFocus(focusManager)
                     },
                 text = processedText ?: "",
-                color = colorScheme.buttonColor,
-                backgroundColor = colorScheme.onButtonColor,
-                cardColor = colorScheme.onContentColor
+                color = MaterialTheme.colorScheme.primary,
+                backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                cardColor = MaterialTheme.colorScheme.onSurface
             )
             
             CodeReader(
@@ -139,7 +136,7 @@ fun ShareCodeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.backgroundColor)
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(
                     vertical = 16.dp,
                     horizontal = viewModel.platform.landscapeContentPadding
@@ -172,9 +169,9 @@ fun ShareCodeScreen(
                         keyboardController.hideAndClearFocus(focusManager)
                     },
                 text = processedText ?: "",
-                color = colorScheme.buttonColor,
-                backgroundColor = colorScheme.onButtonColor,
-                cardColor = colorScheme.onContentColor
+                color = MaterialTheme.colorScheme.primary,
+                backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                cardColor = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -226,7 +223,6 @@ fun CodeReader(
     onShareApp: () -> Unit,
     onClickScanner: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val hintText = if (encryptionEnabled) stringResource(Res.string.generate_qr_code_encrypted_text) else stringResource(Res.string.generate_qr_code_text)
     
     Column(
@@ -236,7 +232,6 @@ fun CodeReader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = if (supportsScanning) 8.dp else 0.dp),
-            colorScheme = colorScheme,
             minLines = 4,
             maxLines = 4,
             text = text,
@@ -257,11 +252,7 @@ fun CodeReader(
                     .padding(end = if (supportsScanning) 4.dp else 0.dp),
                 onClick = {
                     onShareApp()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.buttonColor,
-                    contentColor = colorScheme.onButtonColor
-                )
+                }
             ) {
                 Text(stringResource(Res.string.share_button_text))
             }
@@ -273,11 +264,7 @@ fun CodeReader(
                         .padding(start = 4.dp),
                     onClick = {
                         onClickScanner()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorScheme.buttonColor,
-                        contentColor = colorScheme.onButtonColor
-                    )
+                    }
                 ) {
                     Text(stringResource(Res.string.scanner_button_text))
                 }

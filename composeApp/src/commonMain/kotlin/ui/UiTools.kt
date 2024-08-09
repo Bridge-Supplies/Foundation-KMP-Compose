@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,7 +55,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import config.AppliedColorScheme
 import data.hideAndClearFocus
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.action_settings
@@ -148,7 +146,6 @@ private class CircularRevealShape(
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
-    colorScheme: AppliedColorScheme,
     text: String,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.Sentences,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -173,10 +170,6 @@ fun TextInput(
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth(),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedTextColor = colorScheme.onCardColor,
-            focusedTextColor = colorScheme.onCardColor
-        ),
         value = noteText,
         onValueChange = {
             noteText = if (maxTextLength != null) it.take(maxTextLength) else it
@@ -294,7 +287,7 @@ fun EdgeFadeStaggeredGrid(
 
 
 @Composable
-fun EdgeFadeList(
+fun EdgeFadeLazyList(
     modifier: Modifier = Modifier,
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     listState: LazyListState,

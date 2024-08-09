@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,8 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import config.ColorSchemeStyle
-import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
@@ -39,14 +36,13 @@ fun HomeInfoScreen(
     onVibrate: () -> Unit,
     onNavigateDateScreen: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
     val orientationText = if (isPortraitMode) "Portrait" else "Landscape"
     
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.backgroundColor)
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,
@@ -58,7 +54,7 @@ fun HomeInfoScreen(
             painter = painterResource(
                 resource = Res.drawable.ic_launcher_foreground
             ),
-            colorFilter = ColorFilter.tint(colorScheme.onContentColor),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             contentDescription = stringResource(Res.string.app_name),
             modifier = Modifier
                 .size(128.dp)
@@ -71,7 +67,6 @@ fun HomeInfoScreen(
         Text(
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
-            color = colorScheme.onContentColor,
             text = text,
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,11 +82,7 @@ fun HomeInfoScreen(
             onClick = {
                 onNavigateDateScreen()
                 onVibrate()
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.buttonColor,
-                contentColor = colorScheme.onButtonColor
-            )
+            }
         ) {
             Text(stringResource(Res.string.navigation_home_date))
         }

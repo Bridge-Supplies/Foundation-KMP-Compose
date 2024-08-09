@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -12,8 +13,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import config.ColorSchemeStyle
-import config.getAppliedColorScheme
 import data.MainViewModel
 import data.decryptAndUncompress
 import foundation.composeapp.generated.resources.Res
@@ -38,7 +37,6 @@ fun ScanCodeScreen(
     onVibrate: () -> Unit,
     onCloseScanner: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.VARIANT)
     val coroutineScope = rememberCoroutineScope()
     
     val onScanSuccess: (String) -> Unit = {
@@ -78,7 +76,7 @@ fun ScanCodeScreen(
     
     Column(
         modifier = Modifier
-            .background(colorScheme.backgroundColor)
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .fillMaxSize()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
