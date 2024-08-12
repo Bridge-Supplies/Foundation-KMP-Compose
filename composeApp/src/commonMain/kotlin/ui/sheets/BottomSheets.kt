@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import ui.PastOrPresentSelectableDates
 import ui.scanner.CodeDisplay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,34 +64,43 @@ fun SimpleBottomSheet(
     closeSheet: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    ModalBottomSheet(
-        sheetState = sheetState,
-        dragHandle = if (platform == PlatformType.IOS || platform == PlatformType.ANDROID) {
-            { BottomSheetDefaults.DragHandle() }
-        } else {
-            null
-        },
-        onDismissRequest = closeSheet
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(top = 24.dp, bottom = 48.dp)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+    val bottomSheet = @Composable {
+        ModalBottomSheet(
+            sheetState = sheetState,
+            dragHandle = if (platform == PlatformType.IOS || platform == PlatformType.ANDROID) {
+                { BottomSheetDefaults.DragHandle() }
+            } else {
+                null
+            },
+            onDismissRequest = closeSheet
         ) {
-            content()
-            
-            OutlinedButton(
-                onClick = closeSheet,
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 8.dp),
+                    .padding(top = 24.dp, bottom = 48.dp)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(Res.string.navigation_close))
+                content()
+                
+                OutlinedButton(
+                    onClick = closeSheet,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(top = 8.dp),
+                ) {
+                    Text(stringResource(Res.string.navigation_close))
+                }
             }
         }
+    }
+    
+    // workaround for bottom sheets not adapting to orientation changes
+    if (isPortraitMode()) {
+        bottomSheet()
+    } else {
+        bottomSheet()
     }
 }
 
@@ -106,7 +116,8 @@ fun DatePickerBottomSheet(
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = selectedDate,
         initialDisplayMode = if (viewModel.platform.type == PlatformType.DESKTOP)
-            DisplayMode.Input else DisplayMode.Picker
+            DisplayMode.Input else DisplayMode.Picker,
+        selectableDates = PastOrPresentSelectableDates
     )
     
     LaunchedEffect(Unit) {

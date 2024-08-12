@@ -23,8 +23,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +57,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import data.getTodayDate
+import data.getTodayUtcMs
 import data.hideAndClearFocus
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.action_settings
@@ -141,6 +145,12 @@ private class CircularRevealShape(
             }
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+object PastOrPresentSelectableDates : SelectableDates {
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= getTodayUtcMs()
+    override fun isSelectableYear(year: Int): Boolean = year <= getTodayDate().year
 }
 
 @Composable
