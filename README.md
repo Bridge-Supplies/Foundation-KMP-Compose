@@ -1,6 +1,6 @@
 # Foundation (KMP-Compose Template)
 ## Presented by [Bridge Supplies](https://bridge.supplies)
-### Latest version: 1.1.8 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
+### Latest version: 1.1.9 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
 
 This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 

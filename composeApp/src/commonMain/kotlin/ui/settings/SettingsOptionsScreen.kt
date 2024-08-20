@@ -12,14 +12,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,12 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import config.ColorSchemeStyle
 import config.ColorTheme
 import config.DarkMode
 import config.Feature
 import config.Palette
-import config.getAppliedColorScheme
 import config.isPortraitMode
 import data.MainViewModel
 import data.systemAppSettings
@@ -42,6 +38,8 @@ import foundation.composeapp.generated.resources.app_settings_encryption_subtitl
 import foundation.composeapp.generated.resources.app_settings_encryption_title
 import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_subtitle
 import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_title
+import foundation.composeapp.generated.resources.app_settings_landing_tips_subtitle
+import foundation.composeapp.generated.resources.app_settings_landing_tips_title
 import foundation.composeapp.generated.resources.app_settings_title
 import foundation.composeapp.generated.resources.navigation_settings_about
 import foundation.composeapp.generated.resources.theme_settings_color_theme_subtitle
@@ -64,8 +62,8 @@ fun SettingsOptionsScreen(
     onVibrate: () -> Unit,
     onNavigateToAbout: () -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val isPortraitMode = isPortraitMode()
+    val useLandingTips by viewModel.useLandingTips.collectAsState()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
     val useColorTheme by viewModel.useColorTheme.collectAsState()
@@ -91,7 +89,7 @@ fun SettingsOptionsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorScheme.backgroundColor)
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .verticalScroll(rememberScrollState())
             .padding(
                 vertical = 16.dp,
@@ -101,9 +99,14 @@ fun SettingsOptionsScreen(
     ) {
         GeneralSettings(
             viewModel = viewModel,
+            useLandingTips = useLandingTips,
             useEncryptedShare = useEncryptedShare,
             useFullscreenLandscape = useFullscreenLandscape,
             useVibration = useVibration,
+            onUseLandingTips = { enabled ->
+                viewModel.useLandingTips(enabled)
+                onVibrate()
+            },
             onUseEncryptedShare = { enabled ->
                 viewModel.useEncryptedShare(enabled)
                 onVibrate()
@@ -146,11 +149,7 @@ fun SettingsOptionsScreen(
             onClick = {
                 onNavigateToAbout()
                 onVibrate()
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.buttonColor,
-                contentColor = colorScheme.onButtonColor
-            )
+            }
         ) {
             Text(stringResource(Res.string.navigation_settings_about))
         }
@@ -160,19 +159,15 @@ fun SettingsOptionsScreen(
 @Composable
 fun GeneralSettings(
     viewModel: MainViewModel,
+    useLandingTips: Boolean,
     useEncryptedShare: Boolean,
     useFullscreenLandscape: Boolean,
     useVibration: Boolean,
+    onUseLandingTips: (Boolean) -> Unit,
     onUseEncryptedShare: (Boolean) -> Unit,
     onUseFullscreenLandscape: (Boolean) -> Unit,
     onUseVibration: (Boolean) -> Unit
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
-    val switchColors = SwitchDefaults.colors(
-        checkedTrackColor = colorScheme.buttonColor,
-        checkedBorderColor = colorScheme.onButtonColor
-    )
-    
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,11 +177,47 @@ fun GeneralSettings(
         Text(
             text = stringResource(Res.string.app_settings_title),
             style = MaterialTheme.typography.titleLarge,
-            color = colorScheme.onContentColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp)
         )
+        
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentHeight()
+                    .padding(end = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.app_settings_landing_tips_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+                
+                Text(
+                    text = stringResource(Res.string.app_settings_landing_tips_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+            }
+            
+            Switch(
+                checked = useLandingTips,
+                onCheckedChange = {
+                    onUseLandingTips(it)
+                }
+            )
+        }
         
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -204,7 +235,6 @@ fun GeneralSettings(
                 Text(
                     text = stringResource(Res.string.app_settings_encryption_title),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -213,7 +243,6 @@ fun GeneralSettings(
                 Text(
                     text = stringResource(Res.string.app_settings_encryption_subtitle),
                     style = MaterialTheme.typography.bodySmall,
-                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -222,7 +251,6 @@ fun GeneralSettings(
             
             Switch(
                 checked = useEncryptedShare,
-                colors = switchColors,
                 onCheckedChange = {
                     onUseEncryptedShare(it)
                 }
@@ -245,7 +273,6 @@ fun GeneralSettings(
                     Text(
                         text = stringResource(Res.string.app_settings_fullscreen_landscape_title),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = colorScheme.onContentColor,
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
@@ -254,7 +281,6 @@ fun GeneralSettings(
                     Text(
                         text = stringResource(Res.string.app_settings_fullscreen_landscape_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colorScheme.onContentColor,
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
@@ -263,7 +289,6 @@ fun GeneralSettings(
                 
                 Switch(
                     checked = useFullscreenLandscape,
-                    colors = switchColors,
                     onCheckedChange = {
                         onUseFullscreenLandscape(it)
                     }
@@ -287,7 +312,6 @@ fun GeneralSettings(
                     Text(
                         text = stringResource(Res.string.theme_settings_vibration_title),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = colorScheme.onContentColor,
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
@@ -296,7 +320,6 @@ fun GeneralSettings(
                     Text(
                         text = stringResource(Res.string.theme_settings_vibration_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colorScheme.onContentColor,
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
@@ -305,7 +328,6 @@ fun GeneralSettings(
                 
                 Switch(
                     checked = useVibration,
-                    colors = switchColors,
                     onCheckedChange = {
                         onUseVibration(it)
                     }
@@ -326,8 +348,6 @@ fun ThemeSettings(
     onUsePalette: (Palette) -> Unit,
     onUseDarkMode: (DarkMode) -> Unit,
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
-    
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -337,7 +357,6 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_title),
             style = MaterialTheme.typography.titleLarge,
-            color = colorScheme.onContentColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp)
@@ -346,7 +365,6 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_color_theme_title),
             style = MaterialTheme.typography.bodyLarge,
-            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
@@ -359,7 +377,6 @@ fun ThemeSettings(
             else
                 stringResource(Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors),
             style = MaterialTheme.typography.bodySmall,
-            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
@@ -402,7 +419,6 @@ fun ThemeSettings(
                 Text(
                     text = stringResource(Res.string.theme_settings_palette_title),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -412,7 +428,6 @@ fun ThemeSettings(
                 Text(
                     text = stringResource(Res.string.theme_settings_palette_subtitle),
                     style = MaterialTheme.typography.bodySmall,
-                    color = colorScheme.onContentColor,
                     modifier = Modifier
                         .wrapContentHeight()
                         .fillMaxWidth()
@@ -446,7 +461,6 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_dark_mode_title),
             style = MaterialTheme.typography.bodyLarge,
-            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
@@ -456,7 +470,6 @@ fun ThemeSettings(
         Text(
             text = stringResource(Res.string.theme_settings_dark_mode_subtitle),
             style = MaterialTheme.typography.bodySmall,
-            color = colorScheme.onContentColor,
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()

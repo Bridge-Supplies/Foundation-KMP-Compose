@@ -35,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NamedNavArgument
@@ -47,9 +46,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import config.ColorSchemeStyle
 import config.PlatformType
-import config.getAppliedColorScheme
 import config.getPlatform
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
@@ -267,7 +264,9 @@ fun NavigationGraph(
                     onCloseApplication()
                 }
                 
-                LandingScreen() {
+                LandingScreen(
+                    viewModel = viewModel
+                ) {
                     isNavigatingTopLevel.value = true
                     navController.popBackStack()
                     selectNavigationTab(navController, NavigationTab.HOME)
@@ -420,7 +419,6 @@ fun TopBar(
     canNavigateBack: Boolean,
     onNavigateBack: () -> Unit = {}
 ) {
-    val colorScheme = getAppliedColorScheme(ColorSchemeStyle.PRIMARY)
     val platform = remember { getPlatform() }
     val title = remember(currentScreen) {
         when {
@@ -449,8 +447,7 @@ fun TopBar(
         TopAppBar(
             title = {
                 TopBarText(
-                    text = stringResource(title),
-                    textColor = colorScheme.onContentColor
+                    text = stringResource(title)
                 )
             },
             navigationIcon = {
@@ -462,8 +459,7 @@ fun TopBar(
         CenterAlignedTopAppBar(
             title = {
                 TopBarText(
-                    text = stringResource(title),
-                    textColor = colorScheme.onContentColor
+                    text = stringResource(title)
                 )
             },
             navigationIcon = {
@@ -476,13 +472,11 @@ fun TopBar(
 
 @Composable
 fun TopBarText(
-    text: String,
-    textColor: Color
+    text: String
 ) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleLarge,
-        color = textColor,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
     )
