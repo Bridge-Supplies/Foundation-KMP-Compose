@@ -585,7 +585,7 @@ fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
 fun selectNavigationTab(
     navController: NavHostController,
     navigationTab: NavigationTab,
-    onVibrate: () -> Unit = {}
+    onVibrate: () -> Unit = { }
 ) {
     val currentScreen = navController.currentBackStackEntry?.getCurrentScreen()
     val currentlySelectedTab = currentScreen?.getNavigationTab()
@@ -614,17 +614,24 @@ fun selectNavigationTab(
     }
 }
 
+
 fun navigateToScreen(
-    navController: NavController,
-    screen: Screen
+    navController: NavHostController,
+    screen: Screen,
+    arg: String? = null
 ) {
-    // TODO: set up + test cross-screen navigation
-//    val targetNavigationTab = screen.getNavigationTab()
-//    val currentNavigationTab = navController.currentBackStackEntry?.getSelectedNavigationTab()
-//
-//    if (targetNavigationTab != null && targetNavigationTab != currentNavigationTab) {
-//        selectNavigationTab(navController, targetNavigationTab)
-//    }
+    val targetNavigationTab = screen.getNavigationTab()
+    val currentNavigationTab = navController.currentBackStackEntry?.getSelectedNavigationTab()
     
-    navController.navigate(screen.route)
+    if (targetNavigationTab != null && targetNavigationTab != currentNavigationTab) {
+        selectNavigationTab(navController, targetNavigationTab)
+    }
+    
+    val routeWithArgs = if (arg != null) {
+        screen.route + "/$arg"
+    } else {
+        screen.route
+    }
+    
+    navController.navigate(routeWithArgs)
 }
