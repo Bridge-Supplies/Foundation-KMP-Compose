@@ -35,6 +35,8 @@
     <string name="landing_tip_code_importing">You can import messages\nby scanning stored images.</string>
     <string name="landing_tip_app_sharing">Friend doesn't have the app?\nThey can scan the download link from your Share tab.</string>
 
+    <string name="button_expand_more">Expand content</string>
+    <string name="button_expand_less">Collapse content</string>
     <string name="generate_qr_code_text">Text to share</string>
     <string name="generate_qr_code_encrypted_text">Encrypted text to share</string>
     <string name="share_button_text">Share app</string>

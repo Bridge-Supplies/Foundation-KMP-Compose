@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +45,7 @@ import foundation.composeapp.generated.resources.settings_about_licenses_title
 import foundation.composeapp.generated.resources.settings_about_licenses_unknown
 import org.jetbrains.compose.resources.stringResource
 import ui.EdgeFadeLazyList
+import ui.LinkButton
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -107,16 +107,11 @@ fun SettingsAboutScreen(
                 }
                 
                 item {
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        onClick = {
-                            onVibrate()
-                            browseWeb("https://bridge.supplies/")
-                        }
-                    ) {
-                        Text(stringResource(Res.string.developer_name))
-                    }
+                    LinkButton(
+                        text = stringResource(Res.string.developer_name),
+                        url = "https://bridge.supplies/",
+                        onVibrate = onVibrate
+                    )
                 }
                 
                 item {
