@@ -32,8 +32,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -124,7 +124,7 @@ fun ExpandableTitledCard(
         onExpand?.invoke(expanded)
     }
     
-    Card(
+    ElevatedCard(
         modifier = modifier
             .padding(4.dp)
             .wrapContentHeight(),
