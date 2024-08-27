@@ -141,7 +141,7 @@ fun ExpandableTitledCard(
                 modifier = Modifier
                     .animateContentSize()
                     .heightIn(max = animatedMaxHeight)
-                    .padding(top = 16.dp)
+                    .padding(top = 12.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -230,6 +230,22 @@ fun BodyText(
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodyMedium,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+@Composable
+fun HintText(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    Text(
+        modifier = modifier
+            .animateContentSize(),
+        text = text,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 2,
         overflow = TextOverflow.Ellipsis
     )
 }
