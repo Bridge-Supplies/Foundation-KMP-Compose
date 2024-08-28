@@ -9,7 +9,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,6 +71,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -97,10 +101,16 @@ enum class AppBarAction(
 }
 
 @Composable
+fun Modifier.consumeClick() = this.clickable(
+    interactionSource = remember { MutableInteractionSource() },
+    indication = null
+) { /* no-op */ }
+
+@Composable
 fun ExpandableTitledCard(
     modifier: Modifier = Modifier,
     title: String,
-    maxUnexpandedHeight: Dp = 160.dp,
+    maxUnexpandedHeight: Dp = 180.dp,
     onExpand: ((expanded: Boolean) -> Unit)? = null,
     content: @Composable ColumnScope.(isExpanded: Boolean) -> Unit
 ) {
@@ -124,9 +134,9 @@ fun ExpandableTitledCard(
         onExpand?.invoke(expanded)
     }
     
-    ElevatedCard(
+    Card(
         modifier = modifier
-            .padding(4.dp)
+            .padding(horizontal = 8.dp)
             .wrapContentHeight(),
         onClick = {
             onClick()
@@ -149,10 +159,12 @@ fun ExpandableTitledCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TitleText(
-                        text = title,
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 16.dp)
+                            .padding(vertical = 4.dp),
+                        text = title,
+                        maxLines = if (expanded) 2 else 1
                     )
                     
                     IconButton(
@@ -193,15 +205,17 @@ fun ExpandableTitledCard(
 @Composable
 fun TitleText(
     modifier: Modifier = Modifier,
-    text: String
+    text: String,
+    maxLines: Int = 2
 ) {
     Text(
         modifier = modifier
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.titleLarge,
-        maxLines = 1,
-        overflow = TextOverflow.Visible,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Start
     )
 }
 
@@ -216,7 +230,8 @@ fun SubtitleText(
         text = text,
         style = MaterialTheme.typography.bodyLarge,
         maxLines = 2,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Start
     )
 }
 
@@ -230,7 +245,8 @@ fun BodyText(
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodyMedium,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Start
     )
 }
 
@@ -246,7 +262,8 @@ fun HintText(
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 2,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Start
     )
 }
 
@@ -269,6 +286,22 @@ fun LinkButton(
             text = text,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun ClickableIcon(
+    onClick: () -> Unit,
+    imageVector: ImageVector,
+    contentDescription: String
+) {
+    IconButton(
+        onClick = onClick
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = contentDescription
         )
     }
 }

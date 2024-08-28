@@ -59,7 +59,7 @@ fun SettingsAboutScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val listState = rememberLazyListState()
@@ -139,7 +139,7 @@ fun SettingsAboutScreen(
                             } else null
                         
                         LicenseHeader(
-                            backgroundColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            backgroundColor = MaterialTheme.colorScheme.background,
                             moduleLicense = licenseTitle,
                             moduleLicenseUrl = licenseUrl,
                             onViewLicenseUrl = onViewLicenseUrl

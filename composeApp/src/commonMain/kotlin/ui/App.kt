@@ -113,7 +113,7 @@ fun MainScaffold(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+            .background(MaterialTheme.colorScheme.background),
         topBar = {
             AnimatedVisibility(
                 visible = currentlySelectedTab != null,

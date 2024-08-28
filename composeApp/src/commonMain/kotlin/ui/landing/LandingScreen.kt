@@ -68,7 +68,7 @@ fun LandingScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Image(
                 painter = painterResource(Res.drawable.ic_launcher_foreground),
