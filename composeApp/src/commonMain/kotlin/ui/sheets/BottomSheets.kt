@@ -1,8 +1,10 @@
 package ui.sheets
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import config.PlatformType
+import config.getScreenSizeInfo
 import config.isPortraitMode
 import data.MainViewModel
 import data.getTodayUtcMs
@@ -62,7 +65,7 @@ fun SimpleBottomSheet(
     platform: PlatformType,
     sheetState: SheetState = rememberModalBottomSheetState(true),
     closeSheet: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.(modifier: Modifier) -> Unit
 ) {
     val bottomSheet = @Composable {
         ModalBottomSheet(
@@ -81,7 +84,8 @@ fun SimpleBottomSheet(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                content()
+                val sheetMaxContentHeight = getScreenSizeInfo().dpHeight / 2f
+                content(Modifier.heightIn(max = sheetMaxContentHeight))
                 
                 OutlinedButton(
                     onClick = closeSheet,
@@ -115,8 +119,7 @@ fun DatePickerBottomSheet(
     val sheetState = rememberModalBottomSheetState(true)
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = selectedDate,
-        initialDisplayMode = if (viewModel.platform.type == PlatformType.DESKTOP)
-            DisplayMode.Input else DisplayMode.Picker,
+        initialDisplayMode = DisplayMode.Input,
         selectableDates = PastOrPresentSelectableDates
     )
     

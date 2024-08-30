@@ -5,13 +5,13 @@
     <string name="app_version"></string>
     <string name="app_build"></string>
 
-    <string name="app_about_platform">Platform: %1$s</string>
     <string name="app_about_orientation">Orientation: %1$s</string>
     <string name="app_date_elapsed_seconds">Elapsed seconds: %1$s</string>
     <string name="app_date_today">Today's date: %1$s</string>
     <string name="app_date_selected">Selected date: %1$s</string>
-    <string name="app_about_build">Version: %1$s</string>
-    <string name="app_about_version">Build: %1$s</string>
+    <string name="app_about_build">Version</string>
+    <string name="app_about_version">Build</string>
+    <string name="app_about_platform">Platform</string>
 
     <string name="tab_home_title">Home</string>
     <string name="tab_share_title">Share</string>
@@ -63,10 +63,10 @@
     <string name="theme_settings_color_theme_subtitle">Match system colors or select a preset</string>
     <string name="theme_settings_color_theme_subtitle_no_dynamic_colors">Select a color or go monochrome</string>
     <string name="theme_settings_color_theme_auto">Auto</string>
-    <string name="theme_settings_color_theme_red">Red</string>
-    <string name="theme_settings_color_theme_green">Green</string>
-    <string name="theme_settings_color_theme_blue">Blue</string>
-    <string name="theme_settings_color_theme_off">Off</string>
+    <string name="theme_settings_color_theme_red">Fire</string>
+    <string name="theme_settings_color_theme_green">Earth</string>
+    <string name="theme_settings_color_theme_blue">Water</string>
+    <string name="theme_settings_color_theme_off">Air</string>
     <string name="theme_settings_dark_mode_title">Dark mode</string>
     <string name="theme_settings_dark_mode_subtitle">Match system dark mode or force an option</string>
     <string name="theme_settings_dark_mode_auto">Auto</string>

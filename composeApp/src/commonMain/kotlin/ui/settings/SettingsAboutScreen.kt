@@ -4,7 +4,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,18 +21,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import config.isPortraitMode
 import data.License
@@ -44,8 +43,16 @@ import foundation.composeapp.generated.resources.developer_name
 import foundation.composeapp.generated.resources.settings_about_licenses_title
 import foundation.composeapp.generated.resources.settings_about_licenses_unknown
 import org.jetbrains.compose.resources.stringResource
+import ui.ClickableIcon
 import ui.EdgeFadeLazyList
+import ui.HintText
+import ui.HorizontalSeparator
 import ui.LinkButton
+import ui.OptionDetailText
+import ui.SmallText
+import ui.SubtitleText
+import ui.TitleText
+import ui.consumeClick
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -56,72 +63,74 @@ fun SettingsAboutScreen(
     val isPortraitMode = isPortraitMode()
     val licenses by viewModel.licenses.collectAsState()
     
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        contentAlignment = Alignment.BottomCenter
     ) {
         val listState = rememberLazyListState()
         
         EdgeFadeLazyList(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+                .fillMaxWidth(),
             listState = listState
         ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding),
+                    .fillMaxHeight(),
                 state = listState,
+                contentPadding = PaddingValues(
+                    vertical = 16.dp,
+                    horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
+                ),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                
-                item {
-                    Text(
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Start,
-                        text = stringResource(Res.string.app_name),
+                    ElevatedCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    )
+                            .wrapContentHeight()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(vertical = 16.dp)
+                        ) {
+                            TitleText(
+                                text = stringResource(Res.string.app_name),
+                                modifier = Modifier
+                                    .padding(bottom = 8.dp)
+                                    .padding(horizontal = 16.dp)
+                            )
+                            
+                            HorizontalSeparator()
+                            
+                            OptionDetailText(
+                                modifier = Modifier.clickable {
+                                    onVibrate()
+                                    browseWeb("https://www.youtube.com/shorts/lCJo8vhmIdc")
+                                },
+                                title = stringResource(Res.string.app_about_version),
+                                subtitle = viewModel.platform.version,
+                            )
+                            
+                            OptionDetailText(
+                                title = stringResource(Res.string.app_about_build),
+                                subtitle = viewModel.platform.build,
+                            )
+                        }
+                    }
                 }
                 
                 item {
-                    val text = stringResource(Res.string.app_about_version, viewModel.platform.version) + "\n" +
-                        stringResource(Res.string.app_about_build, viewModel.platform.build)
-                    
-                    Text(
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        text = text,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-                
-                item {
-                    LinkButton(
-                        text = stringResource(Res.string.developer_name),
-                        url = "https://bridge.supplies/",
-                        onVibrate = onVibrate
-                    )
-                }
-                
-                item {
-                    Text(
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Start,
+                    TitleText(
                         text = stringResource(Res.string.settings_about_licenses_title),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
+                            .padding(top = 16.dp)
                     )
                 }
                 
@@ -131,18 +140,14 @@ fun SettingsAboutScreen(
                     val licenseUrl = licenseList.first().moduleLicenseUrl
                     
                     stickyHeader {
-                        val onViewLicenseUrl: (() -> Unit)? =
-                            if (licenseUrl.isNotEmpty()) {
-                                {
-                                    browseWeb(licenseUrl)
-                                }
-                            } else null
-                        
                         LicenseHeader(
                             backgroundColor = MaterialTheme.colorScheme.background,
                             moduleLicense = licenseTitle,
                             moduleLicenseUrl = licenseUrl,
-                            onViewLicenseUrl = onViewLicenseUrl
+                            onViewLicenseUrl = {
+                                onVibrate()
+                                browseWeb(licenseUrl)
+                            }
                         )
                     }
                     
@@ -158,10 +163,14 @@ fun SettingsAboutScreen(
                 }
                 
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(56.dp))
                 }
             }
         }
+        
+        BridgeButton(
+            onVibrate = onVibrate
+        )
     }
 }
 
@@ -170,27 +179,25 @@ fun LicenseCard(
     license: License,
     onViewModuleUrl: (String) -> Unit
 ) {
-    val cardModifier = if (license.moduleUrl.isNotBlank()) {
-        Modifier.clickable {
-            onViewModuleUrl(license.moduleUrl)
-        }
-    } else {
-        Modifier
-    }
-    
     Card(
-        modifier = cardModifier
+        modifier = Modifier
+            .minimumInteractiveComponentSize(),
+        onClick = {
+            if (license.moduleUrl.isNotBlank()) {
+                onViewModuleUrl(license.moduleUrl)
+            }
+        }
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+                .minimumInteractiveComponentSize(),
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            HintText(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                text = license.moduleName + ":" + license.moduleVersion,
-                style = MaterialTheme.typography.bodySmall
+                    .fillMaxHeight()
+                    .padding(horizontal = 12.dp),
+                text = license.moduleName + ":" + license.moduleVersion
             )
         }
     }
@@ -212,41 +219,45 @@ fun LicenseHeader(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f)
-                .padding(vertical = 8.dp)
+                .padding(vertical = 12.dp)
         ) {
-            Text(
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Start,
-                text = moduleLicense.ifBlank { stringResource(Res.string.settings_about_licenses_unknown) },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
+            SubtitleText(
+                text = moduleLicense.ifBlank { stringResource(Res.string.settings_about_licenses_unknown) }
             )
             
             if (moduleLicenseUrl.isNotBlank()) {
-                Text(
-                    style = MaterialTheme.typography.titleSmall,
-                    textAlign = TextAlign.Start,
-                    text = moduleLicenseUrl,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth()
+                SmallText(
+                    text = moduleLicenseUrl
                 )
             }
         }
         
         if (onViewLicenseUrl != null) {
-            IconButton(
-                onClick = {
-                    onViewLicenseUrl()
-                }
-            ) {
-                Icon(Icons.Default.Link, contentDescription = moduleLicense)
-            }
+            ClickableIcon(
+                onClick = onViewLicenseUrl,
+                imageVector = Icons.Default.Link,
+                contentDescription = moduleLicense
+            )
         }
+    }
+}
+
+@Composable
+fun BridgeButton(
+    modifier: Modifier = Modifier,
+    onVibrate: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .consumeClick()
+            .padding(bottom = 16.dp)
+            .padding(horizontal = 16.dp)
+    ) {
+        LinkButton(
+            text = stringResource(Res.string.developer_name),
+            url = "https://bridge.supplies/",
+            onVibrate = onVibrate
+        )
     }
 }

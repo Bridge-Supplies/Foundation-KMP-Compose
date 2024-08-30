@@ -22,7 +22,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -399,13 +398,11 @@ fun TopAppBarAction(
             .wrapContentWidth()
             .fillMaxHeight()
     ) {
-        IconButton(
-            onClick = {
-                onAction()
-            }
-        ) {
-            Icon(appBarAction.icon, contentDescription = stringResource(appBarAction.labelRes))
-        }
+        ClickableIcon(
+            onClick = onAction,
+            imageVector = appBarAction.icon,
+            contentDescription = stringResource(appBarAction.labelRes)
+        )
     }
 }
 
@@ -491,14 +488,11 @@ fun TopBarNavIcon(
         modifier = Modifier
             .fillMaxHeight()
     ) {
-        IconButton(
+        ClickableIcon(
             onClick = onNavigateBack,
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(Res.string.navigation_back)
-            )
-        }
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = stringResource(Res.string.navigation_back)
+        )
     }
 }
 

@@ -6,28 +6,19 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -35,18 +26,21 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,8 +52,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
@@ -109,7 +101,7 @@ fun Modifier.consumeClick() = this.clickable(
 fun ExpandableTitledCard(
     modifier: Modifier = Modifier,
     title: String,
-    maxUnexpandedHeight: Dp = 180.dp,
+    maxUnexpandedHeight: Dp = 172.dp,
     onExpand: ((expanded: Boolean) -> Unit)? = null,
     content: @Composable ColumnScope.(isExpanded: Boolean) -> Unit
 ) {
@@ -128,7 +120,7 @@ fun ExpandableTitledCard(
         }
     )
     
-    val onClick = {
+    val onClick: () -> Unit = {
         expanded = !expanded
         onExpand?.invoke(expanded)
     }
@@ -154,7 +146,7 @@ fun ExpandableTitledCard(
             ) {
                 Row(
                     modifier = Modifier
-                        .padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
+                        .padding(start = 16.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TitleText(
@@ -166,29 +158,27 @@ fun ExpandableTitledCard(
                         maxLines = if (expanded) 2 else 1
                     )
                     
-                    IconButton(
-                        onClick = {
-                            onClick()
+                    ClickableIcon(
+                        modifier = Modifier
+                            .graphicsLayer {
+                                rotationZ = animatedIcon
+                            },
+                        onClick = onClick,
+                        imageVector = Icons.Default.ExpandLess,
+                        contentDescription = if (expanded) {
+                            stringResource(Res.string.button_expand_less)
+                        } else {
+                            stringResource(Res.string.button_expand_more)
                         }
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .graphicsLayer {
-                                    rotationZ = animatedIcon
-                                },
-                            imageVector = Icons.Default.ExpandLess,
-                            contentDescription = if (expanded) {
-                                stringResource(Res.string.button_expand_less)
-                            } else {
-                                stringResource(Res.string.button_expand_more)
-                            }
-                        )
-                    }
+                    )
                 }
+                
+                HorizontalSeparator()
                 
                 Column(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp)
                 ) {
                     content(expanded)
                     
@@ -205,65 +195,142 @@ fun ExpandableTitledCard(
 fun TitleText(
     modifier: Modifier = Modifier,
     text: String,
-    maxLines: Int = 2
+    maxLines: Int = 2,
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.titleLarge,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
-        textAlign = TextAlign.Start
+        textAlign = textAlign
     )
 }
 
 @Composable
 fun SubtitleText(
     modifier: Modifier = Modifier,
-    text: String
+    text: String,
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodyLarge,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
-        textAlign = TextAlign.Start
+        textAlign = textAlign
     )
+}
+
+@Composable
+fun OptionDetailText(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String
+) {
+    Column(
+        modifier = modifier
+            .padding(vertical = 8.dp)
+    ) {
+        SubtitleText(
+            text = title,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+        
+        SmallText(
+            text = subtitle,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+    }
 }
 
 @Composable
 fun BodyText(
     modifier: Modifier = Modifier,
-    text: String
+    text: String,
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         overflow = TextOverflow.Ellipsis,
-        textAlign = TextAlign.Start
+        textAlign = textAlign
+    )
+}
+
+@Composable
+fun SmallText(
+    modifier: Modifier = Modifier,
+    text: String,
+    textAlign: TextAlign = TextAlign.Start
+) {
+    Text(
+        modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+            .animateContentSize(),
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = textAlign
     )
 }
 
 @Composable
 fun HintText(
     modifier: Modifier = Modifier,
-    text: String
+    text: String,
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
-        textAlign = TextAlign.Start
+        textAlign = textAlign
     )
+}
+
+@Composable
+fun FillButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = modifier
+            .fillMaxWidth(),
+        onClick = {
+            onClick()
+        }
+    ) {
+        Text(
+            text = text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
 
 @Composable
@@ -291,11 +358,13 @@ fun LinkButton(
 
 @Composable
 fun ClickableIcon(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     imageVector: ImageVector,
     contentDescription: String
 ) {
     IconButton(
+        modifier = modifier,
         onClick = onClick
     ) {
         Icon(
@@ -303,6 +372,93 @@ fun ClickableIcon(
             contentDescription = contentDescription
         )
     }
+}
+
+@Composable
+fun SettingsSwitch(
+    title: String,
+    subtitle: String,
+    enabled: Boolean,
+    onEnabled: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .clickable {
+                onEnabled(!enabled)
+            }
+            .padding(vertical = 4.dp)
+            .padding(end = 16.dp)
+    ) {
+        OptionDetailText(
+            modifier = Modifier.weight(1f),
+            title = title,
+            subtitle = subtitle
+        )
+        
+        Switch(
+            checked = enabled,
+            onCheckedChange = {
+                onEnabled(it)
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T> SettingsSelector(
+    title: String,
+    subtitle: String,
+    optionList: List<T>,
+    selectedOption: T,
+    onSelectOption: (T) -> Unit,
+    optionName: @Composable (T) -> String
+) {
+    Column {
+        OptionDetailText(
+            title = title,
+            subtitle = subtitle
+        )
+        
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(horizontal = 12.dp)
+        ) {
+            optionList.forEachIndexed { index, value ->
+                SegmentedButton(
+                    selected = value == selectedOption,
+                    onClick = {
+                        onSelectOption(value)
+                    },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = optionList.size
+                    ),
+                ) {
+                    Text(
+                        text = optionName(value),
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HorizontalSeparator() {
+    HorizontalDivider(
+        color = MaterialTheme.colorScheme.outlineVariant,
+        modifier = Modifier
+            .padding(vertical = 8.dp, horizontal = 16.dp)
+    )
 }
 
 // Adapted for multiplatform from: https://dev.to/bmonjoie/jetpack-compose-reveal-effect-1fao
@@ -436,230 +592,4 @@ fun TextInput(
             }
         }
     )
-}
-
-
-// Scrollable edge fade lists
-
-@Composable
-fun EdgeFadeGrid(
-    modifier: Modifier = Modifier,
-    colorScheme: ColorScheme = MaterialTheme.colorScheme,
-    gridState: LazyGridState,
-    fadeSize: Dp = 24.dp,
-    gridContent: @Composable () -> Unit
-) {
-    val orientation = gridState.layoutInfo.orientation
-    
-    val showStartEdgeFade by remember {
-        derivedStateOf {
-            gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0
-        }
-    }
-    
-    val showEndEdgeFade by remember {
-        derivedStateOf {
-            val layoutInfo = gridState.layoutInfo
-            if (layoutInfo.visibleItemsInfo.isNotEmpty()) {
-                val lastVisibleItemInfo = layoutInfo.visibleItemsInfo.last()
-                val lastItemBottom = lastVisibleItemInfo.offset.y + lastVisibleItemInfo.size.height
-                // Check if the last item's end edge is below the viewport's end (indicating it's not fully visible)
-                lastItemBottom > layoutInfo.viewportEndOffset
-            } else {
-                false
-            }
-        }
-    }
-    
-    EdgeFadeBase(
-        modifier = modifier,
-        colorScheme = colorScheme,
-        showStartEdgeFade = showStartEdgeFade,
-        showEndEdgeFade = showEndEdgeFade,
-        orientation = orientation,
-        fadeSize = fadeSize,
-        content = gridContent
-    )
-}
-
-@Composable
-fun EdgeFadeStaggeredGrid(
-    modifier: Modifier = Modifier,
-    colorScheme: ColorScheme = MaterialTheme.colorScheme,
-    gridState: LazyStaggeredGridState,
-    fadeSize: Dp = 24.dp,
-    gridContent: @Composable () -> Unit
-) {
-    val orientation = gridState.layoutInfo.orientation
-    
-    val showStartEdgeFade by remember {
-        derivedStateOf {
-            gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0
-        }
-    }
-    
-    val showEndEdgeFade by remember {
-        derivedStateOf {
-            val layoutInfo = gridState.layoutInfo
-            if (layoutInfo.visibleItemsInfo.isNotEmpty()) {
-                val lastVisibleItemInfo = layoutInfo.visibleItemsInfo.last()
-                val lastItemBottom = lastVisibleItemInfo.offset.y + lastVisibleItemInfo.size.height
-                // Check if the last item's end edge is below the viewport's end (indicating it's not fully visible)
-                lastItemBottom > layoutInfo.viewportEndOffset
-            } else {
-                false
-            }
-        }
-    }
-    
-    EdgeFadeBase(
-        modifier = modifier,
-        colorScheme = colorScheme,
-        showStartEdgeFade = showStartEdgeFade,
-        showEndEdgeFade = showEndEdgeFade,
-        orientation = orientation,
-        fadeSize = fadeSize,
-        content = gridContent
-    )
-}
-
-
-@Composable
-fun EdgeFadeLazyList(
-    modifier: Modifier = Modifier,
-    colorScheme: ColorScheme = MaterialTheme.colorScheme,
-    listState: LazyListState,
-    fadeSize: Dp = 24.dp,
-    listContent: @Composable () -> Unit
-) {
-    val orientation = listState.layoutInfo.orientation
-    
-    val showStartEdgeFade by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
-        }
-    }
-    
-    val showEndEdgeFade by remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            layoutInfo.visibleItemsInfo.lastOrNull()?.let { lastVisibleItem ->
-                val isLastItemFullyVisible = lastVisibleItem.offset + lastVisibleItem.size <= layoutInfo.viewportEndOffset
-                // The last visible item is not the last item in the list or it's not fully visible
-                (lastVisibleItem.index + 1 < layoutInfo.totalItemsCount) || !isLastItemFullyVisible
-            } ?: false
-        }
-    }
-    
-    EdgeFadeBase(
-        modifier = modifier,
-        colorScheme = colorScheme,
-        showStartEdgeFade = showStartEdgeFade,
-        showEndEdgeFade = showEndEdgeFade,
-        orientation = orientation,
-        fadeSize = fadeSize,
-        content = listContent
-    )
-}
-
-@Composable
-fun EdgeFadeBase(
-    modifier: Modifier = Modifier,
-    colorScheme: ColorScheme = MaterialTheme.colorScheme,
-    showStartEdgeFade: Boolean,
-    showEndEdgeFade: Boolean,
-    orientation: Orientation,
-    fadeSize: Dp = 24.dp,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = modifier
-    ) {
-        content()
-        
-        AnimatedEdgeFade(
-            colorScheme = colorScheme,
-            isVisible = showStartEdgeFade,
-            orientation = orientation,
-            isStartEdge = true,
-            fadeSize = fadeSize
-        )
-        
-        AnimatedEdgeFade(
-            colorScheme = colorScheme,
-            isVisible = showEndEdgeFade,
-            orientation = orientation,
-            isStartEdge = false,
-            fadeSize = fadeSize
-        )
-    }
-}
-
-
-@Composable
-fun BoxScope.AnimatedEdgeFade(
-    colorScheme: ColorScheme = MaterialTheme.colorScheme,
-    isVisible: Boolean,
-    orientation: Orientation,
-    isStartEdge: Boolean,
-    fadeSize: Dp
-) {
-    val alignment by remember(orientation, isStartEdge) {
-        derivedStateOf {
-            when {
-                orientation == Orientation.Horizontal && isStartEdge ->
-                    Alignment.CenterStart
-                
-                orientation == Orientation.Horizontal && !isStartEdge ->
-                    Alignment.CenterEnd
-                
-                orientation == Orientation.Vertical && isStartEdge ->
-                    Alignment.TopCenter
-                
-                else ->
-                    Alignment.BottomCenter
-            }
-        }
-    }
-    
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = fadeIn(),
-        exit = fadeOut(),
-        modifier = Modifier
-            .align(alignment)
-            .then(
-                when (orientation) {
-                    Orientation.Horizontal -> Modifier.width(fadeSize)
-                    Orientation.Vertical -> Modifier.height(fadeSize)
-                }
-            )
-    ) {
-        val colors = listOf(
-            if (isStartEdge) colorScheme.background else Color.Transparent,
-            if (isStartEdge) Color.Transparent else colorScheme.background
-        )
-        
-        Box(
-            modifier = Modifier
-                .background(
-                    when (orientation) {
-                        Orientation.Horizontal ->
-                            Brush.horizontalGradient(colors = colors)
-                        
-                        Orientation.Vertical ->
-                            Brush.verticalGradient(colors = colors)
-                    }
-                )
-                .then(
-                    when (orientation) {
-                        Orientation.Horizontal ->
-                            Modifier.fillMaxHeight()
-                        
-                        Orientation.Vertical ->
-                            Modifier.fillMaxWidth()
-                    }
-                )
-        )
-    }
 }

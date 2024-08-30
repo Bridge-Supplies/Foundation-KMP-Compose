@@ -25,7 +25,7 @@ expect fun FoundationTheme(
 )
 
 enum class ColorTheme(
-    val stringRes: StringResource,
+    val titleRes: StringResource,
     val color: Color
 ) {
     AUTO(
@@ -51,7 +51,7 @@ enum class ColorTheme(
 }
 
 enum class Palette(
-    val stringRes: StringResource,
+    val titleRes: StringResource,
     val paletteStyle: PaletteStyle
 ) {
     NEUTRAL(
@@ -69,7 +69,7 @@ enum class Palette(
 }
 
 enum class DarkMode(
-    val stringRes: StringResource
+    val titleRes: StringResource
 ) {
     AUTO(
         Res.string.theme_settings_dark_mode_auto
