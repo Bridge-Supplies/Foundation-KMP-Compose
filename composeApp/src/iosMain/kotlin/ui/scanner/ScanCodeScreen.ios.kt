@@ -10,11 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +27,8 @@ import foundation.composeapp.generated.resources.import_button_text
 import org.jetbrains.compose.resources.stringResource
 import qrscanner.QrScanner
 import ui.CircularReveal
+import ui.TextButton
+import ui.ToggleableIcon
 
 @Composable
 actual fun CodeScannerLayout(
@@ -81,29 +79,24 @@ actual fun CodeScannerLayout(
                 alignment = Alignment.CenterHorizontally
             )
         ) {
-            IconToggleButton(
-                checked = flashlightOn,
-                onCheckedChange = { enabled ->
-                    flashlightOn = enabled
-                    onVibrate()
-                }
-            ) {
-                Icon(
-                    imageVector = if (flashlightOn) Icons.Filled.FlashOn else Icons.Filled.FlashOff,
-                    contentDescription = stringResource(Res.string.camera_flash_button_text)
-                )
+            ToggleableIcon(
+                enabled = flashlightOn,
+                enabledVector = Icons.Filled.FlashOn,
+                disabledVector = Icons.Filled.FlashOff,
+                contentDescription = stringResource(Res.string.camera_flash_button_text)
+            ) { enabled ->
+                flashlightOn = enabled
+                onVibrate()
             }
             
-            Button(
+            TextButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                onClick = {
-                    launchGallery = true
-                    onVibrate()
-                }
+                text = stringResource(Res.string.import_button_text)
             ) {
-                Text(stringResource(Res.string.import_button_text))
+                launchGallery = true
+                onVibrate()
             }
         }
     }

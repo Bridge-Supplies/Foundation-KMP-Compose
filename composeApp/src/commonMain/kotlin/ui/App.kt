@@ -34,10 +34,10 @@ import config.FoundationTheme
 import config.PlatformType
 import config.getPlatform
 import config.isPortraitMode
-import data.ActiveBottomSheet
 import data.MainViewModel
 import data.koinViewModel
 import org.koin.compose.KoinContext
+import ui.sheets.ActiveBottomSheet
 import ui.sheets.DatePickerBottomSheet
 import ui.sheets.ShareAppBottomSheet
 
@@ -110,80 +110,80 @@ fun MainScaffold(
         onDispose { navController.removeOnDestinationChangedListener(listener) }
     }
     
-    Scaffold(
+    Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        topBar = {
-            AnimatedVisibility(
-                visible = currentlySelectedTab != null,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                TopBar(
-                    viewModel = viewModel,
-                    currentlySelectedTab = currentlySelectedTab,
-                    currentScreen = currentScreen,
-                    canNavigateBack = canNavigateBack,
-                    onNavigateBack = onNavigateBack
-                )
-            }
-        },
-        bottomBar = {
-            AnimatedVisibility(
-                visible = currentlySelectedTab != null && isPortraitMode,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                BottomAppBar(
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    BottomNavigationBar(
-                        currentlySelectedTab = currentlySelectedTab,
-                        onSelectNavigationTab = onSelectNavigationTab
-                    )
-                }
-            }
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHost)
-        }
-    ) { innerPadding ->
-        LaunchedEffect(isPortraitMode, useFullscreenLandscape) {
-            if (isPortraitMode || !useFullscreenLandscape) {
-                onShowSystemUi(true)
-            } else {
-                onShowSystemUi(false)
-            }
+    ) {
+        AnimatedVisibility(
+            visible = currentlySelectedTab != null && !isPortraitMode,
+            modifier = Modifier
+                .fillMaxHeight()
+        ) {
+            SideNavigationRail(
+                currentlySelectedTab = currentlySelectedTab,
+                onSelectNavigationTab = onSelectNavigationTab
+            )
         }
         
-        Row(
+        Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    top = innerPadding.calculateTopPadding(),
-                    bottom = innerPadding.calculateBottomPadding(),
-                    // iOS landscape gives too much horizontal space and we can't tell which side is too wide
-                    start = if (!isPortraitMode && platform.type != PlatformType.IOS)
-                        innerPadding.calculateStartPadding(LocalLayoutDirection.current) else 0.dp,
-                    end = if (!isPortraitMode && platform.type != PlatformType.IOS)
-                        innerPadding.calculateEndPadding(LocalLayoutDirection.current) else 0.dp,
-                ),
-        ) {
-            AnimatedVisibility(
-                visible = currentlySelectedTab != null && !isPortraitMode,
-                modifier = Modifier
-                    .fillMaxHeight()
-            ) {
-                SideNavigationRail(
-                    currentlySelectedTab = currentlySelectedTab,
-                    onSelectNavigationTab = onSelectNavigationTab
-                )
+                .background(MaterialTheme.colorScheme.background),
+            topBar = {
+                AnimatedVisibility(
+                    visible = currentlySelectedTab != null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    TopBar(
+                        viewModel = viewModel,
+                        currentlySelectedTab = currentlySelectedTab,
+                        currentScreen = currentScreen,
+                        canNavigateBack = canNavigateBack,
+                        onNavigateBack = onNavigateBack
+                    )
+                }
+            },
+            bottomBar = {
+                AnimatedVisibility(
+                    visible = currentlySelectedTab != null && isPortraitMode,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    BottomAppBar(
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        BottomNavigationBar(
+                            currentlySelectedTab = currentlySelectedTab,
+                            onSelectNavigationTab = onSelectNavigationTab
+                        )
+                    }
+                }
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHost)
+            }
+        ) { innerPadding ->
+            LaunchedEffect(isPortraitMode, useFullscreenLandscape) {
+                if (isPortraitMode || !useFullscreenLandscape) {
+                    onShowSystemUi(true)
+                } else {
+                    onShowSystemUi(false)
+                }
             }
             
             NavigationGraph(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        bottom = innerPadding.calculateBottomPadding(),
+                        // iOS landscape gives too much horizontal space and we can't tell which side is too wide
+                        start = if (!isPortraitMode && platform.type != PlatformType.IOS)
+                            innerPadding.calculateStartPadding(LocalLayoutDirection.current) else 0.dp,
+                        end = if (!isPortraitMode && platform.type != PlatformType.IOS)
+                            innerPadding.calculateEndPadding(LocalLayoutDirection.current) else 0.dp,
+                    ),
                 viewModel = viewModel,
                 navController = navController,
                 isNavigatingTopLevel = isNavigatingTopLevel,
@@ -192,30 +192,30 @@ fun MainScaffold(
                 onNavigateBack = onNavigateBack,
                 onCloseApplication = onCloseApplication
             )
-        }
-        
-        when (currentBottomSheet) {
-            is ActiveBottomSheet.None -> {
-                /* no-op */
-            }
             
-            is ActiveBottomSheet.DatePicker -> {
-                val sheetData = (currentBottomSheet as ActiveBottomSheet.DatePicker)
-                DatePickerBottomSheet(
-                    viewModel = viewModel,
-                    coroutineScope = coroutineScope,
-                    selectedDate = sheetData.selectedDate,
-                    onVibrate = onVibrate
-                )
-            }
-            
-            is ActiveBottomSheet.ShareApp -> {
-                val sheetData = (currentBottomSheet as ActiveBottomSheet.ShareApp)
-                ShareAppBottomSheet(
-                    viewModel = viewModel,
-                    coroutineScope = coroutineScope,
-                    onVibrate = onVibrate
-                )
+            when (currentBottomSheet) {
+                is ActiveBottomSheet.None -> {
+                    /* no-op */
+                }
+                
+                is ActiveBottomSheet.DatePicker -> {
+                    val sheetData = (currentBottomSheet as ActiveBottomSheet.DatePicker)
+                    DatePickerBottomSheet(
+                        viewModel = viewModel,
+                        coroutineScope = coroutineScope,
+                        selectedDate = sheetData.selectedDate,
+                        onVibrate = onVibrate
+                    )
+                }
+                
+                is ActiveBottomSheet.ShareApp -> {
+                    val sheetData = (currentBottomSheet as ActiveBottomSheet.ShareApp)
+                    ShareAppBottomSheet(
+                        viewModel = viewModel,
+                        coroutineScope = coroutineScope,
+                        onVibrate = onVibrate
+                    )
+                }
             }
         }
     }

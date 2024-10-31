@@ -11,7 +11,7 @@
     <string name="app_date_selected">Selected date: %1$s</string>
     <string name="app_about_build">Version</string>
     <string name="app_about_version">Build</string>
-    <string name="app_about_platform">Platform</string>
+    <string name="app_about_platform">Platform: %1$s</string>
 
     <string name="tab_home_title">Home</string>
     <string name="tab_share_title">Share</string>
@@ -46,8 +46,10 @@
     <string name="import_button_text">Import code</string>
     <string name="camera_flash_button_text">Toggle flash</string>
     <string name="scanner_unsupported_text">This device does not support code scanning</string>
+    <string name="scanner_success_text">Message received</string>
     <string name="scanner_error_text">Unable to scan code</string>
     <string name="scanner_error_action">Try again</string>
+    <string name="scanner_done">Done</string>
 
     <string name="app_settings_title">General</string>
     <string name="app_settings_landing_tips_title">Show tips on app launch</string>

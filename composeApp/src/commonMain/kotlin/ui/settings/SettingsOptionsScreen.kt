@@ -4,7 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,13 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import config.ColorTheme
@@ -49,14 +46,12 @@ import foundation.composeapp.generated.resources.theme_settings_vibration_subtit
 import foundation.composeapp.generated.resources.theme_settings_vibration_title
 import org.jetbrains.compose.resources.stringResource
 import ui.AppBarAction
+import ui.BottomButton
 import ui.EdgeFadeColumn
-import ui.FillButton
-import ui.HorizontalSeparator
 import ui.Screen
 import ui.SettingsSelector
 import ui.SettingsSwitch
-import ui.TitleText
-import ui.consumeClick
+import ui.TitledCard
 
 @Composable
 fun SettingsOptionsScreen(
@@ -65,7 +60,9 @@ fun SettingsOptionsScreen(
     onNavigateToAbout: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
+    val horizontalPadding = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
     val appBarAction by viewModel.activeAppBarAction.collectAsState()
+    val scrollState = rememberScrollState()
     
     Screen.SETTINGS_OPTIONS.actions.forEach { action ->
         if (appBarAction == action) {
@@ -84,62 +81,59 @@ fun SettingsOptionsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.BottomCenter
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        val scrollState = rememberScrollState()
-        
         EdgeFadeColumn(
-            scrollState = scrollState
+            modifier = Modifier
+                .padding(
+                    vertical = 8.dp,
+                    horizontal = horizontalPadding
+                ),
+            state = scrollState,
+            verticalItemSpacing = 8.dp
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(
-                        vertical = 16.dp,
-                        horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
-                    ),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (isPortraitMode) {
+            if (isPortraitMode) {
+                GeneralSettings(
+                    viewModel = viewModel,
+                    onVibrate = onVibrate
+                )
+                
+                ThemeSettings(
+                    viewModel = viewModel,
+                    onVibrate = onVibrate
+                )
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     GeneralSettings(
+                        modifier = Modifier.weight(1f),
                         viewModel = viewModel,
                         onVibrate = onVibrate
                     )
                     
                     ThemeSettings(
+                        modifier = Modifier.weight(1f),
                         viewModel = viewModel,
                         onVibrate = onVibrate
                     )
-                } else {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        GeneralSettings(
-                            modifier = Modifier.weight(1f),
-                            viewModel = viewModel,
-                            onVibrate = onVibrate
-                        )
-                        
-                        ThemeSettings(
-                            modifier = Modifier.weight(1f),
-                            viewModel = viewModel,
-                            onVibrate = onVibrate
-                        )
-                    }
                 }
-                
-                Spacer(modifier = Modifier.height(56.dp))
             }
+            
+            Spacer(Modifier.height(56.dp))
         }
         
-        AboutButton(
-            onClick = {
-                onVibrate()
-                onNavigateToAbout()
-            }
-        )
+        BottomButton(
+            text = stringResource(Res.string.navigation_settings_about),
+            paddingValues = PaddingValues(
+                start = horizontalPadding,
+                end = horizontalPadding,
+                bottom = 16.dp
+            )
+        ) {
+            onVibrate()
+            onNavigateToAbout()
+        }
     }
 }
 
@@ -149,69 +143,54 @@ fun GeneralSettings(
     viewModel: MainViewModel,
     onVibrate: () -> Unit
 ) {
-    val useLandingTips by viewModel.useLandingTips.collectAsState()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
+    val useLandingTips by viewModel.useLandingTips.collectAsState()
     val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
     val useVibration by viewModel.useVibration.collectAsState()
     
-    ElevatedCard(
+    TitledCard(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight()
+            .wrapContentHeight(),
+        title = stringResource(Res.string.app_settings_title)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(top = 16.dp, bottom = 8.dp)
-        ) {
-            TitleText(
-                text = stringResource(Res.string.app_settings_title),
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .padding(horizontal = 16.dp)
-            )
-            
-            HorizontalSeparator()
-            
+        SettingsSwitch(
+            title = stringResource(Res.string.app_settings_encryption_title),
+            subtitle = stringResource(Res.string.app_settings_encryption_subtitle),
+            enabled = useEncryptedShare
+        ) { enabled ->
+            viewModel.useEncryptedShare(enabled)
+            onVibrate()
+        }
+        
+        SettingsSwitch(
+            title = stringResource(Res.string.app_settings_landing_tips_title),
+            subtitle = stringResource(Res.string.app_settings_landing_tips_subtitle),
+            enabled = useLandingTips
+        ) { enabled ->
+            viewModel.useLandingTips(enabled)
+            onVibrate()
+        }
+        
+        if (viewModel.supportsFeature(Feature.FULLSCREEN_LANDSCAPE)) {
             SettingsSwitch(
-                title = stringResource(Res.string.app_settings_landing_tips_title),
-                subtitle = stringResource(Res.string.app_settings_landing_tips_subtitle),
-                enabled = useLandingTips
+                title = stringResource(Res.string.app_settings_fullscreen_landscape_title),
+                subtitle = stringResource(Res.string.app_settings_fullscreen_landscape_subtitle),
+                enabled = useFullscreenLandscape
             ) { enabled ->
-                viewModel.useLandingTips(enabled)
+                viewModel.useFullscreenLandscape(enabled)
                 onVibrate()
             }
-            
+        }
+        
+        if (viewModel.supportsFeature(Feature.VIBRATION)) {
             SettingsSwitch(
-                title = stringResource(Res.string.app_settings_encryption_title),
-                subtitle = stringResource(Res.string.app_settings_encryption_subtitle),
-                enabled = useEncryptedShare
+                title = stringResource(Res.string.theme_settings_vibration_title),
+                subtitle = stringResource(Res.string.theme_settings_vibration_subtitle),
+                enabled = useVibration
             ) { enabled ->
-                viewModel.useEncryptedShare(enabled)
+                viewModel.useVibration(enabled)
                 onVibrate()
-            }
-            
-            if (viewModel.supportsFeature(Feature.FULLSCREEN_LANDSCAPE)) {
-                SettingsSwitch(
-                    title = stringResource(Res.string.app_settings_fullscreen_landscape_title),
-                    subtitle = stringResource(Res.string.app_settings_fullscreen_landscape_subtitle),
-                    enabled = useFullscreenLandscape
-                ) { enabled ->
-                    viewModel.useFullscreenLandscape(enabled)
-                    onVibrate()
-                }
-            }
-            
-            if (viewModel.supportsFeature(Feature.VIBRATION)) {
-                SettingsSwitch(
-                    title = stringResource(Res.string.theme_settings_vibration_title),
-                    subtitle = stringResource(Res.string.theme_settings_vibration_subtitle),
-                    enabled = useVibration
-                ) { enabled ->
-                    viewModel.useVibration(enabled)
-                    onVibrate()
-                }
             }
         }
     }
@@ -227,96 +206,63 @@ fun ThemeSettings(
     val usePalette by viewModel.usePalette.collectAsState()
     val useDarkMode by viewModel.useDarkMode.collectAsState()
     
-    ElevatedCard(
+    TitledCard(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight()
+            .wrapContentHeight(),
+        title = stringResource(Res.string.theme_settings_title)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(vertical = 16.dp)
-        ) {
-            TitleText(
-                text = stringResource(Res.string.theme_settings_title),
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .padding(horizontal = 16.dp)
-            )
-            
-            HorizontalSeparator()
-            
-            val buttonList: List<ColorTheme> = if (viewModel.supportsFeature(Feature.DYNAMIC_COLORS)) {
-                listOf(ColorTheme.AUTO, ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE, ColorTheme.OFF)
-            } else {
-                listOf(ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE, ColorTheme.OFF)
+        val buttonList: List<ColorTheme> = if (viewModel.supportsFeature(Feature.DYNAMIC_COLORS)) {
+            listOf(ColorTheme.AUTO, ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE, ColorTheme.OFF)
+        } else {
+            listOf(ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE, ColorTheme.OFF)
+        }
+        
+        SettingsSelector(
+            modifier = Modifier.padding(bottom = 8.dp),
+            title = stringResource(Res.string.theme_settings_color_theme_title),
+            subtitle = stringResource(Res.string.theme_settings_color_theme_subtitle),
+            optionList = buttonList,
+            selectedOption = useColorTheme,
+            onSelectOption = { colorTheme ->
+                viewModel.useColorTheme(colorTheme)
+                onVibrate()
+            },
+            optionName = { colorTheme ->
+                stringResource(colorTheme.titleRes)
             }
-            
+        )
+        
+        AnimatedVisibility(listOf(ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE).contains(useColorTheme)) {
             SettingsSelector(
-                title = stringResource(Res.string.theme_settings_color_theme_title),
-                subtitle = stringResource(Res.string.theme_settings_color_theme_subtitle),
-                optionList = buttonList,
-                selectedOption = useColorTheme,
-                onSelectOption = { colorTheme ->
-                    viewModel.useColorTheme(colorTheme)
+                modifier = Modifier.padding(bottom = 8.dp),
+                title = stringResource(Res.string.theme_settings_palette_title),
+                subtitle = stringResource(Res.string.theme_settings_palette_subtitle),
+                optionList = Palette.entries,
+                selectedOption = usePalette,
+                onSelectOption = { palette ->
+                    viewModel.usePalette(palette)
                     onVibrate()
                 },
-                optionName = { colorTheme ->
-                    stringResource(colorTheme.titleRes)
-                }
-            )
-            
-            AnimatedVisibility(listOf(ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE).contains(useColorTheme)) {
-                SettingsSelector(
-                    title = stringResource(Res.string.theme_settings_palette_title),
-                    subtitle = stringResource(Res.string.theme_settings_palette_subtitle),
-                    optionList = Palette.entries,
-                    selectedOption = usePalette,
-                    onSelectOption = { palette ->
-                        viewModel.usePalette(palette)
-                        onVibrate()
-                    },
-                    optionName = { palette ->
-                        stringResource(palette.titleRes)
-                    }
-                )
-            }
-            
-            SettingsSelector(
-                title = stringResource(Res.string.theme_settings_dark_mode_title),
-                subtitle = stringResource(Res.string.theme_settings_dark_mode_subtitle),
-                optionList = DarkMode.entries,
-                selectedOption = useDarkMode,
-                onSelectOption = { darkMode ->
-                    viewModel.useDarkMode(darkMode)
-                    onVibrate()
-                },
-                optionName = { darkMode ->
-                    stringResource(darkMode.titleRes)
+                optionName = { palette ->
+                    stringResource(palette.titleRes)
                 }
             )
         }
-    }
-}
-
-@Composable
-fun AboutButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .consumeClick()
-            .padding(bottom = 16.dp)
-            .padding(horizontal = 16.dp)
-    ) {
-        FillButton(
-            modifier = Modifier
-                .weight(1f),
-            onClick = onClick,
-            text = stringResource(Res.string.navigation_settings_about)
+        
+        SettingsSelector(
+            modifier = Modifier.padding(bottom = 8.dp),
+            title = stringResource(Res.string.theme_settings_dark_mode_title),
+            subtitle = stringResource(Res.string.theme_settings_dark_mode_subtitle),
+            optionList = DarkMode.entries,
+            selectedOption = useDarkMode,
+            onSelectOption = { darkMode ->
+                viewModel.useDarkMode(darkMode)
+                onVibrate()
+            },
+            optionName = { darkMode ->
+                stringResource(darkMode.titleRes)
+            }
         )
     }
 }

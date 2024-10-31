@@ -17,7 +17,10 @@ actual fun randomUuid(): String = NSUUID().UUIDString()
 actual fun browseWeb(
     url: String
 ): Boolean {
-    UIApplication.sharedApplication.openURL(NSURL(string = url))
+    val nsUrl = NSURL(string = url)
+    if (UIApplication.sharedApplication.canOpenURL(nsUrl)) {
+        UIApplication.sharedApplication.openURL(nsUrl, mapOf<Any?, Unit>(), { })
+    }
     return true
 }
 
@@ -25,7 +28,7 @@ actual fun systemAppSettings() {
     val url = NSURLComponents("app-settings:").URL
     url?.let {
         if (UIApplication.sharedApplication.canOpenURL(url)) {
-            UIApplication.sharedApplication.openURL(url)
+            UIApplication.sharedApplication.openURL(url, mapOf<Any?, Unit>(), { })
         }
     }
 }

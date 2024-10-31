@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -34,6 +32,8 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import ui.TextButton
+import ui.TitleText
 
 @Composable
 fun HomeDateScreen(
@@ -68,10 +68,10 @@ fun HomeDateScreen(
             stringResource(Res.string.app_date_today, todaysDate) + "\n" +
             stringResource(Res.string.app_date_selected, selectedDateDisplay)
         
-        Text(
-            style = MaterialTheme.typography.titleLarge,
+        TitleText(
             textAlign = TextAlign.Start,
             text = text,
+            maxLines = 3,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -79,16 +79,14 @@ fun HomeDateScreen(
         
         Spacer(Modifier.weight(1f))
         
-        Button(
+        TextButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            onClick = {
-                viewModel.showDatePickerSheet(selectedDate)
-                onVibrate()
-            }
+            text = stringResource(Res.string.navigation_home_date_select)
         ) {
-            Text(stringResource(Res.string.navigation_home_date_select))
+            viewModel.showDatePickerSheet(selectedDate)
+            onVibrate()
         }
     }
 }

@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +27,8 @@ import foundation.composeapp.generated.resources.ic_launcher_foreground
 import foundation.composeapp.generated.resources.navigation_home_date
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.TextButton
+import ui.TitleText
 
 @Composable
 fun HomeInfoScreen(
@@ -64,10 +64,10 @@ fun HomeInfoScreen(
         val text = stringResource(Res.string.app_about_platform, viewModel.platform.name) + "\n" +
             stringResource(Res.string.app_about_orientation, orientationText)
         
-        Text(
-            style = MaterialTheme.typography.titleLarge,
+        TitleText(
             textAlign = TextAlign.Center,
             text = text,
+            maxLines = 2,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -75,16 +75,13 @@ fun HomeInfoScreen(
         
         Spacer(Modifier.weight(1f))
         
-        Button(
+        TextButton(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(top = 8.dp),
-            onClick = {
-                onNavigateDateScreen()
-                onVibrate()
-            }
+            text = stringResource(Res.string.navigation_home_date)
         ) {
-            Text(stringResource(Res.string.navigation_home_date))
+            onNavigateDateScreen()
+            onVibrate()
         }
     }
 }

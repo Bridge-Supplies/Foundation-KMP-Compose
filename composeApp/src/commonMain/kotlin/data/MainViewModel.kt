@@ -16,16 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ui.AppBarAction
-
-sealed class ActiveBottomSheet {
-    data object None : ActiveBottomSheet()
-    
-    data class DatePicker(
-        var selectedDate: Long
-    ) : ActiveBottomSheet()
-    
-    data object ShareApp : ActiveBottomSheet()
-}
+import ui.sheets.ActiveBottomSheet
 
 class MainViewModel(
     val platform: Platform,

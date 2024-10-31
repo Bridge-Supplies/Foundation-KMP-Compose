@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -505,6 +506,8 @@ fun SideNavigationRail(
         modifier = Modifier
             .fillMaxHeight()
     ) {
+        Spacer(Modifier.weight(1f))
+        
         NavigationTab.entries.forEach { item ->
             val selected = item.route == currentlySelectedTab?.route
             
@@ -523,6 +526,8 @@ fun SideNavigationRail(
                 }
             )
         }
+        
+        Spacer(Modifier.weight(1f))
     }
 }
 
@@ -606,7 +611,6 @@ fun selectNavigationTab(
         }
     }
 }
-
 
 fun navigateToScreen(
     navController: NavHostController,

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -39,6 +40,32 @@ fun IndexedLazyColumn(
         reverseLayout = reverseLayout,
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+    ) {
+        IndexedLazyListScope(this, state).content()
+    }
+}
+
+@Composable
+fun IndexedLazyRow(
+    modifier: Modifier = Modifier,
+    state: IndexedLazyListState = rememberIndexedLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalAlignment: Alignment.Vertical = if (!reverseLayout) Alignment.Top else Alignment.Bottom,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    content: IndexedLazyListScope.() -> Unit
+) {
+    LazyRow(
+        modifier = modifier,
+        state = state.listState,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        verticalAlignment = verticalAlignment,
+        horizontalArrangement = horizontalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
     ) {

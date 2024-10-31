@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -16,11 +14,14 @@ import androidx.compose.ui.unit.dp
 import data.MainViewModel
 import data.decryptAndUncompress
 import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.scanner_done
 import foundation.composeapp.generated.resources.scanner_error_action
 import foundation.composeapp.generated.resources.scanner_error_text
+import foundation.composeapp.generated.resources.scanner_success_text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
+import ui.showSnackBar
 
 @Composable
 expect fun CodeScannerLayout(
@@ -41,25 +42,25 @@ fun ScanCodeScreen(
     
     val onScanSuccess: (String) -> Unit = {
         viewModel.setSharedText(it)
-        onVibrate()
-        onCloseScanner()
+        coroutineScope.launch(Dispatchers.Main) {
+            showSnackBar(
+                message = getString(Res.string.scanner_success_text),
+                actionLabel = getString(Res.string.scanner_done),
+                snackbarHost = snackbarHost,
+                onVibrate = onVibrate,
+                onComplete = onCloseScanner
+            )
+        }
     }
     
     val onScanFailure: () -> Unit = {
         coroutineScope.launch(Dispatchers.Main) {
-            // clear any existing snackbars
-            snackbarHost.currentSnackbarData?.dismiss()
-            
-            onVibrate()
-            val snackbar = snackbarHost.showSnackbar(
+            showSnackBar(
                 message = getString(Res.string.scanner_error_text),
                 actionLabel = getString(Res.string.scanner_error_action),
-                duration = SnackbarDuration.Short
+                snackbarHost = snackbarHost,
+                onVibrate = onVibrate
             )
-            
-            if (snackbar == SnackbarResult.ActionPerformed) {
-                snackbarHost.currentSnackbarData?.dismiss()
-            }
         }
     }
     

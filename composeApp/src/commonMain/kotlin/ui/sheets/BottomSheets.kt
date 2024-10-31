@@ -1,25 +1,21 @@
 package ui.sheets
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -31,22 +27,32 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import config.PlatformType
-import config.getScreenSizeInfo
 import config.isPortraitMode
 import data.MainViewModel
 import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.navigation_close
 import foundation.composeapp.generated.resources.navigation_confirm
-import foundation.composeapp.generated.resources.share_button_text
 import foundation.composeapp.generated.resources.share_sheet_copy_text
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import ui.EdgeFadeColumn
 import ui.PastOrPresentSelectableDates
+import ui.TextButton
 import ui.scanner.CodeDisplay
+
+sealed class ActiveBottomSheet {
+    data object None : ActiveBottomSheet()
+    
+    data class DatePicker(
+        var selectedDate: Long
+    ) : ActiveBottomSheet()
+    
+    data object ShareApp : ActiveBottomSheet()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 fun CoroutineScope.hideSheet(sheetState: SheetState, viewModel: MainViewModel) {
@@ -79,22 +85,22 @@ fun SimpleBottomSheet(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(top = 24.dp, bottom = 48.dp)
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(top = 24.dp, bottom = if (platform != PlatformType.DESKTOP) 48.dp else 16.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.Start
             ) {
-                val sheetMaxContentHeight = getScreenSizeInfo().dpHeight / 2f
-                content(Modifier.heightIn(max = sheetMaxContentHeight))
+                content(
+                    Modifier
+                        .padding(bottom = 8.dp)
+                )
                 
-                OutlinedButton(
-                    onClick = closeSheet,
+                TextButton(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(top = 8.dp),
+                        .minimumInteractiveComponentSize(),
+                    text = stringResource(Res.string.navigation_close),
+                    outlined = true
                 ) {
-                    Text(stringResource(Res.string.navigation_close))
+                    closeSheet()
                 }
             }
         }
@@ -117,6 +123,7 @@ fun DatePickerBottomSheet(
     onVibrate: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(true)
+    val scrollState = rememberScrollState()
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = selectedDate,
         initialDisplayMode = DisplayMode.Input,
@@ -141,24 +148,23 @@ fun DatePickerBottomSheet(
         platform = viewModel.platform.type,
         sheetState = sheetState,
         closeSheet = closeSheet
-    ) {
-        DatePicker(
-            state = datePickerState,
-            modifier = Modifier
-                .padding(8.dp)
-        )
-        
-        Button(
-            onClick = {
+    ) { modifier ->
+        EdgeFadeColumn(
+            modifier = modifier,
+            state = scrollState,
+            fadeColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ) {
+            DatePicker(datePickerState)
+            
+            TextButton(
+                text = stringResource(Res.string.navigation_confirm),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+            ) {
                 viewModel.setSelectedDate(datePickerState.selectedDateMillis ?: selectedDate)
                 closeSheet()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(top = 8.dp),
-        ) {
-            Text(stringResource(Res.string.navigation_confirm))
+            }
         }
     }
 }
@@ -171,6 +177,7 @@ fun ShareAppBottomSheet(
     onVibrate: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(true)
+    val scrollState = rememberScrollState()
     val clipboardManager = LocalClipboardManager.current
     
     val closeSheet: () -> Unit = {
@@ -182,36 +189,36 @@ fun ShareAppBottomSheet(
         platform = viewModel.platform.type,
         sheetState = sheetState,
         closeSheet = closeSheet
-    ) {
-        Text(
-            text = stringResource(Res.string.share_button_text),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-        
-        CodeDisplay(
-            modifier = Modifier
-                .wrapContentWidth()
-                .height(if (isPortraitMode()) 256.dp else 200.dp),
-            text = viewModel.platform.shareUrl,
-            color = MaterialTheme.colorScheme.primary,
-            backgroundColor = MaterialTheme.colorScheme.onPrimary,
-            cardColor = MaterialTheme.colorScheme.onSurface
-        )
-        
-        Button(
-            onClick = {
+    ) { modifier ->
+        EdgeFadeColumn(
+            modifier = modifier,
+            state = scrollState,
+            fadeColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CodeDisplay(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .height(if (isPortraitMode()) 256.dp else 200.dp),
+                    text = viewModel.platform.shareUrl,
+                    color = MaterialTheme.colorScheme.primary,
+                    backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                    cardColor = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+            TextButton(
+                modifier = Modifier
+                    .padding(top = 12.dp),
+                text = stringResource(Res.string.share_sheet_copy_text)
+            ) {
                 clipboardManager.setText(AnnotatedString(viewModel.platform.shareUrl))
                 closeSheet()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(top = 16.dp),
-        ) {
-            Text(stringResource(Res.string.share_sheet_copy_text))
+            }
         }
     }
 }
