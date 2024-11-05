@@ -47,7 +47,8 @@ actual fun FoundationTheme(
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
-                style = usePalette.paletteStyle
+                isAmoled = true,
+                style = usePalette.paletteStyle,
             )
         }
         
@@ -55,6 +56,7 @@ actual fun FoundationTheme(
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
+                isAmoled = true,
                 style = PaletteStyle.Monochrome
             )
         }

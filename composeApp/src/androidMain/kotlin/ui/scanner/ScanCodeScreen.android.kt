@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.camera_flash_button_text
 import foundation.composeapp.generated.resources.import_button_text
+import io.github.alexzhirkevich.qrose.QrCodePainter
 import org.jetbrains.compose.resources.stringResource
-import qrscanner.QrScanner
 import ui.CircularReveal
 
 @Composable
@@ -57,14 +57,14 @@ actual fun CodeScannerLayout(
             startDelayMs = 500,
             revealDurationMs = 800
         ) {
-            QrScanner(
+            QrCodePainter(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(6.dp)
                     .clipToBounds()
                     .clip(shape = shape),
                 flashlightOn = flashlightOn,
-                launchGallery = launchGallery,
+                openImagePicker = launchGallery,
                 onCompletion = onCompletion,
                 onGalleryCallBackHandler = {
                     launchGallery = it

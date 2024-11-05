@@ -94,11 +94,11 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.chaintech.qrkit)
+            implementation(libs.qrose)
         }
         
         iosMain.dependencies {
-            implementation(libs.chaintech.qrkit)
+            implementation(libs.qrose)
         }
         
         val desktopMain by getting {
@@ -184,8 +184,8 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     
     packaging {
@@ -211,6 +211,7 @@ compose.desktop {
             version = libs.versions.app.versionName.get()
             description = libs.versions.app.description.get()
             copyright = libs.versions.app.copyright.get()
+            licenseFile = rootProject.file("LICENSE") // MIT
             vendor = libs.versions.app.vendor.get()
             
             macOS {
