@@ -84,7 +84,7 @@ kotlin {
             implementation(libs.material.kolor)
             
             // TESTING
-            implementation(libs.junit)
+            //implementation(libs.junit)
         }
         
         androidMain.dependencies {
@@ -94,11 +94,11 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.qrose)
+            implementation(libs.chaintech.qrkit)
         }
         
         iosMain.dependencies {
-            implementation(libs.qrose)
+            implementation(libs.chaintech.qrkit)
         }
         
         val desktopMain by getting {
