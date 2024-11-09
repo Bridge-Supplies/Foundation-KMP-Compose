@@ -85,10 +85,7 @@ fun SettingsOptionsScreen(
     ) {
         EdgeFadeColumn(
             modifier = Modifier
-                .padding(
-                    vertical = 8.dp,
-                    horizontal = horizontalPadding
-                ),
+                .padding(horizontal = horizontalPadding),
             state = scrollState,
             verticalItemSpacing = 8.dp
         ) {
@@ -120,7 +117,7 @@ fun SettingsOptionsScreen(
                 }
             }
             
-            Spacer(Modifier.height(56.dp))
+            Spacer(Modifier.height(64.dp))
         }
         
         BottomButton(
