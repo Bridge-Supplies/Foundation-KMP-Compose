@@ -1,10 +1,11 @@
 package ui.sheets
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -15,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -44,16 +44,6 @@ import ui.PastOrPresentSelectableDates
 import ui.TextButton
 import ui.scanner.CodeDisplay
 
-sealed class ActiveBottomSheet {
-    data object None : ActiveBottomSheet()
-    
-    data class DatePicker(
-        var selectedDate: Long
-    ) : ActiveBottomSheet()
-    
-    data object ShareApp : ActiveBottomSheet()
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 fun CoroutineScope.hideSheet(sheetState: SheetState, viewModel: MainViewModel) {
     launch {
@@ -76,33 +66,18 @@ fun SimpleBottomSheet(
     val bottomSheet = @Composable {
         ModalBottomSheet(
             sheetState = sheetState,
-            dragHandle = if (platform == PlatformType.IOS || platform == PlatformType.ANDROID) {
+            dragHandle = if (platform != PlatformType.DESKTOP) {
                 { BottomSheetDefaults.DragHandle() }
             } else {
                 null
             },
             onDismissRequest = closeSheet
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(top = 24.dp, bottom = if (platform != PlatformType.DESKTOP) 48.dp else 16.dp)
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
-                content(
-                    Modifier
-                        .padding(bottom = 8.dp)
-                )
-                
-                TextButton(
-                    modifier = Modifier
-                        .minimumInteractiveComponentSize(),
-                    text = stringResource(Res.string.navigation_close),
-                    outlined = true
-                ) {
-                    closeSheet()
-                }
-            }
+            Spacer(Modifier.height(24.dp))
+            
+            content(Modifier.padding(horizontal = 16.dp))
+            
+            Spacer(Modifier.navigationBarsPadding())
         }
     }
     
@@ -111,6 +86,91 @@ fun SimpleBottomSheet(
         bottomSheet()
     } else {
         bottomSheet()
+    }
+}
+
+@Composable
+fun CloseButton(
+    modifier: Modifier = Modifier.padding(bottom = 12.dp),
+    closeSheet: () -> Unit
+) {
+    TextButton(
+        modifier = modifier,
+        text = stringResource(Res.string.navigation_close),
+        outlined = true
+    ) {
+        closeSheet()
+    }
+}
+
+
+// BOTTOM SHEETS
+
+sealed class ActiveBottomSheet {
+    data object None : ActiveBottomSheet()
+    
+    data object ShareApp : ActiveBottomSheet()
+    
+    data class DatePicker(
+        var selectedDate: Long
+    ) : ActiveBottomSheet()
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShareAppBottomSheet(
+    viewModel: MainViewModel,
+    coroutineScope: CoroutineScope,
+    onVibrate: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(true)
+    val scrollState = rememberScrollState()
+    val clipboardManager = LocalClipboardManager.current
+    
+    val closeSheet: () -> Unit = {
+        coroutineScope.hideSheet(sheetState, viewModel)
+        onVibrate()
+    }
+    
+    SimpleBottomSheet(
+        platform = viewModel.platform.type,
+        sheetState = sheetState,
+        closeSheet = closeSheet
+    ) { modifier ->
+        EdgeFadeColumn(
+            modifier = modifier,
+            state = scrollState,
+            verticalItemSpacing = 8.dp,
+            fadeColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CodeDisplay(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .height(if (isPortraitMode()) 256.dp else 200.dp),
+                    text = viewModel.platform.shareUrl,
+                    color = MaterialTheme.colorScheme.primary,
+                    backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                    cardColor = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+            TextButton(
+                text = stringResource(Res.string.share_sheet_copy_text)
+            ) {
+                clipboardManager.setText(AnnotatedString(viewModel.platform.shareUrl))
+                closeSheet()
+            }
+            
+            CloseButton(
+                closeSheet = closeSheet
+            )
+        }
     }
 }
 
@@ -152,73 +212,21 @@ fun DatePickerBottomSheet(
         EdgeFadeColumn(
             modifier = modifier,
             state = scrollState,
+            verticalItemSpacing = 8.dp,
             fadeColor = MaterialTheme.colorScheme.surfaceContainerLow
         ) {
             DatePicker(datePickerState)
             
             TextButton(
-                text = stringResource(Res.string.navigation_confirm),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
+                text = stringResource(Res.string.navigation_confirm)
             ) {
                 viewModel.setSelectedDate(datePickerState.selectedDateMillis ?: selectedDate)
                 closeSheet()
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ShareAppBottomSheet(
-    viewModel: MainViewModel,
-    coroutineScope: CoroutineScope,
-    onVibrate: () -> Unit
-) {
-    val sheetState = rememberModalBottomSheetState(true)
-    val scrollState = rememberScrollState()
-    val clipboardManager = LocalClipboardManager.current
-    
-    val closeSheet: () -> Unit = {
-        coroutineScope.hideSheet(sheetState, viewModel)
-        onVibrate()
-    }
-    
-    SimpleBottomSheet(
-        platform = viewModel.platform.type,
-        sheetState = sheetState,
-        closeSheet = closeSheet
-    ) { modifier ->
-        EdgeFadeColumn(
-            modifier = modifier,
-            state = scrollState,
-            fadeColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                CodeDisplay(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .height(if (isPortraitMode()) 256.dp else 200.dp),
-                    text = viewModel.platform.shareUrl,
-                    color = MaterialTheme.colorScheme.primary,
-                    backgroundColor = MaterialTheme.colorScheme.onPrimary,
-                    cardColor = MaterialTheme.colorScheme.onSurface
-                )
-            }
             
-            TextButton(
-                modifier = Modifier
-                    .padding(top = 12.dp),
-                text = stringResource(Res.string.share_sheet_copy_text)
-            ) {
-                clipboardManager.setText(AnnotatedString(viewModel.platform.shareUrl))
-                closeSheet()
-            }
+            CloseButton(
+                closeSheet = closeSheet
+            )
         }
     }
 }
