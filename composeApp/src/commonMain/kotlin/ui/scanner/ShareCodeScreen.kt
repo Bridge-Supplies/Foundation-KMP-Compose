@@ -115,7 +115,7 @@ fun ShareCodeScreen(
                 cardColor = MaterialTheme.colorScheme.onSurface
             )
             
-            CodeReader(
+            ShareControls(
                 modifier = Modifier
                     .wrapContentHeight(),
                 text = liveText,
@@ -142,7 +142,7 @@ fun ShareCodeScreen(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CodeReader(
+            ShareControls(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp),
@@ -213,7 +213,7 @@ fun CodeDisplay(
 }
 
 @Composable
-fun CodeReader(
+fun ShareControls(
     modifier: Modifier,
     text: String,
     encryptionEnabled: Boolean,
@@ -229,8 +229,7 @@ fun CodeReader(
     ) {
         TextInput(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = if (supportsScanning) 8.dp else 0.dp),
+                .fillMaxWidth(),
             minLines = 4,
             maxLines = 4,
             text = text,
@@ -243,7 +242,6 @@ fun CodeReader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
         ) {
             TextButton(
                 modifier = Modifier
