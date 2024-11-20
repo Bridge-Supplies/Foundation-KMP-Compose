@@ -117,7 +117,7 @@ fun SettingsOptionsScreen(
                 }
             }
             
-            Spacer(Modifier.height(64.dp))
+            Spacer(Modifier.height(56.dp))
         }
         
         BottomButton(

@@ -37,12 +37,12 @@ class MainViewModel(
     var licenses = _licenses.asStateFlow()
         private set
     
-    private val _useLandingTips = MutableStateFlow(Prefs.FULLSCREEN_LANDSCAPE.defaultValue as Boolean)
-    var useLandingTips = _useLandingTips.asStateFlow()
-        private set
-    
     private val _useEncryptedShare = MutableStateFlow(Prefs.ENCRYPTED_SHARE.defaultValue as Boolean)
     var useEncryptedShare = _useEncryptedShare.asStateFlow()
+        private set
+    
+    private val _useLandingTips = MutableStateFlow(Prefs.LANDING_TIPS.defaultValue as Boolean)
+    var useLandingTips = _useLandingTips.asStateFlow()
         private set
     
     private val _useFullscreenLandscape = MutableStateFlow(Prefs.FULLSCREEN_LANDSCAPE.defaultValue as Boolean)

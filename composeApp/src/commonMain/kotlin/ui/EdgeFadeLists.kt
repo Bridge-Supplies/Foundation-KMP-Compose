@@ -181,7 +181,11 @@ fun EdgeFadeColumn(
                 .verticalScroll(state),
             verticalArrangement = Arrangement.spacedBy(verticalItemSpacing)
         ) {
+            Spacer(Modifier)
+            
             content()
+            
+            Spacer(Modifier)
         }
     }
 }
@@ -219,7 +223,11 @@ fun EdgeFadeRow(
                 .horizontalScroll(state),
             horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing)
         ) {
+            Spacer(Modifier)
+            
             content()
+            
+            Spacer(Modifier)
         }
     }
 }
@@ -267,15 +275,11 @@ fun EdgeFadeIndexedLazyColumn(
             state = state,
             verticalArrangement = Arrangement.spacedBy(verticalItemSpacing)
         ) {
-            item {
-                Spacer(Modifier)
-            }
+            item { Spacer(Modifier) }
             
             content()
             
-            item {
-                Spacer(Modifier)
-            }
+            item { Spacer(Modifier) }
         }
     }
 }
@@ -320,15 +324,11 @@ fun EdgeFadeIndexedLazyRow(
             state = state,
             horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing)
         ) {
-            item {
-                Spacer(Modifier)
-            }
+            item { Spacer(Modifier) }
             
             content()
             
-            item {
-                Spacer(Modifier)
-            }
+            item { Spacer(Modifier) }
         }
     }
 }
@@ -378,15 +378,11 @@ fun EdgeFadeLazyVerticalGrid(
             verticalArrangement = Arrangement.spacedBy(verticalItemSpacing),
             horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing)
         ) {
-            item(span = { GridItemSpan(columns) }) {
-                Spacer(Modifier)
-            }
+            item(span = { GridItemSpan(columns) }) { Spacer(Modifier) }
             
             content()
             
-            item(span = { GridItemSpan(columns) }) {
-                Spacer(Modifier)
-            }
+            item(span = { GridItemSpan(columns) }) { Spacer(Modifier) }
         }
     }
 }
@@ -436,15 +432,11 @@ fun EdgeFadeLazyStaggeredVerticalGrid(
             verticalItemSpacing = verticalItemSpacing,
             horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing)
         ) {
-            item(span = StaggeredGridItemSpan.FullLine) {
-                Spacer(Modifier)
-            }
+            item(span = StaggeredGridItemSpan.FullLine) { Spacer(Modifier) }
             
             content()
             
-            item(span = StaggeredGridItemSpan.FullLine) {
-                Spacer(Modifier)
-            }
+            item(span = StaggeredGridItemSpan.FullLine) { Spacer(Modifier) }
         }
     }
 }
