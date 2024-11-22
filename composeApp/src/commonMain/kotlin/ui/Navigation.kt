@@ -572,7 +572,7 @@ fun Screen.getNavigationTab(): NavigationTab? {
 }
 
 fun NavBackStackEntry.getCurrentScreen(): Screen =
-    Screen.entries.find { it.route == destination.route } ?: Screen.LANDING
+    Screen.entries.find { destination.route?.startsWith(it.route) ?: false } ?: Screen.LANDING
 
 fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
     val currentScreen = getCurrentScreen()
