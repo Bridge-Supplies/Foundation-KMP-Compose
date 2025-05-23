@@ -1,102 +1,141 @@
 package ui.scanner
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FlashOff
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.unit.dp
-import foundation.composeapp.generated.resources.Res
-import foundation.composeapp.generated.resources.camera_flash_button_text
-import foundation.composeapp.generated.resources.import_button_text
-import org.jetbrains.compose.resources.stringResource
-import qrscanner.QrScanner
-import ui.CircularReveal
-import ui.TextButton
-import ui.ToggleableIcon
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.icerock.moko.permissions.DeniedAlwaysException
+import dev.icerock.moko.permissions.DeniedException
+import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.PermissionState
+import dev.icerock.moko.permissions.PermissionsController
+import dev.icerock.moko.permissions.RequestCanceledException
+import dev.icerock.moko.permissions.camera.CAMERA
+import dev.icerock.moko.permissions.compose.BindEffect
+import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import kotlinx.coroutines.launch
+import org.ncgroup.kscan.BarcodeFormats
+import org.ncgroup.kscan.BarcodeResult
+import org.ncgroup.kscan.ScannerView
+import ui.FloatingButton
+
+class PermissionsViewModel(
+    private val controller: PermissionsController
+) : ViewModel() {
+    
+    var state by mutableStateOf(PermissionState.NotDetermined)
+        private set
+    
+    init {
+        checkPermissionState()
+    }
+    
+    fun checkPermissionState() {
+        viewModelScope.launch {
+            state = controller.getPermissionState(Permission.CAMERA)
+        }
+    }
+    
+    fun provideOrRequestCameraPermission() {
+        viewModelScope.launch {
+            try {
+                controller.providePermission(Permission.CAMERA)
+                state = PermissionState.Granted
+            } catch (e: DeniedAlwaysException) {
+                state = PermissionState.DeniedAlways
+            } catch (e: DeniedException) {
+                state = PermissionState.Denied
+            } catch (e: RequestCanceledException) {
+                e.printStackTrace()
+            }
+        }
+    }
+}
 
 @Composable
-actual fun CodeScannerLayout(
+actual fun CodeScanner(
     modifier: Modifier,
-    onVibrate: () -> Unit,
-    onCompletion: (String) -> Unit,
-    onFailure: (String) -> Unit
+    onSuccess: (String) -> Unit,
+    onFailure: (String) -> Unit,
+    onDenied: () -> Unit
 ) {
-    var flashlightOn by remember { mutableStateOf(false) }
-    var launchGallery by remember { mutableStateOf(false) }
+    val factory = rememberPermissionsControllerFactory()
+    val controller = remember(factory) {
+        factory.createPermissionsController()
+    }
     
-    val shape = RoundedCornerShape(size = 12.dp)
+    BindEffect(controller)
     
-    Column(
-        modifier = modifier
-    ) {
-        CircularReveal(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clipToBounds()
-                .clip(shape = shape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-            startDelayMs = 500,
-            revealDurationMs = 800
-        ) {
-            QrScanner(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(6.dp)
-                    .clipToBounds()
-                    .clip(shape = shape),
-                flashlightOn = flashlightOn,
-                launchGallery = launchGallery,
-                onCompletion = onCompletion,
-                onGalleryCallBackHandler = {
-                    launchGallery = it
-                },
-                onFailure = onFailure
-            )
+    val viewModel = viewModel {
+        PermissionsViewModel(controller)
+    }
+    
+    when (viewModel.state) {
+        PermissionState.Granted -> {
+            ScannerView(
+                modifier = modifier,
+                codeTypes = listOf(
+                    BarcodeFormats.FORMAT_QR_CODE,
+                ),
+                showUi = false
+            ) { result ->
+                when (result) {
+                    is BarcodeResult.OnSuccess -> {
+                        println("Barcode: ${result.barcode.data}, format: ${result.barcode.format}")
+                        onSuccess(result.barcode.data)
+                    }
+                    
+                    is BarcodeResult.OnFailed -> {
+                        println("Error: ${result.exception.message}")
+                        onFailure(result.exception.message ?: "")
+                    }
+                    
+                    BarcodeResult.OnCanceled -> {
+                        onFailure("")
+                    }
+                }
+            }
         }
         
-        Row(
-            modifier = Modifier
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(
-                space = 8.dp,
-                alignment = Alignment.CenterHorizontally
-            )
-        ) {
-            ToggleableIcon(
-                enabled = flashlightOn,
-                enabledVector = Icons.Filled.FlashOn,
-                disabledVector = Icons.Filled.FlashOff,
-                contentDescription = stringResource(Res.string.camera_flash_button_text)
-            ) { enabled ->
-                flashlightOn = enabled
-                onVibrate()
+        PermissionState.DeniedAlways -> {
+            Box(
+                modifier = modifier
+                    .fillMaxSize(),
+            ) {
+                FloatingButton(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = "Allow camera permission"
+                ) {
+                    controller.openAppSettings()
+                    onDenied()
+                }
+            }
+        }
+        
+        else -> {
+            LaunchedEffect(Unit) {
+                viewModel.provideOrRequestCameraPermission()
             }
             
-            TextButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                text = stringResource(Res.string.import_button_text)
+            Box(
+                modifier = modifier
+                    .fillMaxSize(),
             ) {
-                launchGallery = true
-                onVibrate()
+                FloatingButton(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = "Request camera permission"
+                ) {
+                    viewModel.provideOrRequestCameraPermission()
+                }
             }
         }
     }

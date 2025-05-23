@@ -55,9 +55,13 @@ buildConfig {
 kotlin {
     androidTarget()
     jvm("desktop")
-    task("testClasses")
+    tasks.register("testClasses")
     
     sourceSets {
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+        
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -71,17 +75,18 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.datastore.preferences.core)
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.androidx.datastore)
+            implementation(libs.androidx.datastore.preferences)
             implementation(libs.navigation.compose)
             
             api(libs.koin.core)
             implementation(libs.koin.compose)
             
-            implementation(libs.g0dkar.qrcode.kotlin)
             implementation(libs.soywiz.korlibs.krypto)
             implementation(libs.soywiz.korlibs.compression)
-            implementation(libs.soywiz.korlibs.compression.deflate)
             implementation(libs.material.kolor)
+            implementation(libs.g0dkar.qrcode.kotlin)
             
             // TESTING
             implementation(libs.junit)
@@ -89,16 +94,21 @@ kotlin {
         
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
-            implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.chaintech.qrkit)
+            implementation(libs.ismai117.kscan)
+            api(libs.moko.permissions)
+            api(libs.moko.permissions.camera)
+            api(libs.moko.permissions.compose)
         }
         
         iosMain.dependencies {
-            implementation(libs.chaintech.qrkit)
+            implementation(libs.ismai117.kscan)
+            api(libs.moko.permissions)
+            api(libs.moko.permissions.camera)
+            api(libs.moko.permissions.compose)
         }
         
         val desktopMain by getting {
@@ -124,7 +134,7 @@ kotlin {
     
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
@@ -133,10 +143,6 @@ android {
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-    
-    dependencies {
-        debugImplementation(libs.compose.ui.tooling)
-    }
     
     signingConfigs {
         create("release") {
@@ -167,8 +173,13 @@ android {
             
             resValue("string", "app_name", libs.versions.app.name.get())
             
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             isDebuggable = false
+            
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         
         getByName("debug") {

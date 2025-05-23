@@ -4,37 +4,36 @@ app-packageName = "bridge.supplies.foundation"
 app-mainName = ".Foundation"
 app-name = "Foundation"
 app-description = "Foundational KMP Compose template application."
-app-copyright = "© 2024 Bridge Supplies. All rights reserved."
+app-copyright = "© 2025 Bridge Supplies. All rights reserved."
 app-vendor = "Bridge Supplies"
-app-versionName = "1.1.10" # "Version"
-app-versionCode = "202501130" # "Build"
+app-versionName = "1.2.0" # "Version"
+app-versionCode = "202505220" # "Build"
 android-minSdk = "28"
 android-targetSdk = "35"
 android-compileSdk = "35"
 #packages
-agp = "8.3.2"
+agp = "8.10.0"
 junit = "4.13.2"
-androidx-core-ktx = "1.15.0"
-androidx-activity-compose = "1.9.3"
-compose = "1.7.6"
-compose-plugin = "1.6.10"
-kotlin = "2.0.0"
-kotlinx-datetime = "0.6.0"
-kotlinx-coroutines = "1.9.0-RC"
-kotlinx-serialization-json = "1.6.3"
-lifecycle-viewmodel = "2.8.7"
-koin = "3.6.0-alpha3"
-koin-compose = "3.6.0-alpha3"
-koin-compose-multiplatform = "1.2.0-alpha3"
-navigation-compose = "2.7.0-alpha07"
-chaintech-qrkit = "1.0.2"
-g0dkar-qrcode-kotlin = "4.1.1"
-androidx-datastore = "1.1.1"
-buildconfig = "5.3.5"
+androidx-core-ktx = "1.16.0"
+androidx-activity-compose = "1.10.1"
+compose-plugin = "1.8.0"
+kotlin = "2.2.0-Beta1"
+kotlinx-datetime = "0.6.2"
+kotlinx-coroutines = "1.10.2"
+kotlinx-serialization-json = "1.8.1"
+koin = "4.0.4"
+moko = "0.19.1"
+lifecycle-viewmodel = "2.9.0" # matched to compose-plugin version
+lifecycle-viewmodel-compose = "2.9.0-beta01" # matched to compose-plugin version
+navigation-compose = "2.9.0-beta01" # matched to compose-plugin version
+androidx-datastore = "1.1.7"
+buildconfig = "5.6.5"
 korlibs-krypto = "4.0.10"
-korlibs-compression = "6.0.0-alpha2"
-material-kolor = "1.7.0"
-license-report = "2.8"
+korlibs-compression = "6.0.0"
+material-kolor = "2.1.1"
+license-report = "2.9"
+g0dkar-qrcode-kotlin = "4.1.1"
+kscan = "0.1.0-beta05"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -45,22 +44,22 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycle-viewmodel"}
-androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "androidx-datastore"}
+androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose"}
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore"}
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore"}
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
-
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-compose" }
-koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin-compose-multiplatform" }
-
-chaintech-qrkit = { module = "network.chaintech:qr-kit", version.ref = "chaintech-qrkit" } # Android/iOS generation & scanning
-g0dkar-qrcode-kotlin = { module = "io.github.g0dkar:qrcode-kotlin", version.ref = "g0dkar-qrcode-kotlin" } # Android/iOS/Desktop generation
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+moko-permissions = { module = "dev.icerock.moko:permissions", version.ref = "moko" }
+moko-permissions-camera = { module = "dev.icerock.moko:permissions-camera", version.ref = "moko" }
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko" }
 soywiz-korlibs-krypto = { module = "com.soywiz.korlibs.krypto:krypto", version.ref = "korlibs-krypto" } # Encryption/Decryption
 soywiz-korlibs-compression = { module = "com.soywiz:korlibs-compression", version.ref = "korlibs-compression" } # Zipping/unzipping
-soywiz-korlibs-compression-deflate = { module = "com.soywiz:korlibs-compression-deflate", version.ref = "korlibs-compression" } # GZIP
 material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "material-kolor" }
+g0dkar-qrcode-kotlin = { module = "io.github.g0dkar:qrcode-kotlin", version.ref = "g0dkar-qrcode-kotlin" } # Android/iOS/Desktop QR generation
+ismai117-kscan = { module = "io.github.ismai117:KScan", version.ref = "kscan" } # Android/iOS QR scanning
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

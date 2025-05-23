@@ -27,13 +27,13 @@ import foundation.composeapp.generated.resources.ic_launcher_foreground
 import foundation.composeapp.generated.resources.navigation_home_date
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import ui.TextButton
+import ui.FloatingButton
 import ui.TitleText
 
 @Composable
 fun HomeInfoScreen(
     viewModel: MainViewModel,
-    onVibrate: () -> Unit,
+    hapticFeedback: () -> Unit,
     onNavigateDateScreen: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
@@ -44,10 +44,7 @@ fun HomeInfoScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(
-                vertical = 16.dp,
-                horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
-            ),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
@@ -75,13 +72,14 @@ fun HomeInfoScreen(
         
         Spacer(Modifier.weight(1f))
         
-        TextButton(
+        FloatingButton(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = 8.dp),
             text = stringResource(Res.string.navigation_home_date)
         ) {
             onNavigateDateScreen()
-            onVibrate()
+            hapticFeedback()
         }
     }
 }

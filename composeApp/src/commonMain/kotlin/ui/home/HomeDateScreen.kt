@@ -32,13 +32,13 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
-import ui.TextButton
+import ui.FloatingButton
 import ui.TitleText
 
 @Composable
 fun HomeDateScreen(
     viewModel: MainViewModel,
-    onVibrate: () -> Unit
+    hapticFeedback: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
     val timer by viewModel.timer.collectAsState()
@@ -58,10 +58,7 @@ fun HomeDateScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(
-                vertical = 16.dp,
-                horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
-            ),
+            .padding(16.dp),
         horizontalAlignment = Alignment.Start,
     ) {
         val text = stringResource(Res.string.app_date_elapsed_seconds, timer) + "\n" +
@@ -79,14 +76,14 @@ fun HomeDateScreen(
         
         Spacer(Modifier.weight(1f))
         
-        TextButton(
+        FloatingButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
             text = stringResource(Res.string.navigation_home_date_select)
         ) {
             viewModel.showDatePickerSheet(selectedDate)
-            onVibrate()
+            hapticFeedback()
         }
     }
 }

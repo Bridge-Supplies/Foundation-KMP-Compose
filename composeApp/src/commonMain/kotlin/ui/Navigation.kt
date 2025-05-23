@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material.icons.outlined.Settings
@@ -37,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -45,10 +48,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import androidx.savedstate.read
 import config.PlatformType
-import config.getPlatform
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.action_settings
+import foundation.composeapp.generated.resources.action_share
 import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.navigation_back
 import foundation.composeapp.generated.resources.screen_about_title
@@ -118,6 +123,20 @@ enum class NavigationTab(
     )
 }
 
+enum class AppBarAction(
+    val labelRes: StringResource,
+    val icon: ImageVector
+) {
+    SHARE(
+        Res.string.action_share,
+        Icons.Default.Share
+    ),
+    SETTINGS(
+        Res.string.action_settings,
+        Icons.Default.Settings
+    )
+}
+
 enum class Screen(
     val titleRes: StringResource,
     val route: String,
@@ -151,7 +170,7 @@ enum class Screen(
         Res.string.screen_generate_code_title,
         "share_generate",
         null,
-        emptyList()
+        listOf(AppBarAction.SHARE)
     ),
     SHARE_SCAN(
         Res.string.screen_scan_code_title,
@@ -174,20 +193,28 @@ enum class Screen(
         emptyList()
     );
     
-    fun getNavRoute(): String {
-        return route + (arg?.key?.let { "/{$it}" } ?: "")
-    }
+    fun getNavRoute(): String =
+        route + (arg?.key?.let { "?$it={$it}" } ?: "")
 }
 
 enum class NavArgument(
     val key: String,
-    val type: NavType<*>
+    val type: NavType<*>,
+    val defaultValue: Any
 ) {
-    USER_ID("userId", NavType.StringType)
+    // TODO
 }
 
 fun arg(argument: NavArgument): NamedNavArgument =
-    navArgument(argument.key) { type = argument.type }
+    navArgument(argument.key) { type = argument.type; defaultValue = argument.defaultValue }
+
+fun NavBackStackEntry.getString(argument: NavArgument): String? {
+    return arguments?.read { getString(argument.key) }
+}
+
+fun NavBackStackEntry.getInt(argument: NavArgument): Int? {
+    return arguments?.read { getInt(argument.key) }
+}
 
 
 // COMPOSABLES
@@ -231,7 +258,7 @@ fun NavigationGraph(
     navController: NavHostController,
     isNavigatingTopLevel: MutableState<Boolean>,
     snackbarHost: SnackbarHostState,
-    onVibrate: () -> Unit,
+    hapticFeedback: () -> Unit,
     onNavigateBack: () -> Unit,
     onCloseApplication: () -> Unit
 ) {
@@ -243,21 +270,23 @@ fun NavigationGraph(
     val popEnterTransition = if (isNavigatingTopLevel.value) TopLevelEnterTransition() else ScreenPopEnterTransition()
     val popExitTransition = if (isNavigatingTopLevel.value) TopLevelExitTransition() else ScreenPopExitTransition()
     
+    val startDestinationRoute = "landing_navigation"
+    
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = "landing_navigation",
+        startDestination = startDestinationRoute,
         enterTransition = { enterTransition },
         exitTransition = { exitTransition },
         popEnterTransition = { popEnterTransition },
         popExitTransition = { popExitTransition }
     ) {
         navigation(
-            route = "landing_navigation",
-            startDestination = Screen.LANDING.route,
+            route = startDestinationRoute,
+            startDestination = Screen.LANDING.getNavRoute(),
         ) {
             composable(
-                route = Screen.LANDING.route
+                route = Screen.LANDING.getNavRoute()
             ) {
                 BackHandler {
                     onCloseApplication()
@@ -275,10 +304,10 @@ fun NavigationGraph(
         
         navigation(
             route = NavigationTab.HOME.route,
-            startDestination = NavigationTab.HOME.startDestination.route
+            startDestination = NavigationTab.HOME.startDestination.getNavRoute()
         ) {
             composable(
-                route = Screen.HOME_INFO.route
+                route = Screen.HOME_INFO.getNavRoute()
             ) {
                 BackHandler {
                     onCloseApplication()
@@ -286,7 +315,7 @@ fun NavigationGraph(
                 
                 HomeInfoScreen(
                     viewModel = viewModel,
-                    onVibrate = onVibrate,
+                    hapticFeedback = hapticFeedback,
                     onNavigateDateScreen = {
                         isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.HOME_DATE)
@@ -295,7 +324,7 @@ fun NavigationGraph(
             }
             
             composable(
-                route = Screen.HOME_DATE.route
+                route = Screen.HOME_DATE.getNavRoute()
             ) {
                 BackHandler {
                     onNavigateBack()
@@ -303,26 +332,26 @@ fun NavigationGraph(
                 
                 HomeDateScreen(
                     viewModel = viewModel,
-                    onVibrate = onVibrate
+                    hapticFeedback = hapticFeedback
                 )
             }
         }
         
         navigation(
             route = NavigationTab.SHARE.route,
-            startDestination = NavigationTab.SHARE.startDestination.route
+            startDestination = NavigationTab.SHARE.startDestination.getNavRoute()
         ) {
             composable(
-                route = Screen.SHARE_GENERATE.route
+                route = Screen.SHARE_GENERATE.getNavRoute()
             ) {
                 BackHandler {
                     isNavigatingTopLevel.value = true
-                    selectNavigationTab(navController, NavigationTab.HOME, onVibrate)
+                    selectNavigationTab(navController, NavigationTab.HOME, hapticFeedback)
                 }
                 
                 ShareCodeScreen(
                     viewModel = viewModel,
-                    onVibrate = onVibrate,
+                    hapticFeedback = hapticFeedback,
                     onNavigateToScanner = {
                         isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.SHARE_SCAN)
@@ -331,7 +360,7 @@ fun NavigationGraph(
             }
             
             composable(
-                route = Screen.SHARE_SCAN.route
+                route = Screen.SHARE_SCAN.getNavRoute()
             ) {
                 BackHandler {
                     onNavigateBack()
@@ -340,10 +369,14 @@ fun NavigationGraph(
                 ScanCodeScreen(
                     viewModel = viewModel,
                     snackbarHost = snackbarHost,
-                    onVibrate = onVibrate,
-                    onCloseScanner = {
-                        isNavigatingTopLevel.value = false
+                    hapticFeedback = hapticFeedback,
+                    onSuccessfulScan = { sharedText ->
+                        isNavigatingTopLevel.value = true
+                        viewModel.setSharedText(sharedText)
                         navController.navigateUp()
+                    },
+                    onPermissionDenied = {
+                        onNavigateBack()
                     }
                 )
             }
@@ -351,19 +384,19 @@ fun NavigationGraph(
         
         navigation(
             route = NavigationTab.SETTINGS.route,
-            startDestination = NavigationTab.SETTINGS.startDestination.route
+            startDestination = NavigationTab.SETTINGS.startDestination.getNavRoute()
         ) {
             composable(
-                route = Screen.SETTINGS_OPTIONS.route
+                route = Screen.SETTINGS_OPTIONS.getNavRoute()
             ) {
                 BackHandler {
                     isNavigatingTopLevel.value = true
-                    selectNavigationTab(navController, NavigationTab.HOME, onVibrate)
+                    selectNavigationTab(navController, NavigationTab.HOME, hapticFeedback)
                 }
                 
                 SettingsOptionsScreen(
                     viewModel = viewModel,
-                    onVibrate = onVibrate,
+                    hapticFeedback = hapticFeedback,
                     onNavigateToAbout = {
                         isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.SETTINGS_ABOUT)
@@ -372,7 +405,7 @@ fun NavigationGraph(
             }
             
             composable(
-                route = Screen.SETTINGS_ABOUT.route
+                route = Screen.SETTINGS_ABOUT.getNavRoute()
             ) {
                 BackHandler {
                     onNavigateBack()
@@ -380,7 +413,7 @@ fun NavigationGraph(
                 
                 SettingsAboutScreen(
                     viewModel = viewModel,
-                    onVibrate = onVibrate
+                    hapticFeedback = hapticFeedback
                 )
             }
         }
@@ -416,7 +449,6 @@ fun TopBar(
     canNavigateBack: Boolean,
     onNavigateBack: () -> Unit = {}
 ) {
-    val platform = remember { getPlatform() }
     val title = remember(currentScreen) {
         when {
             currentlySelectedTab != null && currentScreen != null && currentlySelectedTab.startDestination != currentScreen ->
@@ -432,7 +464,7 @@ fun TopBar(
     val actions: @Composable() (RowScope.() -> Unit) = {
         AppBarAction.entries.forEach { appBarAction ->
             TopAppBarAction(
-                isVisible = currentScreen?.actions?.contains(appBarAction) ?: false,
+                isVisible = currentScreen?.actions?.contains(appBarAction) == true,
                 appBarAction = appBarAction
             ) {
                 viewModel.startAppBarAction(appBarAction)
@@ -440,28 +472,16 @@ fun TopBar(
         }
     }
     
-    if (platform.type == PlatformType.ANDROID) {
+    if (viewModel.platform.type != PlatformType.IOS) {
         TopAppBar(
-            title = {
-                TopBarText(
-                    text = stringResource(title)
-                )
-            },
-            navigationIcon = {
-                TopBarNavIcon(canNavigateBack, onNavigateBack)
-            },
+            title = { TopBarText(stringResource(title)) },
+            navigationIcon = { TopBarNavIcon(canNavigateBack, onNavigateBack) },
             actions = actions
         )
     } else {
         CenterAlignedTopAppBar(
-            title = {
-                TopBarText(
-                    text = stringResource(title)
-                )
-            },
-            navigationIcon = {
-                TopBarNavIcon(canNavigateBack, onNavigateBack)
-            },
+            title = { TopBarText(stringResource(title)) },
+            navigationIcon = { TopBarNavIcon(canNavigateBack, onNavigateBack) },
             actions = actions
         )
     }
@@ -499,6 +519,7 @@ fun TopBarNavIcon(
 
 @Composable
 fun SideNavigationRail(
+    verticallyCentered: Boolean = true,
     currentlySelectedTab: NavigationTab?,
     onSelectNavigationTab: (NavigationTab) -> Unit
 ) {
@@ -506,7 +527,11 @@ fun SideNavigationRail(
         modifier = Modifier
             .fillMaxHeight()
     ) {
-        Spacer(Modifier.weight(1f))
+        if (verticallyCentered) {
+            Spacer(Modifier.weight(1f))
+        } else {
+            Spacer(Modifier.height(56.dp))
+        }
         
         NavigationTab.entries.forEach { item ->
             val selected = item.route == currentlySelectedTab?.route
@@ -572,7 +597,7 @@ fun Screen.getNavigationTab(): NavigationTab? {
 }
 
 fun NavBackStackEntry.getCurrentScreen(): Screen =
-    Screen.entries.find { destination.route?.startsWith(it.route) ?: false } ?: Screen.LANDING
+    Screen.entries.find { destination.route?.startsWith(it.route) == true } ?: Screen.LANDING
 
 fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
     val currentScreen = getCurrentScreen()
@@ -583,13 +608,13 @@ fun NavBackStackEntry.getSelectedNavigationTab(): NavigationTab? {
 fun selectNavigationTab(
     navController: NavHostController,
     navigationTab: NavigationTab,
-    onVibrate: () -> Unit = { }
+    hapticFeedback: () -> Unit = { }
 ) {
     val currentScreen = navController.currentBackStackEntry?.getCurrentScreen()
     val currentlySelectedTab = currentScreen?.getNavigationTab()
     
     if (navigationTab.startDestination != currentScreen) {
-        onVibrate()
+        hapticFeedback()
         navController.navigate(
             route = navigationTab.route
         ) {
@@ -615,7 +640,7 @@ fun selectNavigationTab(
 fun navigateToScreen(
     navController: NavHostController,
     screen: Screen,
-    arg: String? = null
+    arg: Any? = null
 ) {
     val targetNavigationTab = screen.getNavigationTab()
     val currentNavigationTab = navController.currentBackStackEntry?.getSelectedNavigationTab()
@@ -624,8 +649,8 @@ fun navigateToScreen(
         selectNavigationTab(navController, targetNavigationTab)
     }
     
-    val routeWithArgs = if (arg != null) {
-        screen.route + "/$arg"
+    val routeWithArgs = if (arg != null && screen.arg != null) {
+        screen.route + "?${screen.arg.key}" + "=$arg"
     } else {
         screen.route
     }

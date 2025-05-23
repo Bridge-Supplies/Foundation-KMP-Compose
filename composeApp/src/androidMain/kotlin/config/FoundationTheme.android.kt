@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -28,25 +29,40 @@ actual fun FoundationTheme(
     val usePalette by viewModel.usePalette.collectAsState()
     val useDarkMode by viewModel.useDarkMode.collectAsState()
     
+    val useAmoled = useDarkMode == DarkMode.AMOLED
     val darkMode = when (useDarkMode) {
         DarkMode.AUTO -> isSystemInDarkTheme()
         DarkMode.LIGHT -> false
         DarkMode.DARK -> true
+        DarkMode.AMOLED -> true
     }
     
     val colorScheme: ColorScheme = when {
         useColorTheme == ColorTheme.AUTO && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkMode)
-                dynamicDarkColorScheme(context)
-            else
-                dynamicLightColorScheme(context)
+            when {
+                useAmoled ->
+                    dynamicDarkColorScheme(context).copy(
+                        background = Color.Black,
+                        onBackground = Color.White,
+                        surface = Color.Black,
+                        onSurface = Color.White,
+                    )
+                
+                darkMode ->
+                    dynamicDarkColorScheme(context)
+                
+                else ->
+                    dynamicLightColorScheme(context)
+            }
         }
         
         useColorTheme == ColorTheme.RED || useColorTheme == ColorTheme.GREEN || useColorTheme == ColorTheme.BLUE -> {
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
+                isAmoled = useAmoled,
+                isExtendedFidelity = true,
                 style = usePalette.paletteStyle
             )
         }
@@ -55,6 +71,8 @@ actual fun FoundationTheme(
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
+                isAmoled = useAmoled,
+                isExtendedFidelity = true,
                 style = PaletteStyle.Monochrome
             )
         }
@@ -71,9 +89,12 @@ actual fun FoundationTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as Activity).window.apply {
-                statusBarColor = colorScheme.surface.toArgb()
-                navigationBarColor = colorScheme.secondaryContainer.toArgb()
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    statusBarColor = colorScheme.surface.toArgb()
+                    navigationBarColor = colorScheme.background.toArgb()
+                }
                 WindowCompat.getInsetsController(this, view).isAppearanceLightStatusBars = !darkMode
+                WindowCompat.getInsetsController(this, view).isAppearanceLightNavigationBars = !darkMode
             }
         }
     }

@@ -27,7 +27,7 @@ actual fun ScreenEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     ) + scaleIn(
-        initialScale = 1f + 1f / TRANSITION_OFFSET_DIV,
+        initialScale = 1f - 1f / TRANSITION_OFFSET_DIV,
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     )
 
@@ -35,7 +35,7 @@ actual fun ScreenExitTransition(): ExitTransition =
     fadeOut(
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     ) + scaleOut(
-        targetScale = 1f - 1f / TRANSITION_OFFSET_DIV,
+        targetScale = 1f + 1f / TRANSITION_OFFSET_DIV,
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     )
 
@@ -43,7 +43,7 @@ actual fun ScreenPopEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     ) + scaleIn(
-        initialScale = 1f - 1f / TRANSITION_OFFSET_DIV,
+        initialScale = 1f + 1f / TRANSITION_OFFSET_DIV,
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     )
 
@@ -51,6 +51,6 @@ actual fun ScreenPopExitTransition(): ExitTransition =
     fadeOut(
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     ) + scaleOut(
-        targetScale = 1f + 1f / TRANSITION_OFFSET_DIV,
+        targetScale = 1f - 1f / TRANSITION_OFFSET_DIV,
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     )

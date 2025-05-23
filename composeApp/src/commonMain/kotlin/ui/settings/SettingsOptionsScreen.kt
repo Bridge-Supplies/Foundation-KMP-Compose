@@ -1,23 +1,30 @@
 package ui.settings
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import config.ColorTheme
 import config.DarkMode
@@ -33,7 +40,11 @@ import foundation.composeapp.generated.resources.app_settings_fullscreen_landsca
 import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_title
 import foundation.composeapp.generated.resources.app_settings_landing_tips_subtitle
 import foundation.composeapp.generated.resources.app_settings_landing_tips_title
+import foundation.composeapp.generated.resources.app_settings_scroll_helpers_subtitle
+import foundation.composeapp.generated.resources.app_settings_scroll_helpers_title
 import foundation.composeapp.generated.resources.app_settings_title
+import foundation.composeapp.generated.resources.app_settings_vibration_subtitle
+import foundation.composeapp.generated.resources.app_settings_vibration_title
 import foundation.composeapp.generated.resources.navigation_settings_about
 import foundation.composeapp.generated.resources.theme_settings_color_theme_subtitle
 import foundation.composeapp.generated.resources.theme_settings_color_theme_title
@@ -42,27 +53,33 @@ import foundation.composeapp.generated.resources.theme_settings_dark_mode_title
 import foundation.composeapp.generated.resources.theme_settings_palette_subtitle
 import foundation.composeapp.generated.resources.theme_settings_palette_title
 import foundation.composeapp.generated.resources.theme_settings_title
-import foundation.composeapp.generated.resources.theme_settings_vibration_subtitle
-import foundation.composeapp.generated.resources.theme_settings_vibration_title
 import org.jetbrains.compose.resources.stringResource
 import ui.AppBarAction
 import ui.BottomButton
-import ui.EdgeFadeColumn
+import ui.EdgeFadeLazyStaggeredVerticalGrid
 import ui.Screen
 import ui.SettingsSelector
 import ui.SettingsSwitch
 import ui.TitledCard
+import ui.rememberNestedScrollConnection
 
 @Composable
 fun SettingsOptionsScreen(
     viewModel: MainViewModel,
-    onVibrate: () -> Unit,
+    hapticFeedback: () -> Unit,
     onNavigateToAbout: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
-    val horizontalPadding = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
+    val horPaddingMod = Modifier.padding(horizontal = 16.dp)
     val appBarAction by viewModel.activeAppBarAction.collectAsState()
-    val scrollState = rememberScrollState()
+    val listState = rememberLazyStaggeredGridState()
+    
+    var bottomButtonsVisible by remember { mutableStateOf(true) }
+    val nestedScrollConnection = rememberNestedScrollConnection(
+        firstVisibleItemScrollOffset = { listState.firstVisibleItemScrollOffset }
+    ) { scrollUp ->
+        bottomButtonsVisible = scrollUp
+    }
     
     Screen.SETTINGS_OPTIONS.actions.forEach { action ->
         if (appBarAction == action) {
@@ -70,7 +87,7 @@ fun SettingsOptionsScreen(
                 AppBarAction.SETTINGS -> {
                     systemAppSettings()
                     viewModel.consumeAppBarAction()
-                    onVibrate()
+                    hapticFeedback()
                 }
                 
                 else -> {}
@@ -83,53 +100,54 @@ fun SettingsOptionsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        EdgeFadeColumn(
-            modifier = Modifier
-                .padding(horizontal = horizontalPadding),
-            state = scrollState,
-            verticalItemSpacing = 8.dp
+        EdgeFadeLazyStaggeredVerticalGrid(
+            modifier = horPaddingMod
+                .nestedScroll(nestedScrollConnection)
+                .align(Alignment.Center),
+            state = listState,
+            columns = if (isPortraitMode) 1 else 2,
+            verticalItemSpacing = 8.dp,
+            horizontalItemSpacing = 16.dp
         ) {
-            if (isPortraitMode) {
-                GeneralSettings(
-                    viewModel = viewModel,
-                    onVibrate = onVibrate
-                )
-                
+            item {
                 ThemeSettings(
+                    modifier = Modifier.animateItem(),
                     viewModel = viewModel,
-                    onVibrate = onVibrate
+                    hapticFeedback = hapticFeedback
                 )
-            } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    GeneralSettings(
-                        modifier = Modifier.weight(1f),
-                        viewModel = viewModel,
-                        onVibrate = onVibrate
-                    )
-                    
-                    ThemeSettings(
-                        modifier = Modifier.weight(1f),
-                        viewModel = viewModel,
-                        onVibrate = onVibrate
-                    )
-                }
             }
             
-            Spacer(Modifier.height(56.dp))
+            item {
+                GeneralSettings(
+                    modifier = Modifier.animateItem(),
+                    viewModel = viewModel,
+                    hapticFeedback = hapticFeedback
+                )
+            }
+            
+            item(span = StaggeredGridItemSpan.FullLine) {
+                Spacer(Modifier.minimumInteractiveComponentSize())
+            }
         }
         
-        BottomButton(
-            text = stringResource(Res.string.navigation_settings_about),
-            paddingValues = PaddingValues(
-                start = horizontalPadding,
-                end = horizontalPadding,
-                bottom = 16.dp
-            )
+        AnimatedVisibility(
+            modifier = Modifier
+                .align(Alignment.BottomEnd),
+            visible = bottomButtonsVisible,
+            enter = slideInVertically(initialOffsetY = { it * 2 }),
+            exit = slideOutVertically(targetOffsetY = { it * 2 }),
         ) {
-            onVibrate()
-            onNavigateToAbout()
+            BottomButton(
+                text = stringResource(Res.string.navigation_settings_about),
+                paddingValues = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
+            ) {
+                hapticFeedback()
+                onNavigateToAbout()
+            }
         }
     }
 }
@@ -138,12 +156,13 @@ fun SettingsOptionsScreen(
 fun GeneralSettings(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
-    onVibrate: () -> Unit
+    hapticFeedback: () -> Unit
 ) {
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val useLandingTips by viewModel.useLandingTips.collectAsState()
     val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
     val useVibration by viewModel.useVibration.collectAsState()
+    val useScrollHelpers by viewModel.useScrollHelpers.collectAsState()
     
     TitledCard(
         modifier = modifier
@@ -157,7 +176,7 @@ fun GeneralSettings(
             enabled = useEncryptedShare
         ) { enabled ->
             viewModel.useEncryptedShare(enabled)
-            onVibrate()
+            hapticFeedback()
         }
         
         SettingsSwitch(
@@ -166,7 +185,7 @@ fun GeneralSettings(
             enabled = useLandingTips
         ) { enabled ->
             viewModel.useLandingTips(enabled)
-            onVibrate()
+            hapticFeedback()
         }
         
         if (viewModel.supportsFeature(Feature.FULLSCREEN_LANDSCAPE)) {
@@ -176,20 +195,31 @@ fun GeneralSettings(
                 enabled = useFullscreenLandscape
             ) { enabled ->
                 viewModel.useFullscreenLandscape(enabled)
-                onVibrate()
+                hapticFeedback()
             }
         }
         
         if (viewModel.supportsFeature(Feature.VIBRATION)) {
             SettingsSwitch(
-                title = stringResource(Res.string.theme_settings_vibration_title),
-                subtitle = stringResource(Res.string.theme_settings_vibration_subtitle),
+                title = stringResource(Res.string.app_settings_vibration_title),
+                subtitle = stringResource(Res.string.app_settings_vibration_subtitle),
                 enabled = useVibration
             ) { enabled ->
                 viewModel.useVibration(enabled)
-                onVibrate()
+                hapticFeedback()
             }
         }
+        
+        SettingsSwitch(
+            title = stringResource(Res.string.app_settings_scroll_helpers_title),
+            subtitle = stringResource(Res.string.app_settings_scroll_helpers_subtitle),
+            enabled = useScrollHelpers
+        ) { enabled ->
+            viewModel.useScrollHelpers(enabled)
+            hapticFeedback()
+        }
+        
+        Spacer(Modifier.height(8.dp))
     }
 }
 
@@ -197,7 +227,7 @@ fun GeneralSettings(
 fun ThemeSettings(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
-    onVibrate: () -> Unit
+    hapticFeedback: () -> Unit
 ) {
     val useColorTheme by viewModel.useColorTheme.collectAsState()
     val usePalette by viewModel.usePalette.collectAsState()
@@ -223,7 +253,7 @@ fun ThemeSettings(
             selectedOption = useColorTheme,
             onSelectOption = { colorTheme ->
                 viewModel.useColorTheme(colorTheme)
-                onVibrate()
+                hapticFeedback()
             },
             optionName = { colorTheme ->
                 stringResource(colorTheme.titleRes)
@@ -239,7 +269,7 @@ fun ThemeSettings(
                 selectedOption = usePalette,
                 onSelectOption = { palette ->
                     viewModel.usePalette(palette)
-                    onVibrate()
+                    hapticFeedback()
                 },
                 optionName = { palette ->
                     stringResource(palette.titleRes)
@@ -255,11 +285,13 @@ fun ThemeSettings(
             selectedOption = useDarkMode,
             onSelectOption = { darkMode ->
                 viewModel.useDarkMode(darkMode)
-                onVibrate()
+                hapticFeedback()
             },
             optionName = { darkMode ->
                 stringResource(darkMode.titleRes)
             }
         )
+        
+        Spacer(Modifier.height(8.dp))
     }
 }

@@ -53,8 +53,8 @@ fun IndexedLazyRow(
     state: IndexedLazyListState = rememberIndexedLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     reverseLayout: Boolean = false,
-    verticalAlignment: Alignment.Vertical = if (!reverseLayout) Alignment.Top else Alignment.Bottom,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    horizontalArrangement: Arrangement.Horizontal = if (!reverseLayout) Arrangement.Start else Arrangement.End,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     content: IndexedLazyListScope.() -> Unit
@@ -137,7 +137,7 @@ class IndexedLazyListScope(
     }
     
     @ExperimentalFoundationApi
-    override fun stickyHeader(key: Any?, contentType: Any?, content: @Composable LazyItemScope.() -> Unit) {
+    override fun stickyHeader(key: Any?, contentType: Any?, content: @Composable LazyItemScope.(Int) -> Unit) {
         lazyListScope.stickyHeader(key, contentType, content)
         if (key != null)
             state.linkKeyToIndex(key, currentItemLayoutIndex)
