@@ -24,7 +24,10 @@ import foundation.composeapp.generated.resources.app_about_orientation
 import foundation.composeapp.generated.resources.app_about_platform
 import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.ic_launcher_foreground
+import foundation.composeapp.generated.resources.navigation_home_columns
 import foundation.composeapp.generated.resources.navigation_home_date
+import foundation.composeapp.generated.resources.navigation_home_grids
+import foundation.composeapp.generated.resources.navigation_home_rows
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.FloatingButton
@@ -34,7 +37,10 @@ import ui.TitleText
 fun HomeInfoScreen(
     viewModel: MainViewModel,
     hapticFeedback: () -> Unit,
-    onNavigateDateScreen: () -> Unit
+    onNavigateDateScreen: () -> Unit,
+    onNavigateColumnsScreen: () -> Unit,
+    onNavigateRowsScreen: () -> Unit,
+    onNavigateGridsScreen: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
     val orientationText = if (isPortraitMode) "Portrait" else "Landscape"
@@ -45,7 +51,7 @@ fun HomeInfoScreen(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = painterResource(
@@ -79,6 +85,36 @@ fun HomeInfoScreen(
             text = stringResource(Res.string.navigation_home_date)
         ) {
             onNavigateDateScreen()
+            hapticFeedback()
+        }
+        
+        FloatingButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            text = stringResource(Res.string.navigation_home_columns)
+        ) {
+            onNavigateColumnsScreen()
+            hapticFeedback()
+        }
+        
+        FloatingButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            text = stringResource(Res.string.navigation_home_rows)
+        ) {
+            onNavigateRowsScreen()
+            hapticFeedback()
+        }
+        
+        FloatingButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            text = stringResource(Res.string.navigation_home_grids)
+        ) {
+            onNavigateGridsScreen()
             hapticFeedback()
         }
     }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Card
@@ -221,15 +222,19 @@ fun CodeScannerInfo(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            TextInput(
-                modifier = Modifier
-                    .padding(16.dp),
-                text = sharedText ?: "",
-                minLines = 3,
-                maxLines = 3,
-                hintText = inputHint
-            ) { newText ->
-                onUpdateSharedText(newText)
+            Column {
+                TextInput(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    text = sharedText ?: "",
+                    minLines = 3,
+                    maxLines = 3,
+                    hintText = inputHint
+                ) { newText ->
+                    onUpdateSharedText(newText)
+                }
+                
+                Spacer(Modifier.height(6.dp))
             }
         }
         

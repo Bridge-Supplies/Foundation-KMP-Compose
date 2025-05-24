@@ -58,8 +58,11 @@ import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.navigation_back
 import foundation.composeapp.generated.resources.screen_about_title
 import foundation.composeapp.generated.resources.screen_generate_code_title
+import foundation.composeapp.generated.resources.screen_home_columns_title
 import foundation.composeapp.generated.resources.screen_home_date_title
+import foundation.composeapp.generated.resources.screen_home_grids_title
 import foundation.composeapp.generated.resources.screen_home_info_title
+import foundation.composeapp.generated.resources.screen_home_rows_title
 import foundation.composeapp.generated.resources.screen_landing_title
 import foundation.composeapp.generated.resources.screen_options_title
 import foundation.composeapp.generated.resources.screen_scan_code_title
@@ -68,8 +71,11 @@ import foundation.composeapp.generated.resources.tab_settings_title
 import foundation.composeapp.generated.resources.tab_share_title
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import ui.home.HomeColumnsScreen
 import ui.home.HomeDateScreen
+import ui.home.HomeGridsScreen
 import ui.home.HomeInfoScreen
+import ui.home.HomeRowsScreen
 import ui.landing.LandingScreen
 import ui.scanner.ScanCodeScreen
 import ui.scanner.ShareCodeScreen
@@ -94,7 +100,10 @@ enum class NavigationTab(
         Screen.HOME_INFO,
         listOf(
             Screen.HOME_INFO,
-            Screen.HOME_DATE
+            Screen.HOME_DATE,
+            Screen.HOME_COLUMNS,
+            Screen.HOME_ROWS,
+            Screen.HOME_GRIDS
         )
     ),
     
@@ -161,6 +170,24 @@ enum class Screen(
     HOME_DATE(
         Res.string.screen_home_date_title,
         "home_date",
+        null,
+        emptyList()
+    ),
+    HOME_COLUMNS(
+        Res.string.screen_home_columns_title,
+        "home_columns",
+        null,
+        emptyList()
+    ),
+    HOME_ROWS(
+        Res.string.screen_home_rows_title,
+        "home_rows",
+        null,
+        emptyList()
+    ),
+    HOME_GRIDS(
+        Res.string.screen_home_grids_title,
+        "home_grids",
         null,
         emptyList()
     ),
@@ -319,6 +346,18 @@ fun NavigationGraph(
                     onNavigateDateScreen = {
                         isNavigatingTopLevel.value = false
                         navigateToScreen(navController, Screen.HOME_DATE)
+                    },
+                    onNavigateColumnsScreen = {
+                        isNavigatingTopLevel.value = false
+                        navigateToScreen(navController, Screen.HOME_COLUMNS)
+                    },
+                    onNavigateRowsScreen = {
+                        isNavigatingTopLevel.value = false
+                        navigateToScreen(navController, Screen.HOME_ROWS)
+                    },
+                    onNavigateGridsScreen = {
+                        isNavigatingTopLevel.value = false
+                        navigateToScreen(navController, Screen.HOME_GRIDS)
                     }
                 )
             }
@@ -331,6 +370,45 @@ fun NavigationGraph(
                 }
                 
                 HomeDateScreen(
+                    viewModel = viewModel,
+                    hapticFeedback = hapticFeedback
+                )
+            }
+            
+            composable(
+                route = Screen.HOME_COLUMNS.getNavRoute()
+            ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
+                HomeColumnsScreen(
+                    viewModel = viewModel,
+                    hapticFeedback = hapticFeedback
+                )
+            }
+            
+            composable(
+                route = Screen.HOME_ROWS.getNavRoute()
+            ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
+                HomeRowsScreen(
+                    viewModel = viewModel,
+                    hapticFeedback = hapticFeedback
+                )
+            }
+            
+            composable(
+                route = Screen.HOME_GRIDS.getNavRoute()
+            ) {
+                BackHandler {
+                    onNavigateBack()
+                }
+                
+                HomeGridsScreen(
                     viewModel = viewModel,
                     hapticFeedback = hapticFeedback
                 )

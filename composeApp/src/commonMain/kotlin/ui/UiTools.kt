@@ -99,7 +99,6 @@ import data.hideAndClearFocus
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.button_expand_less
 import foundation.composeapp.generated.resources.button_expand_more
-import foundation.composeapp.generated.resources.datepicker_title
 import foundation.composeapp.generated.resources.invalid_date
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -124,6 +123,7 @@ fun TitleText(
     text: String,
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
+    minLines: Int = 1,
     maxLines: Int = 2
 ) {
     Text(
@@ -132,6 +132,7 @@ fun TitleText(
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.titleLarge,
+        minLines = minLines,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
@@ -145,6 +146,7 @@ fun SubtitleText(
     text: String,
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
+    minLines: Int = 1,
     maxLines: Int = 2
 ) {
     Text(
@@ -153,6 +155,7 @@ fun SubtitleText(
             .animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodyLarge,
+        minLines = minLines,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
@@ -198,6 +201,7 @@ fun BodyText(
     text: String,
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
+    minLines: Int = 1,
     maxLines: Int = Int.MAX_VALUE
 ) {
     Text(
@@ -209,6 +213,7 @@ fun BodyText(
         overflow = TextOverflow.Ellipsis,
         color = textColor,
         textAlign = textAlign,
+        minLines = minLines,
         maxLines = maxLines
     )
 }
@@ -219,6 +224,7 @@ fun SmallText(
     text: String,
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
+    minLines: Int = 1,
     maxLines: Int = 2
 ) {
     Text(
@@ -230,6 +236,7 @@ fun SmallText(
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
         color = textColor,
+        minLines = minLines,
         maxLines = maxLines
     )
 }
@@ -239,6 +246,7 @@ fun HintText(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     textAlign: TextAlign = TextAlign.Start,
+    minLines: Int = 1,
     maxLines: Int = 2
 ) {
     Text(
@@ -248,6 +256,7 @@ fun HintText(
         text = text,
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
+        minLines = minLines,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign
@@ -502,7 +511,6 @@ fun TitledCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
                 .padding(top = 16.dp)
         ) {
             Row(
@@ -546,8 +554,7 @@ fun TitledCard(
     when {
         isElevated && onClick != null -> {
             ElevatedCard(
-                modifier = modifier
-                    .wrapContentHeight(),
+                modifier = modifier,
                 onClick = onClick
             ) {
                 cardContent()
@@ -557,7 +564,6 @@ fun TitledCard(
         isElevated -> {
             ElevatedCard(
                 modifier = modifier
-                    .wrapContentHeight()
             ) {
                 cardContent()
             }
@@ -565,8 +571,7 @@ fun TitledCard(
         
         !isElevated && onClick != null -> {
             Card(
-                modifier = modifier
-                    .wrapContentHeight(),
+                modifier = modifier,
                 onClick = onClick
             ) {
                 cardContent()
@@ -576,7 +581,6 @@ fun TitledCard(
         else -> {
             Card(
                 modifier = modifier
-                    .wrapContentHeight()
             ) {
                 cardContent()
             }
@@ -674,8 +678,7 @@ fun ExpandableTitledCard(
     
     if (isElevated) {
         ElevatedCard(
-            modifier = modifier
-                .wrapContentHeight(),
+            modifier = modifier,
             onClick = {
                 onClick()
             }
@@ -684,8 +687,7 @@ fun ExpandableTitledCard(
         }
     } else {
         Card(
-            modifier = modifier
-                .wrapContentHeight(),
+            modifier = modifier,
             onClick = {
                 onClick()
             }
@@ -697,20 +699,21 @@ fun ExpandableTitledCard(
 
 @Composable
 fun SettingsSwitch(
+    modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
     enabled: Boolean,
     onEnabled: (Boolean) -> Unit
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .clickable {
                 onEnabled(!enabled)
             }
-            .padding(end = 16.dp)
+            .padding(end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         OptionDetailText(
             modifier = Modifier
@@ -1010,7 +1013,7 @@ fun DatePickerCard(
             headline = {
                 val dateMs = datePickerState.selectedDateMillis
                 val dateText = if (dateMs != null) {
-                    stringResource(Res.string.datepicker_title, getDateDisplay(getDateTime(dateMs)))
+                    getDateDisplay(getDateTime(dateMs))
                 } else {
                     stringResource(Res.string.invalid_date)
                 }

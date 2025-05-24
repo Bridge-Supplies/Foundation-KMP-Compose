@@ -17,9 +17,13 @@
     <string name="tab_home_title">Home</string>
     <string name="tab_share_title">Share</string>
     <string name="tab_settings_title">Settings</string>
+
     <string name="screen_landing_title">Landing</string>
     <string name="screen_home_info_title">Info</string>
     <string name="screen_home_date_title">Date</string>
+    <string name="screen_home_columns_title">Columns</string>
+    <string name="screen_home_rows_title">Rows</string>
+    <string name="screen_home_grids_title">Grids</string>
     <string name="screen_generate_code_title">Share Code</string>
     <string name="screen_scan_code_title">Scanner</string>
     <string name="screen_options_title">Options</string>
@@ -52,7 +56,6 @@
     <string name="scanner_error_action">Try again</string>
     <string name="scanner_done">Done</string>
     <string name="invalid_date">Invalid date</string>
-    <string name="datepicker_title">%1$s</string>
 
     <string name="app_settings_title">System</string>
     <string name="app_settings_landing_tips_title">Show tips on app launch</string>
@@ -91,8 +94,13 @@
     <string name="settings_about_licenses_title">Licenses</string>
     <string name="settings_about_licenses_unknown">Unknown</string>
 
-    <string name="navigation_home_date">Date selector</string>
+    <string name="navigation_home_date">Datetime, BottomSheet</string>
     <string name="navigation_home_date_select">Select a date</string>
+    <string name="navigation_home_columns">Columns, Expandable Cards</string>
+    <string name="navigation_home_rows">Rows, Scroll Helpers</string>
+    <string name="navigation_home_lazy_toggle">Lazy loading</string>
+    <string name="navigation_home_grids">Grids, Staggered</string>
+    <string name="navigation_home_staggered_toggle">Staggered grid</string>
     <string name="navigation_settings_about">About app</string>
     <string name="navigation_back">Back</string>
     <string name="navigation_close">Close</string>

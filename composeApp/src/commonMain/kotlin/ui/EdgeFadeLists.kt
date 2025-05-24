@@ -445,7 +445,9 @@ fun EdgeFadeRow(
         Row(
             modifier = modifier
                 .horizontalScroll(state)
-                .onGloballyPositioned { containerSize = it.size.width },
+                .onGloballyPositioned {
+                    containerSize = it.parentLayoutCoordinates?.size?.width ?: it.size.width
+                },
             horizontalArrangement = Arrangement.spacedBy(itemSpacing)
         ) {
             if (startSpacing) {
