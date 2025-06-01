@@ -2,17 +2,14 @@ package ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +27,7 @@ import foundation.composeapp.generated.resources.navigation_home_grids
 import foundation.composeapp.generated.resources.navigation_home_rows
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.EdgeFadeColumn
 import ui.FloatingButton
 import ui.TitleText
 
@@ -43,29 +41,27 @@ fun HomeInfoScreen(
     onNavigateGridsScreen: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
+    val listState = rememberScrollState()
     val orientationText = if (isPortraitMode) "Portrait" else "Landscape"
+    val text = stringResource(Res.string.app_about_platform, viewModel.platform.name) + "\n" +
+        stringResource(Res.string.app_about_orientation, orientationText)
     
-    Column(
+    EdgeFadeColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(MaterialTheme.colorScheme.background),
+        state = listState,
+        endSpacing = 16.dp
     ) {
         Image(
-            painter = painterResource(
-                resource = Res.drawable.ic_launcher_foreground
-            ),
+            painter = painterResource(Res.drawable.ic_launcher_foreground),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             contentDescription = stringResource(Res.string.app_name),
             modifier = Modifier
-                .size(128.dp)
+                .height(128.dp)
+                .fillMaxWidth()
                 .padding(8.dp)
         )
-        
-        val text = stringResource(Res.string.app_about_platform, viewModel.platform.name) + "\n" +
-            stringResource(Res.string.app_about_orientation, orientationText)
         
         TitleText(
             textAlign = TextAlign.Center,
@@ -73,7 +69,7 @@ fun HomeInfoScreen(
             maxLines = 2,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(horizontal = 16.dp)
         )
         
         Spacer(Modifier.weight(1f))
@@ -81,7 +77,7 @@ fun HomeInfoScreen(
         FloatingButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(horizontal = 16.dp),
             text = stringResource(Res.string.navigation_home_date)
         ) {
             onNavigateDateScreen()
@@ -91,7 +87,7 @@ fun HomeInfoScreen(
         FloatingButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(horizontal = 16.dp),
             text = stringResource(Res.string.navigation_home_columns)
         ) {
             onNavigateColumnsScreen()
@@ -101,7 +97,7 @@ fun HomeInfoScreen(
         FloatingButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(horizontal = 16.dp),
             text = stringResource(Res.string.navigation_home_rows)
         ) {
             onNavigateRowsScreen()
@@ -111,7 +107,7 @@ fun HomeInfoScreen(
         FloatingButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(horizontal = 16.dp),
             text = stringResource(Res.string.navigation_home_grids)
         ) {
             onNavigateGridsScreen()

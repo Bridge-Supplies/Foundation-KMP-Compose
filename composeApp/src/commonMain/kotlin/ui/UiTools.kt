@@ -859,13 +859,25 @@ fun VerticalSeparator() {
 }
 
 @Composable
-fun HorizontalSpacer() {
-    Spacer(Modifier.fillMaxWidth().height(0.5.dp))
+fun HorizontalSpacer(
+    height: Dp
+) {
+    Spacer(
+        Modifier
+            .fillMaxWidth()
+            .height(height.coerceAtLeast(0.5.dp)) // needed for edge fades to detect start/end of lists
+    )
 }
 
 @Composable
-fun VerticalSpacer() {
-    Spacer(Modifier.fillMaxHeight().width(0.5.dp))
+fun VerticalSpacer(
+    width: Dp
+) {
+    Spacer(
+        Modifier
+            .fillMaxHeight()
+            .width(width.coerceAtLeast(0.5.dp)) // needed for edge fades to detect start/end of lists
+    )
 }
 
 

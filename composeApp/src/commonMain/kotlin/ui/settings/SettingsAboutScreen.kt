@@ -76,7 +76,7 @@ fun SettingsAboutScreen(
             modifier = Modifier
                 .nestedScroll(nestedScrollConnection),
             state = listState,
-            itemSpacing = 8.dp
+            endSpacing = 56.dp
         ) {
             item {
                 TitledCard(
@@ -148,8 +148,6 @@ fun SettingsAboutScreen(
                     )
                 }
             }
-            
-            item { Spacer(Modifier.minimumInteractiveComponentSize()) }
         }
         
         AnimatedVisibility(

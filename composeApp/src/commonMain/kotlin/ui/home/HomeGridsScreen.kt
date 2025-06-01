@@ -60,8 +60,8 @@ fun HomeGridsScreen(
                         .padding(horizontal = 8.dp),
                     state = state,
                     columns = if (isPortraitMode) 2 else 3,
-                    verticalItemSpacing = 8.dp,
-                    horizontalItemSpacing = 0.dp
+                    horizontalItemSpacing = 0.dp,
+                    endSpacing = 16.dp
                 ) {
                     repeat(10) { index ->
                         val text = when (index % 3) {
@@ -73,8 +73,8 @@ fun HomeGridsScreen(
                         item {
                             TitledCard(
                                 modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .padding(horizontal = 8.dp),
+                                    .padding(horizontal = 8.dp)
+                                    .aspectRatio(1f),
                                 title = "Grid Card $index",
                                 subtitle = "Subtitle $index"
                             ) {
@@ -99,8 +99,8 @@ fun HomeGridsScreen(
                         .padding(horizontal = 8.dp),
                     state = state,
                     columns = if (isPortraitMode) 2 else 3,
-                    verticalItemSpacing = 8.dp,
-                    horizontalItemSpacing = 0.dp
+                    horizontalItemSpacing = 0.dp,
+                    endSpacing = 16.dp
                 ) {
                     repeat(100) { index ->
                         val text = when (index % 3) {

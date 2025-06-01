@@ -12,10 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -70,7 +68,6 @@ fun SettingsOptionsScreen(
     onNavigateToAbout: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
-    val horPaddingMod = Modifier.padding(horizontal = 16.dp)
     val appBarAction by viewModel.activeAppBarAction.collectAsState()
     val listState = rememberLazyStaggeredGridState()
     
@@ -101,17 +98,20 @@ fun SettingsOptionsScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         EdgeFadeLazyStaggeredVerticalGrid(
-            modifier = horPaddingMod
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
                 .nestedScroll(nestedScrollConnection)
                 .align(Alignment.Center),
             state = listState,
             columns = if (isPortraitMode) 1 else 2,
-            verticalItemSpacing = 8.dp,
-            horizontalItemSpacing = 16.dp
+            horizontalItemSpacing = 0.dp,
+            endSpacing = 56.dp
         ) {
             item {
                 ThemeSettings(
-                    modifier = Modifier.animateItem(),
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .animateItem(),
                     viewModel = viewModel,
                     hapticFeedback = hapticFeedback
                 )
@@ -119,14 +119,12 @@ fun SettingsOptionsScreen(
             
             item {
                 GeneralSettings(
-                    modifier = Modifier.animateItem(),
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .animateItem(),
                     viewModel = viewModel,
                     hapticFeedback = hapticFeedback
                 )
-            }
-            
-            item(span = StaggeredGridItemSpan.FullLine) {
-                Spacer(Modifier.minimumInteractiveComponentSize())
             }
         }
         

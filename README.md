@@ -1,6 +1,6 @@
 # Foundation (KMP-Compose Template)
 ## Presented by [Bridge Supplies](https://bridge.supplies)
-### Latest version: 1.1.10 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
+### Latest version: 1.2.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
 
 This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 
@@ -56,9 +56,11 @@ https://github.com/Bridge-Supplies/Foundation-KMP-Compose/assets/9485727/dcfb58c
   - [Compose Navigation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-navigation-routing.html)
 - Dependency injection
   - [Koin](https://insert-koin.io/docs/reference/koin-mp/kmp/)
+- Permission handling
+  - [icerockdev's Moko Permissions](https://github.com/icerockdev/moko-permissions)
 - QR code handling
   - [g0dkar's QRCode](https://github.com/g0dkar/qrcode-kotlin) (Android, iOS, Desktop - QR generation)
-  - [Chaintech's QRKit](https://github.com/ChainTechNetwork/QRKitComposeMultiplatform) (Android, iOS - QR scanning)
+  - [ismai117's KScan](https://github.com/ismai117/KScan) (Android, iOS - QR scanning)
 - Build
   - [gmazzo's BuildConfig](https://github.com/gmazzo/gradle-buildconfig-plugin) (shared BuildConfig)
 - Cryptography & compression

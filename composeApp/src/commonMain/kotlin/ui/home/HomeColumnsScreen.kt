@@ -55,7 +55,7 @@ fun HomeColumnsScreen(
                 EdgeFadeColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = state,
-                    itemSpacing = 8.dp
+                    endSpacing = 16.dp
                 ) {
                     repeat(10) { index ->
                         ExpandableTitledCard(
@@ -88,7 +88,7 @@ fun HomeColumnsScreen(
                 EdgeFadeIndexedLazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = state,
-                    itemSpacing = 8.dp
+                    endSpacing = 16.dp
                 ) {
                     repeat(100) { index ->
                         item {

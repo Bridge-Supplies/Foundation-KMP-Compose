@@ -140,7 +140,6 @@ fun ShareAppBottomSheet(
         EdgeFadeColumn(
             modifier = modifier,
             state = scrollState,
-            itemSpacing = 8.dp,
             fadeColor = MaterialTheme.colorScheme.surfaceContainerLow
         ) {
             Box(
@@ -222,7 +221,6 @@ fun DatePickerBottomSheet(
         EdgeFadeColumn(
             modifier = modifier,
             state = scrollState,
-            itemSpacing = 8.dp,
             fadeColor = MaterialTheme.colorScheme.surfaceContainerLow
         ) {
             DatePickerCard(

@@ -30,7 +30,6 @@ import ui.EdgeFadeIndexedLazyRow
 import ui.EdgeFadeRow
 import ui.SettingsSwitch
 import ui.TitledCard
-import ui.VerticalSpacer
 import ui.rememberIndexedLazyListState
 
 @Composable
@@ -82,11 +81,10 @@ fun HomeRowsScreen(
                         .fillMaxWidth()
                         .height(200.dp),
                     state = state,
-                    itemSpacing = 8.dp,
+                    startSpacing = 16.dp,
+                    endSpacing = 16.dp,
                     onScrollForward = if (useScrollHelpers) onScrollForward else null
                 ) {
-                    VerticalSpacer()
-                    
                     repeat(10) { index ->
                         TitledCard(
                             modifier = Modifier
@@ -106,8 +104,6 @@ fun HomeRowsScreen(
                             }
                         }
                     }
-                    
-                    VerticalSpacer()
                 }
             } else {
                 val state = rememberIndexedLazyListState()
@@ -116,11 +112,10 @@ fun HomeRowsScreen(
                         .fillMaxWidth()
                         .height(200.dp),
                     state = state,
-                    itemSpacing = 8.dp,
+                    startSpacing = 16.dp,
+                    endSpacing = 16.dp,
                     onScrollForward = if (useScrollHelpers) onScrollForward else null
                 ) {
-                    item { VerticalSpacer() }
-                    
                     repeat(100) { index ->
                         item {
                             TitledCard(
@@ -136,14 +131,12 @@ fun HomeRowsScreen(
                                 ) {
                                     BodyText(
                                         modifier = Modifier.padding(bottom = 16.dp),
-                                        text = "This item has been loaded statically and remains in memory."
+                                        text = "This item has been loaded lazily and will be removed from memory when scrolled off screen."
                                     )
                                 }
                             }
                         }
                     }
-                    
-                    item { VerticalSpacer() }
                 }
             }
         }

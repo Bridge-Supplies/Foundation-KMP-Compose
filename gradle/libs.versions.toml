@@ -7,12 +7,12 @@ app-description = "Foundational KMP Compose template application."
 app-copyright = "© 2025 Bridge Supplies. All rights reserved."
 app-vendor = "Bridge Supplies"
 app-versionName = "1.2.0" # "Version"
-app-versionCode = "202505230" # "Build"
+app-versionCode = "202505310" # "Build"
 android-minSdk = "28"
 android-targetSdk = "35"
 android-compileSdk = "35"
 #packages
-agp = "8.10.0"
+agp = "8.10.1"
 junit = "4.13.2"
 androidx-core-ktx = "1.16.0"
 androidx-activity-compose = "1.10.1"
@@ -33,7 +33,7 @@ korlibs-compression = "6.0.0"
 material-kolor = "2.1.1"
 license-report = "2.9"
 g0dkar-qrcode-kotlin = "4.1.1"
-kscan = "0.1.0-beta05"
+kscan = "0.1.0-beta07"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }

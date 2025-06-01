@@ -327,9 +327,14 @@ fun BoxScope.AnimatedHorizontalEdgeFade(
 fun EdgeFadeColumn(
     modifier: Modifier = Modifier,
     state: ScrollState,
-    startSpacing: Boolean = true,
-    itemSpacing: Dp = 0.dp,
-    endSpacing: Boolean = true,
+    // alignments
+    horAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    verAlignment: Alignment.Vertical = Alignment.Top,
+    // spacings
+    startSpacing: Dp = 8.dp, // min: itemSpacing
+    itemSpacing: Dp = 8.dp,
+    endSpacing: Dp = 8.dp, // min: itemSpacing
+    // edge fades
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
@@ -377,16 +382,17 @@ fun EdgeFadeColumn(
             modifier = modifier
                 .verticalScroll(state)
                 .onGloballyPositioned { containerSize = it.size.height },
-            verticalArrangement = Arrangement.spacedBy(itemSpacing)
+            verticalArrangement = Arrangement.spacedBy(itemSpacing, verAlignment),
+            horizontalAlignment = horAlignment
         ) {
-            if (startSpacing) {
-                HorizontalSpacer()
+            if (startSpacing >= itemSpacing) {
+                HorizontalSpacer(startSpacing - itemSpacing)
             }
             
             content()
             
-            if (endSpacing) {
-                HorizontalSpacer()
+            if (endSpacing >= itemSpacing) {
+                HorizontalSpacer(endSpacing - itemSpacing)
             }
         }
     }
@@ -396,9 +402,14 @@ fun EdgeFadeColumn(
 fun EdgeFadeRow(
     modifier: Modifier = Modifier,
     state: ScrollState,
-    startSpacing: Boolean = true,
-    itemSpacing: Dp = 0.dp,
-    endSpacing: Boolean = true,
+    // alignments
+    horAlignment: Alignment.Horizontal = Alignment.Start,
+    verAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    // spacings
+    startSpacing: Dp = 8.dp, // min: itemSpacing
+    itemSpacing: Dp = 8.dp,
+    endSpacing: Dp = 8.dp, // min: itemSpacing
+    // edge fades
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
@@ -448,16 +459,17 @@ fun EdgeFadeRow(
                 .onGloballyPositioned {
                     containerSize = it.parentLayoutCoordinates?.size?.width ?: it.size.width
                 },
-            horizontalArrangement = Arrangement.spacedBy(itemSpacing)
+            horizontalArrangement = Arrangement.spacedBy(itemSpacing, horAlignment),
+            verticalAlignment = verAlignment
         ) {
-            if (startSpacing) {
-                VerticalSpacer()
+            if (startSpacing >= itemSpacing) {
+                VerticalSpacer(startSpacing - itemSpacing)
             }
             
             content()
             
-            if (endSpacing) {
-                VerticalSpacer()
+            if (endSpacing >= itemSpacing) {
+                VerticalSpacer(endSpacing - itemSpacing)
             }
         }
     }
@@ -470,9 +482,14 @@ fun EdgeFadeRow(
 fun EdgeFadeIndexedLazyColumn(
     modifier: Modifier = Modifier,
     state: IndexedLazyListState,
-    startSpacing: Boolean = true,
-    itemSpacing: Dp = 0.dp,
-    endSpacing: Boolean = true,
+    // alignments
+    horAlignment: Alignment.Horizontal = Alignment.Start,
+    verAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    // spacings
+    startSpacing: Dp = 8.dp, // min: itemSpacing
+    itemSpacing: Dp = 8.dp,
+    endSpacing: Dp = 8.dp, // min: itemSpacing
+    // edge fades
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
@@ -521,16 +538,21 @@ fun EdgeFadeIndexedLazyColumn(
             modifier = modifier
                 .onGloballyPositioned { containerSize = it.size.height },
             state = state,
-            verticalArrangement = Arrangement.spacedBy(itemSpacing)
+            verticalArrangement = Arrangement.spacedBy(itemSpacing, verAlignment),
+            horizontalAlignment = horAlignment
         ) {
-            if (startSpacing) {
-                item { HorizontalSpacer() }
+            if (startSpacing >= itemSpacing) {
+                item {
+                    HorizontalSpacer(startSpacing - itemSpacing)
+                }
             }
             
             content()
             
-            if (endSpacing) {
-                item { HorizontalSpacer() }
+            if (endSpacing >= itemSpacing) {
+                item {
+                    HorizontalSpacer(endSpacing - itemSpacing)
+                }
             }
         }
     }
@@ -540,9 +562,14 @@ fun EdgeFadeIndexedLazyColumn(
 fun EdgeFadeIndexedLazyRow(
     modifier: Modifier = Modifier,
     state: IndexedLazyListState,
-    startSpacing: Boolean = true,
-    itemSpacing: Dp = 0.dp,
-    endSpacing: Boolean = true,
+    // alignments
+    horAlignment: Alignment.Horizontal = Alignment.Start,
+    verAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    // spacings
+    startSpacing: Dp = 8.dp, // min: itemSpacing
+    itemSpacing: Dp = 8.dp,
+    endSpacing: Dp = 8.dp, // min: itemSpacing
+    // edge fades
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
@@ -591,16 +618,21 @@ fun EdgeFadeIndexedLazyRow(
             modifier = modifier
                 .onGloballyPositioned { containerSize = it.size.width },
             state = state,
-            horizontalArrangement = Arrangement.spacedBy(itemSpacing)
+            horizontalArrangement = Arrangement.spacedBy(itemSpacing, horAlignment),
+            verticalAlignment = verAlignment
         ) {
-            if (startSpacing) {
-                item { VerticalSpacer() }
+            if (startSpacing >= itemSpacing) {
+                item {
+                    VerticalSpacer(startSpacing - itemSpacing)
+                }
             }
             
             content()
             
-            if (endSpacing) {
-                item { VerticalSpacer() }
+            if (endSpacing >= itemSpacing) {
+                item {
+                    VerticalSpacer(endSpacing - itemSpacing)
+                }
             }
         }
     }
@@ -611,10 +643,15 @@ fun EdgeFadeLazyVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyGridState,
     columns: Int,
-    startSpacing: Boolean = true,
-    verticalItemSpacing: Dp = 0.dp,
-    horizontalItemSpacing: Dp = 0.dp,
-    endSpacing: Boolean = true,
+    // alignments
+    horAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    verAlignment: Alignment.Vertical = Alignment.Top,
+    // spacings
+    startSpacing: Dp = 8.dp, // min: verticalItemSpacing
+    verticalItemSpacing: Dp = 8.dp,
+    horizontalItemSpacing: Dp = 8.dp,
+    endSpacing: Dp = 8.dp, // min: verticalItemSpacing
+    // edge fades
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
@@ -663,17 +700,21 @@ fun EdgeFadeLazyVerticalGrid(
                 .onGloballyPositioned { containerSize = it.size.height },
             state = state,
             columns = GridCells.Fixed(columns),
-            verticalArrangement = Arrangement.spacedBy(verticalItemSpacing),
-            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing)
+            verticalArrangement = Arrangement.spacedBy(verticalItemSpacing, verAlignment),
+            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing, horAlignment)
         ) {
-            if (startSpacing) {
-                item(span = { GridItemSpan(columns) }) { HorizontalSpacer() }
+            if (startSpacing >= verticalItemSpacing) {
+                item(span = { GridItemSpan(columns) }) {
+                    HorizontalSpacer(startSpacing - verticalItemSpacing)
+                }
             }
             
             content()
             
-            if (endSpacing) {
-                item(span = { GridItemSpan(columns) }) { HorizontalSpacer() }
+            if (endSpacing >= verticalItemSpacing) {
+                item(span = { GridItemSpan(columns) }) {
+                    HorizontalSpacer(endSpacing - verticalItemSpacing)
+                }
             }
         }
     }
@@ -684,10 +725,14 @@ fun EdgeFadeLazyStaggeredVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState,
     columns: Int,
-    startSpacing: Boolean = true,
-    verticalItemSpacing: Dp = 0.dp,
-    horizontalItemSpacing: Dp = 0.dp,
-    endSpacing: Boolean = true,
+    // alignments
+    horAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    // spacings
+    startSpacing: Dp = 8.dp, // min: verticalItemSpacing
+    verticalItemSpacing: Dp = 8.dp,
+    horizontalItemSpacing: Dp = 8.dp,
+    endSpacing: Dp = 8.dp, // min: verticalItemSpacing
+    // edge fades
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
@@ -737,16 +782,20 @@ fun EdgeFadeLazyStaggeredVerticalGrid(
             state = state,
             columns = StaggeredGridCells.Fixed(columns),
             verticalItemSpacing = verticalItemSpacing,
-            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing)
+            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing, horAlignment)
         ) {
-            if (startSpacing) {
-                item(span = StaggeredGridItemSpan.FullLine) { HorizontalSpacer() }
+            if (startSpacing >= verticalItemSpacing) {
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    HorizontalSpacer(startSpacing - verticalItemSpacing)
+                }
             }
             
             content()
             
-            if (endSpacing) {
-                item(span = StaggeredGridItemSpan.FullLine) { HorizontalSpacer() }
+            if (endSpacing >= verticalItemSpacing) {
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    HorizontalSpacer(endSpacing - verticalItemSpacing)
+                }
             }
         }
     }
