@@ -45,6 +45,7 @@ import foundation.composeapp.generated.resources.app_settings_vibration_subtitle
 import foundation.composeapp.generated.resources.app_settings_vibration_title
 import foundation.composeapp.generated.resources.navigation_settings_about
 import foundation.composeapp.generated.resources.theme_settings_color_theme_subtitle
+import foundation.composeapp.generated.resources.theme_settings_color_theme_subtitle_no_dynamic_colors
 import foundation.composeapp.generated.resources.theme_settings_color_theme_title
 import foundation.composeapp.generated.resources.theme_settings_dark_mode_subtitle
 import foundation.composeapp.generated.resources.theme_settings_dark_mode_title
@@ -243,10 +244,16 @@ fun ThemeSettings(
             listOf(ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE, ColorTheme.OFF)
         }
         
+        val themeSubtitle = if (viewModel.supportsFeature(Feature.DYNAMIC_COLORS)) {
+            stringResource(Res.string.theme_settings_color_theme_subtitle)
+        } else {
+            stringResource(Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors)
+        }
+        
         SettingsSelector(
             modifier = Modifier.padding(bottom = 8.dp),
             title = stringResource(Res.string.theme_settings_color_theme_title),
-            subtitle = stringResource(Res.string.theme_settings_color_theme_subtitle),
+            subtitle = themeSubtitle,
             optionList = buttonList,
             selectedOption = useColorTheme,
             onSelectOption = { colorTheme ->
