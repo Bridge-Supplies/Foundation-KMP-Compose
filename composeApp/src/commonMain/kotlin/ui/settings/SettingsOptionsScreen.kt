@@ -101,8 +101,7 @@ fun SettingsOptionsScreen(
         EdgeFadeLazyStaggeredVerticalGrid(
             modifier = Modifier
                 .padding(horizontal = 8.dp)
-                .nestedScroll(nestedScrollConnection)
-                .align(Alignment.Center),
+                .nestedScroll(nestedScrollConnection),
             state = listState,
             columns = if (isPortraitMode) 1 else 2,
             horizontalItemSpacing = 0.dp,
