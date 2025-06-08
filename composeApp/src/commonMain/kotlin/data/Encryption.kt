@@ -12,13 +12,26 @@ import korlibs.io.lang.toByteArray
 import korlibs.io.lang.toString
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
 data class SharedData(
     @SerialName("m") val message: String
-)
+) {
+    companion object {
+        fun prepare(
+            message: String?,
+            encrypted: Boolean = true
+        ): String? {
+            if (message != null) {
+                val sharedData = SharedData(message = message)
+                return if (encrypted) sharedData.compressAndEncrypt() else serializeData(sharedData)
+            } else {
+                return null
+            }
+        }
+    }
+}
 
 inline fun <reified T> serializeData(data: T): String =
     Json.encodeToString(data)

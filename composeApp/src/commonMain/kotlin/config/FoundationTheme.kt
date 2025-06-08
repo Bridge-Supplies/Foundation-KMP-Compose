@@ -10,12 +10,14 @@ import foundation.composeapp.generated.resources.theme_settings_color_theme_blue
 import foundation.composeapp.generated.resources.theme_settings_color_theme_green
 import foundation.composeapp.generated.resources.theme_settings_color_theme_off
 import foundation.composeapp.generated.resources.theme_settings_color_theme_red
+import foundation.composeapp.generated.resources.theme_settings_dark_mode_amoled
 import foundation.composeapp.generated.resources.theme_settings_dark_mode_auto
 import foundation.composeapp.generated.resources.theme_settings_dark_mode_dark
 import foundation.composeapp.generated.resources.theme_settings_dark_mode_light
+import foundation.composeapp.generated.resources.theme_settings_palette_bold
 import foundation.composeapp.generated.resources.theme_settings_palette_neutral
-import foundation.composeapp.generated.resources.theme_settings_palette_tonal
-import foundation.composeapp.generated.resources.theme_settings_palette_vibrant
+import foundation.composeapp.generated.resources.theme_settings_palette_spot
+import foundation.composeapp.generated.resources.theme_settings_palette_tinted
 import org.jetbrains.compose.resources.StringResource
 
 @Composable
@@ -25,7 +27,7 @@ expect fun FoundationTheme(
 )
 
 enum class ColorTheme(
-    val stringRes: StringResource,
+    val titleRes: StringResource,
     val color: Color
 ) {
     AUTO(
@@ -34,15 +36,15 @@ enum class ColorTheme(
     ),
     RED(
         Res.string.theme_settings_color_theme_red,
-        Color.Red
+        Color(255, 23, 68)
     ),
     GREEN(
         Res.string.theme_settings_color_theme_green,
-        Color.Green
+        Color(56, 142, 60)
     ),
     BLUE(
         Res.string.theme_settings_color_theme_blue,
-        Color.Blue
+        Color(2, 136, 209)
     ),
     OFF(
         Res.string.theme_settings_color_theme_off,
@@ -51,25 +53,29 @@ enum class ColorTheme(
 }
 
 enum class Palette(
-    val stringRes: StringResource,
+    val titleRes: StringResource,
     val paletteStyle: PaletteStyle
 ) {
     NEUTRAL(
         Res.string.theme_settings_palette_neutral,
         PaletteStyle.Neutral
     ),
-    TONAL(
-        Res.string.theme_settings_palette_tonal,
+    SPOT(
+        Res.string.theme_settings_palette_spot,
+        PaletteStyle.Rainbow
+    ),
+    TINTED(
+        Res.string.theme_settings_palette_tinted,
         PaletteStyle.TonalSpot
     ),
-    VIBRANT(
-        Res.string.theme_settings_palette_vibrant,
+    BOLD(
+        Res.string.theme_settings_palette_bold,
         PaletteStyle.Vibrant
     )
 }
 
 enum class DarkMode(
-    val stringRes: StringResource
+    val titleRes: StringResource
 ) {
     AUTO(
         Res.string.theme_settings_dark_mode_auto
@@ -79,5 +85,8 @@ enum class DarkMode(
     ),
     DARK(
         Res.string.theme_settings_dark_mode_dark
+    ),
+    AMOLED(
+        Res.string.theme_settings_dark_mode_amoled
     )
 }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,7 +30,9 @@ import foundation.composeapp.generated.resources.ic_launcher_foreground
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.BodyText
 import ui.CircularReveal
+import ui.TitleText
 
 @Composable
 fun LandingScreen(
@@ -68,7 +69,7 @@ fun LandingScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Image(
                 painter = painterResource(Res.drawable.ic_launcher_foreground),
@@ -81,20 +82,18 @@ fun LandingScreen(
                     .padding(16.dp)
             )
             
-            Text(
+            TitleText(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleLarge,
                 text = stringResource(Res.string.app_name),
                 textAlign = TextAlign.Center
             )
             
             if (useLandingTips) {
-                Text(
+                BodyText(
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
                         .padding(top = 8.dp),
-                    style = MaterialTheme.typography.bodyMedium,
                     text = stringResource(landingMessage),
                     textAlign = TextAlign.Center
                 )

@@ -8,43 +8,46 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import config.isPortraitMode
 import data.MainViewModel
+import data.daysBetween
 import data.getDateDisplay
 import data.getTodayDate
+import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_date_elapsed_seconds
 import foundation.composeapp.generated.resources.app_date_selected
 import foundation.composeapp.generated.resources.app_date_today
+import foundation.composeapp.generated.resources.app_days_between
 import foundation.composeapp.generated.resources.navigation_home_date_select
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import ui.FloatingButton
+import ui.TitleText
 
 @Composable
 fun HomeDateScreen(
     viewModel: MainViewModel,
-    onVibrate: () -> Unit
+    hapticFeedback: () -> Unit,
+    initialSelectedDateMs: Long = getTodayUtcMs()
 ) {
-    val isPortraitMode = isPortraitMode()
     val timer by viewModel.timer.collectAsState()
     val now = getTodayDate()
-    val todaysDate by remember(now) { mutableStateOf(getDateDisplay(now)) }
-    val selectedDate by viewModel.selectedDate.collectAsState()
+    val todaysDate by remember { mutableStateOf(getDateDisplay(now)) }
+    var selectedDate by remember { mutableStateOf(initialSelectedDateMs) }
     val selectedDateDisplay by remember(selectedDate) {
         derivedStateOf {
             getDateDisplay(
@@ -52,26 +55,29 @@ fun HomeDateScreen(
             )
         }
     }
+    val daysBetween by remember(selectedDate, todaysDate) {
+        derivedStateOf {
+            daysBetween(selectedDate, getTodayUtcMs())
+        }
+    }
     
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(
-                vertical = 16.dp,
-                horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
-            ),
+            .padding(16.dp),
         horizontalAlignment = Alignment.Start,
     ) {
         val text = stringResource(Res.string.app_date_elapsed_seconds, timer) + "\n" +
             stringResource(Res.string.app_date_today, todaysDate) + "\n" +
-            stringResource(Res.string.app_date_selected, selectedDateDisplay)
+            stringResource(Res.string.app_date_selected, selectedDateDisplay) + "\n" +
+            stringResource(Res.string.app_days_between, daysBetween)
         
-        Text(
-            style = MaterialTheme.typography.titleLarge,
+        TitleText(
             textAlign = TextAlign.Start,
             text = text,
+            maxLines = 4,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -79,16 +85,19 @@ fun HomeDateScreen(
         
         Spacer(Modifier.weight(1f))
         
-        Button(
+        FloatingButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            onClick = {
-                viewModel.showDatePickerSheet(selectedDate)
-                onVibrate()
-            }
+            text = stringResource(Res.string.navigation_home_date_select)
         ) {
-            Text(stringResource(Res.string.navigation_home_date_select))
+            viewModel.showDatePickerSheet(
+                selectedDate = initialSelectedDateMs,
+                onDateSelected = {
+                    selectedDate = it
+                }
+            )
+            hapticFeedback()
         }
     }
 }

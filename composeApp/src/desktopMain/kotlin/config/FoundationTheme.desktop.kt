@@ -19,10 +19,12 @@ actual fun FoundationTheme(
     val usePalette by viewModel.usePalette.collectAsState()
     val useDarkMode by viewModel.useDarkMode.collectAsState()
     
+    val useAmoled = useDarkMode == DarkMode.AMOLED
     val darkMode = when (useDarkMode) {
         DarkMode.AUTO -> isSystemInDarkTheme()
         DarkMode.LIGHT -> false
         DarkMode.DARK -> true
+        DarkMode.AMOLED -> true
     }
     
     val colorScheme: ColorScheme = when {
@@ -30,6 +32,8 @@ actual fun FoundationTheme(
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
+                isAmoled = useAmoled,
+                isExtendedFidelity = true,
                 style = usePalette.paletteStyle
             )
         }
@@ -38,6 +42,8 @@ actual fun FoundationTheme(
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
+                isAmoled = useAmoled,
+                isExtendedFidelity = true,
                 style = PaletteStyle.Monochrome
             )
         }

@@ -1,39 +1,35 @@
 package ui.settings
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import config.isPortraitMode
 import data.License
 import data.MainViewModel
 import data.browseWeb
@@ -41,130 +37,136 @@ import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_about_build
 import foundation.composeapp.generated.resources.app_about_version
 import foundation.composeapp.generated.resources.app_name
-import foundation.composeapp.generated.resources.developer_name
-import foundation.composeapp.generated.resources.settings_about_licenses_title
 import foundation.composeapp.generated.resources.settings_about_licenses_unknown
+import foundation.composeapp.generated.resources.tag_built_with_foundation
 import org.jetbrains.compose.resources.stringResource
-import ui.EdgeFadeLazyList
+import ui.BottomButton
+import ui.ClickableIcon
+import ui.EdgeFadeIndexedLazyColumn
+import ui.HintText
+import ui.OptionDetailText
+import ui.StickyHeader
+import ui.TitledCard
+import ui.rememberIndexedLazyListState
+import ui.rememberNestedScrollConnection
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsAboutScreen(
     viewModel: MainViewModel,
-    onVibrate: () -> Unit
+    hapticFeedback: () -> Unit
 ) {
-    val isPortraitMode = isPortraitMode()
+    val horPaddingMod = Modifier.padding(horizontal = 16.dp)
     val licenses by viewModel.licenses.collectAsState()
+    val listState = rememberIndexedLazyListState()
     
-    Column(
+    var bottomButtonsVisible by remember { mutableStateOf(true) }
+    val nestedScrollConnection = rememberNestedScrollConnection(
+        firstVisibleItemScrollOffset = { listState.listState.firstVisibleItemScrollOffset }
+    ) { scrollUp ->
+        bottomButtonsVisible = scrollUp
+    }
+    
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .background(MaterialTheme.colorScheme.background),
     ) {
-        val listState = rememberLazyListState()
-        
-        EdgeFadeLazyList(
+        EdgeFadeIndexedLazyColumn(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            listState = listState
+                .nestedScroll(nestedScrollConnection),
+            state = listState,
+            endSpacing = 56.dp
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding),
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                
-                item {
-                    Text(
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Start,
-                        text = stringResource(Res.string.app_name),
+            item {
+                TitledCard(
+                    modifier = horPaddingMod,
+                    title = stringResource(Res.string.app_name)
+                ) {
+                    OptionDetailText(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    )
-                }
-                
-                item {
-                    val text = stringResource(Res.string.app_about_version, viewModel.platform.version) + "\n" +
-                        stringResource(Res.string.app_about_build, viewModel.platform.build)
-                    
-                    Text(
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Start,
-                        text = text,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-                
-                item {
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        onClick = {
-                            onVibrate()
-                            browseWeb("https://bridge.supplies/")
-                        }
-                    ) {
-                        Text(stringResource(Res.string.developer_name))
-                    }
-                }
-                
-                item {
-                    Text(
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Start,
-                        text = stringResource(Res.string.settings_about_licenses_title),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                    )
-                }
-                
-                licenses.mapping.keys.forEach { sortedLicenseUrl ->
-                    val licenseList = licenses.mapping[sortedLicenseUrl] ?: listOf()
-                    val licenseTitle = licenseList.first().moduleLicense
-                    val licenseUrl = licenseList.first().moduleLicenseUrl
-                    
-                    stickyHeader {
-                        val onViewLicenseUrl: (() -> Unit)? =
-                            if (licenseUrl.isNotEmpty()) {
-                                {
-                                    browseWeb(licenseUrl)
-                                }
-                            } else null
-                        
-                        LicenseHeader(
-                            backgroundColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            moduleLicense = licenseTitle,
-                            moduleLicenseUrl = licenseUrl,
-                            onViewLicenseUrl = onViewLicenseUrl
-                        )
-                    }
-                    
-                    itemsIndexed(items = licenseList) { index, license ->
-                        LicenseCard(
-                            license = license,
-                            onViewModuleUrl = { url ->
-                                onVibrate()
-                                browseWeb(url)
+                            .clickable {
+                                hapticFeedback()
+                                browseWeb("https://www.youtube.com/shorts/lCJo8vhmIdc")
                             }
-                        )
+                            .padding(
+                                vertical = 8.dp,
+                                horizontal = 16.dp
+                            ),
+                        title = stringResource(Res.string.app_about_version),
+                        subtitle = viewModel.platform.version,
+                    )
+                    
+                    OptionDetailText(
+                        modifier = Modifier
+                            .padding(
+                                vertical = 8.dp,
+                                horizontal = 16.dp
+                            ),
+                        title = stringResource(Res.string.app_about_build),
+                        subtitle = viewModel.platform.build,
+                    )
+                    
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+            
+            licenses.mapping.keys.forEach { sortedLicenseUrl ->
+                val licenseList = licenses.mapping[sortedLicenseUrl] ?: listOf()
+                
+                stickyHeader {
+                    val licenseUrl = licenseList.first().moduleLicenseUrl
+                    val licenseTitle = licenseList.first().moduleLicense.ifBlank {
+                        stringResource(Res.string.settings_about_licenses_unknown)
+                    }
+                    
+                    StickyHeader(
+                        modifier = horPaddingMod,
+                        titleText = licenseTitle,
+                        subtitleText = licenseUrl.ifBlank { null }
+                    ) {
+                        if (licenseUrl.isNotBlank()) {
+                            ClickableIcon(
+                                imageVector = Icons.Default.Link,
+                                contentDescription = licenseTitle
+                            ) {
+                                hapticFeedback()
+                                browseWeb(licenseUrl)
+                            }
+                        }
                     }
                 }
                 
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
+                itemsIndexed(items = licenseList) { index, license ->
+                    LicenseCard(
+                        modifier = horPaddingMod,
+                        license = license,
+                        onViewModuleUrl = { url ->
+                            hapticFeedback()
+                            browseWeb(url)
+                        }
+                    )
                 }
+            }
+        }
+        
+        AnimatedVisibility(
+            modifier = Modifier
+                .align(Alignment.BottomEnd),
+            visible = bottomButtonsVisible,
+            enter = slideInVertically(initialOffsetY = { it * 2 }),
+            exit = slideOutVertically(targetOffsetY = { it * 2 }),
+        ) {
+            BottomButton(
+                text = stringResource(Res.string.tag_built_with_foundation),
+                paddingValues = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
+            ) {
+                hapticFeedback()
+                browseWeb("https://github.com/Bridge-Supplies/Foundation-KMP-Compose")
             }
         }
     }
@@ -172,86 +174,30 @@ fun SettingsAboutScreen(
 
 @Composable
 fun LicenseCard(
+    modifier: Modifier = Modifier,
     license: License,
     onViewModuleUrl: (String) -> Unit
 ) {
-    val cardModifier = if (license.moduleUrl.isNotBlank()) {
-        Modifier.clickable {
-            onViewModuleUrl(license.moduleUrl)
-        }
-    } else {
-        Modifier
-    }
-    
     Card(
-        modifier = cardModifier
+        modifier = modifier,
+        onClick = {
+            if (license.moduleUrl.isNotBlank()) {
+                onViewModuleUrl(license.moduleUrl)
+            }
+        }
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+                .minimumInteractiveComponentSize(),
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            HintText(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
                 text = license.moduleName + ":" + license.moduleVersion,
-                style = MaterialTheme.typography.bodySmall
+                maxLines = 1
             )
-        }
-    }
-}
-
-@Composable
-fun LicenseHeader(
-    backgroundColor: Color,
-    moduleLicense: String,
-    moduleLicenseUrl: String,
-    onViewLicenseUrl: (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier
-            .background(backgroundColor),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f)
-                .padding(vertical = 8.dp)
-        ) {
-            Text(
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Start,
-                text = moduleLicense.ifBlank { stringResource(Res.string.settings_about_licenses_unknown) },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-            )
-            
-            if (moduleLicenseUrl.isNotBlank()) {
-                Text(
-                    style = MaterialTheme.typography.titleSmall,
-                    textAlign = TextAlign.Start,
-                    text = moduleLicenseUrl,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth()
-                )
-            }
-        }
-        
-        if (onViewLicenseUrl != null) {
-            IconButton(
-                onClick = {
-                    onViewLicenseUrl()
-                }
-            ) {
-                Icon(Icons.Default.Link, contentDescription = moduleLicense)
-            }
         }
     }
 }

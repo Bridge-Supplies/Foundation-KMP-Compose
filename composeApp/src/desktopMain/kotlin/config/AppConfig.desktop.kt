@@ -1,12 +1,8 @@
 package config
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.BuildConfig
 import data.DataRepository
 import data.MainViewModel
@@ -23,26 +19,7 @@ actual fun getPlatform() = object : Platform {
     override val version = BuildConfig.APP_VERSION
     override val build = BuildConfig.APP_BUILD
     override val shareUrl = "https://github.com/Bridge-Supplies/Foundation-KMP-Compose"
-    override val landscapeContentPadding: Dp = 16.dp
     override val supportedFeatures = listOf<Feature>()
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-actual fun getScreenSizeInfo(): ScreenSizeInfo {
-    val density = LocalDensity.current
-    val config = LocalWindowInfo.current.containerSize
-    val pxHeight = config.height
-    val pxWidth = config.width
-    
-    return remember(density, config) {
-        ScreenSizeInfo(
-            pxHeight = pxHeight,
-            pxWidth = pxWidth,
-            dpHeight = with(density) { pxHeight.toDp() },
-            dpWidth = with(density) { pxWidth.toDp() }
-        )
-    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

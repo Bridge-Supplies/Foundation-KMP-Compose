@@ -1,9 +1,7 @@
 package config
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
 import foundation.composeapp.generated.resources.Res
-import foundation.composeapp.generated.resources.landing_tip_code_importing
 import foundation.composeapp.generated.resources.landing_tip_code_scanning
 import foundation.composeapp.generated.resources.landing_tip_dark_mode
 import foundation.composeapp.generated.resources.landing_tip_dynamic_colors
@@ -49,11 +47,6 @@ enum class Feature(
         listOf(
             Res.string.landing_tip_code_scanning
         )
-    ),
-    CODE_IMPORTING(
-        listOf(
-            Res.string.landing_tip_code_importing
-        )
     )
 }
 
@@ -63,7 +56,6 @@ interface Platform {
     val version: String // ex: 1.0.0
     val build: String // ex: 202401010
     val shareUrl: String
-    val landscapeContentPadding: Dp
     val supportedFeatures: List<Feature>
     
     fun supportsFeature(feature: Feature) =
@@ -74,16 +66,6 @@ interface Platform {
 }
 
 expect fun getPlatform(): Platform
-
-data class ScreenSizeInfo(
-    val pxHeight: Int,
-    val pxWidth: Int,
-    val dpHeight: Dp,
-    val dpWidth: Dp
-)
-
-@Composable
-expect fun getScreenSizeInfo(): ScreenSizeInfo
 
 @Composable
 expect fun isPortraitMode(): Boolean

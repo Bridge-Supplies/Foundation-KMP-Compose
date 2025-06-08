@@ -1,273 +1,260 @@
 package ui.scanner
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import config.Feature
 import config.isPortraitMode
 import data.MainViewModel
 import data.SharedData
-import data.bitmapFromBytes
-import data.compressAndEncrypt
-import data.hideAndClearFocus
-import data.serializeData
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.generate_qr_code_encrypted_text
 import foundation.composeapp.generated.resources.generate_qr_code_text
 import foundation.composeapp.generated.resources.scanner_button_text
-import foundation.composeapp.generated.resources.share_button_text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import qrcode.QRCode
+import ui.AppBarAction
+import ui.FloatingButton
+import ui.QrCodeCard
+import ui.Screen
 import ui.TextInput
+import ui.generateQrCode
 
 @OptIn(FlowPreview::class)
 @Composable
 fun ShareCodeScreen(
     viewModel: MainViewModel,
-    onVibrate: () -> Unit,
+    hapticFeedback: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
+    val appBarAction by viewModel.activeAppBarAction.collectAsState()
+    val sharedText by viewModel.sharedText.collectAsState()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
-    val liveText by viewModel.sharedText.collectAsState()
+    val qrProcessedText by viewModel.processedQrText.collectAsState()
+    val qrBitmap by viewModel.processedQrBitmap.collectAsState()
     
-    var processedText by remember {
-        val sharedData = SharedData(liveText)
-        val processed = if (useEncryptedShare) sharedData.compressAndEncrypt() else serializeData(sharedData)
-        mutableStateOf(processed)
-    }
+    val color = MaterialTheme.colorScheme.primary
+    val backgroundColor = MaterialTheme.colorScheme.onPrimary
     
-    LaunchedEffect(Unit) {
+    LaunchedEffect(sharedText, useEncryptedShare, color, backgroundColor) {
         coroutineScope.launch(Dispatchers.Default) {
-            viewModel.sharedText.debounce(250).distinctUntilChanged().collect {
-                val sharedData = SharedData(it)
-                val processed = if (useEncryptedShare) sharedData.compressAndEncrypt() else serializeData(sharedData)
-                if (processedText != processed) {
-                    processedText = processed
+            if (sharedText.isBlank()) {
+                viewModel.clearQr()
+            } else {
+                val newProcessedText = SharedData.prepare(sharedText, useEncryptedShare)
+                if (newProcessedText != null && newProcessedText != qrProcessedText) {
+                    
+                    val generatedQrBitmap = generateQrCode(
+                        text = newProcessedText,
+                        colorRgb = color.toArgb(),
+                        backgroundColorRgb = backgroundColor.toArgb()
+                    )
+                    
+                    viewModel.setQr(newProcessedText, generatedQrBitmap)
                 }
             }
         }
     }
     
-    val onShareApp = {
-        onVibrate()
-        viewModel.showShareSheet()
+    val onUpdateSharedText = { newText: String ->
+        viewModel.setSharedText(newText)
+    }
+    
+    val onClickScanner = {
+        hapticFeedback()
+        onNavigateToScanner()
+    }
+    
+    Screen.SHARE_GENERATE.actions.forEach { action ->
+        if (appBarAction == action) {
+            when (action) {
+                AppBarAction.SHARE -> {
+                    hapticFeedback()
+                    viewModel.showShareSheet()
+                    viewModel.consumeAppBarAction()
+                }
+                
+                else -> {}
+            }
+        }
     }
     
     if (isPortraitMode) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                .padding(
-                    vertical = 16.dp,
-                    horizontal = 16.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 16.dp)
+                .padding(top = 8.dp, bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            CodeDisplay(
-                modifier = Modifier
-                    .weight(1f)
-                    .wrapContentHeight()
-                    .padding(bottom = 8.dp)
-                    .clickable {
-                        keyboardController.hideAndClearFocus(focusManager)
-                    },
-                text = processedText ?: "",
-                color = MaterialTheme.colorScheme.primary,
-                backgroundColor = MaterialTheme.colorScheme.onPrimary,
-                cardColor = MaterialTheme.colorScheme.onSurface
+            LoadingCodeDisplay(
+                modifier = Modifier.weight(1f),
+                sharedText = sharedText,
+                qrBitmap = qrBitmap
             )
             
-            CodeReader(
-                modifier = Modifier
-                    .wrapContentHeight(),
-                text = liveText,
+            CodeScannerInfo(
+                sharedText = sharedText,
+                useEncryptedShare = useEncryptedShare,
                 supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
-                encryptionEnabled = useEncryptedShare,
-                setSharedText = {
-                    viewModel.setSharedText(it)
-                },
-                onShareApp = onShareApp,
-                onClickScanner = {
-                    onVibrate()
-                    onNavigateToScanner()
-                }
+                onUpdateSharedText = onUpdateSharedText,
+                onClickScanner = onClickScanner
             )
         }
     } else {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                .padding(
-                    vertical = 16.dp,
-                    horizontal = viewModel.platform.landscapeContentPadding
-                ),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 16.dp)
+                .padding(top = 8.dp, bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CodeReader(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
-                text = liveText,
+            CodeScannerInfo(
+                modifier = Modifier.weight(1f),
+                sharedText = sharedText,
+                useEncryptedShare = useEncryptedShare,
                 supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
-                encryptionEnabled = useEncryptedShare,
-                setSharedText = {
-                    viewModel.setSharedText(it)
-                },
-                onShareApp = onShareApp,
-                onClickScanner = {
-                    onVibrate()
-                    onNavigateToScanner()
-                }
+                onUpdateSharedText = onUpdateSharedText,
+                onClickScanner = onClickScanner
             )
             
-            CodeDisplay(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp)
-                    .wrapContentWidth()
-                    .clickable {
-                        keyboardController.hideAndClearFocus(focusManager)
-                    },
-                text = processedText ?: "",
-                color = MaterialTheme.colorScheme.primary,
-                backgroundColor = MaterialTheme.colorScheme.onPrimary,
-                cardColor = MaterialTheme.colorScheme.onSurface
+            LoadingCodeDisplay(
+                modifier = Modifier.weight(1f),
+                sharedText = sharedText,
+                qrBitmap = qrBitmap
             )
         }
     }
 }
 
 @Composable
-fun CodeDisplay(
-    modifier: Modifier,
-    text: String,
-    color: Color,
-    backgroundColor: Color,
-    cardColor: Color
+fun LoadingCodeDisplay(
+    modifier: Modifier = Modifier,
+    sharedText: String? = null,
+    qrBitmap: ImageBitmap? = null
 ) {
-    val qrBitmap by remember(text) {
-        derivedStateOf {
-            val bytes = QRCode.ofSquares()
-                .withColor(color.toArgb())
-                .withBackgroundColor(backgroundColor.toArgb())
-                .build(text)
-                .renderToBytes()
-            bitmapFromBytes(bytes)
-        }
-    }
-    
-    ElevatedCard(
+    Crossfade(
         modifier = modifier,
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = cardColor
-        )
-    ) {
-        Image(
-            modifier = Modifier
-                .aspectRatio(1f)
-                .fillMaxSize()
-                .padding(8.dp),
-            bitmap = qrBitmap,
-            contentDescription = text
-        )
+        targetState = qrBitmap
+    ) { qr ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (qr != null) {
+                QrCodeCard(
+                    qrBitmap = qr,
+                    cardColor = MaterialTheme.colorScheme.onSurface
+                )
+            } else {
+                if (!sharedText.isNullOrEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .fillMaxSize()
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.fillMaxSize())
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun CodeReader(
-    modifier: Modifier,
-    text: String,
-    encryptionEnabled: Boolean,
+fun CodeScannerInfo(
+    modifier: Modifier = Modifier,
+    sharedText: String? = null,
+    useEncryptedShare: Boolean,
     supportsScanning: Boolean,
-    setSharedText: (String) -> Unit,
-    onShareApp: () -> Unit,
-    onClickScanner: () -> Unit
+    onUpdateSharedText: (String) -> Unit,
+    onClickScanner: () -> Unit,
 ) {
-    val hintText = if (encryptionEnabled) stringResource(Res.string.generate_qr_code_encrypted_text) else stringResource(Res.string.generate_qr_code_text)
+    val inputHint = if (useEncryptedShare) {
+        stringResource(Res.string.generate_qr_code_encrypted_text)
+    } else {
+        stringResource(Res.string.generate_qr_code_text)
+    }
     
     Column(
         modifier = modifier
-    ) {
-        TextInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = if (supportsScanning) 8.dp else 0.dp),
-            minLines = 4,
-            maxLines = 4,
-            text = text,
-            hintText = hintText,
-            onValueChange = {
-                setSharedText(it)
-            }
+            .wrapContentHeight(),
+        verticalArrangement = Arrangement.spacedBy(
+            space = 8.dp,
+            alignment = Alignment.CenterVertically
         )
-        
-        Row(
+    ) {
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
         ) {
-            Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = if (supportsScanning) 4.dp else 0.dp),
-                onClick = {
-                    onShareApp()
-                }
-            ) {
-                Text(stringResource(Res.string.share_button_text))
-            }
-            
-            if (supportsScanning) {
-                Button(
+            Column {
+                TextInput(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 4.dp),
+                        .padding(16.dp),
+                    text = sharedText ?: "",
+                    minLines = 3,
+                    maxLines = 3,
+                    hintText = inputHint
+                ) { newText ->
+                    onUpdateSharedText(newText)
+                }
+                
+                Spacer(Modifier.height(6.dp))
+            }
+        }
+        
+        if (supportsScanning) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = 8.dp,
+                    alignment = Alignment.CenterHorizontally
+                )
+            ) {
+                FloatingButton(
+                    modifier = Modifier
+                        .weight(1f),
+                    text = stringResource(Res.string.scanner_button_text),
                     onClick = {
                         onClickScanner()
                     }
-                ) {
-                    Text(stringResource(Res.string.scanner_button_text))
-                }
+                )
             }
         }
     }

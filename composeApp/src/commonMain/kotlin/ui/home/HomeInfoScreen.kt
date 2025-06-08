@@ -2,89 +2,122 @@ package ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import config.isPortraitMode
 import data.MainViewModel
+import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_about_orientation
 import foundation.composeapp.generated.resources.app_about_platform
 import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.ic_launcher_foreground
+import foundation.composeapp.generated.resources.navigation_home_columns
 import foundation.composeapp.generated.resources.navigation_home_date
+import foundation.composeapp.generated.resources.navigation_home_grids
+import foundation.composeapp.generated.resources.navigation_home_rows
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.EdgeFadeColumn
+import ui.FloatingButton
+import ui.TitleText
 
 @Composable
 fun HomeInfoScreen(
     viewModel: MainViewModel,
-    onVibrate: () -> Unit,
-    onNavigateDateScreen: () -> Unit
+    hapticFeedback: () -> Unit,
+    onNavigateDateScreen: (selectedDate: Long) -> Unit,
+    onNavigateColumnsScreen: () -> Unit,
+    onNavigateRowsScreen: () -> Unit,
+    onNavigateGridsScreen: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
+    val listState = rememberScrollState()
     val orientationText = if (isPortraitMode) "Portrait" else "Landscape"
+    val text = stringResource(Res.string.app_about_platform, viewModel.platform.name) + "\n" +
+        stringResource(Res.string.app_about_orientation, orientationText)
     
-    Column(
+    EdgeFadeColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-            .verticalScroll(rememberScrollState())
-            .padding(
-                vertical = 16.dp,
-                horizontal = if (isPortraitMode) 16.dp else viewModel.platform.landscapeContentPadding
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .background(MaterialTheme.colorScheme.background),
+        state = listState,
+        endSpacing = 16.dp
     ) {
         Image(
-            painter = painterResource(
-                resource = Res.drawable.ic_launcher_foreground
-            ),
+            painter = painterResource(Res.drawable.ic_launcher_foreground),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
             contentDescription = stringResource(Res.string.app_name),
             modifier = Modifier
-                .size(128.dp)
+                .height(128.dp)
+                .fillMaxWidth()
                 .padding(8.dp)
         )
         
-        val text = stringResource(Res.string.app_about_platform, viewModel.platform.name) + "\n" +
-            stringResource(Res.string.app_about_orientation, orientationText)
-        
-        Text(
-            style = MaterialTheme.typography.titleLarge,
+        TitleText(
             textAlign = TextAlign.Center,
             text = text,
+            maxLines = 2,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(horizontal = 16.dp)
         )
         
         Spacer(Modifier.weight(1f))
         
-        Button(
+        FloatingButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
-            onClick = {
-                onNavigateDateScreen()
-                onVibrate()
-            }
+                .padding(horizontal = 16.dp),
+            text = stringResource(Res.string.navigation_home_date)
         ) {
-            Text(stringResource(Res.string.navigation_home_date))
+            viewModel.showDatePickerSheet(
+                selectedDate = getTodayUtcMs(),
+                onDateSelected = { selectedDate ->
+                    onNavigateDateScreen(selectedDate)
+                }
+            )
+            hapticFeedback()
+        }
+        
+        FloatingButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            text = stringResource(Res.string.navigation_home_columns)
+        ) {
+            onNavigateColumnsScreen()
+            hapticFeedback()
+        }
+        
+        FloatingButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            text = stringResource(Res.string.navigation_home_rows)
+        ) {
+            onNavigateRowsScreen()
+            hapticFeedback()
+        }
+        
+        FloatingButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            text = stringResource(Res.string.navigation_home_grids)
+        ) {
+            onNavigateGridsScreen()
+            hapticFeedback()
         }
     }
 }
