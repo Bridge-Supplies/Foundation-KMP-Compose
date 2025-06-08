@@ -51,6 +51,7 @@ import androidx.navigation.navigation
 import androidx.savedstate.read
 import config.PlatformType
 import data.MainViewModel
+import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.action_settings
 import foundation.composeapp.generated.resources.action_share
@@ -170,7 +171,7 @@ enum class Screen(
     HOME_DATE(
         Res.string.screen_home_date_title,
         "home_date",
-        null,
+        NavArgument.SELECTED_DATE,
         emptyList()
     ),
     HOME_COLUMNS(
@@ -229,18 +230,26 @@ enum class NavArgument(
     val type: NavType<*>,
     val defaultValue: Any
 ) {
-    // TODO
+    SELECTED_DATE(
+        key = "selected_date",
+        type = NavType.LongType,
+        defaultValue = getTodayUtcMs()
+    )
 }
 
 fun arg(argument: NavArgument): NamedNavArgument =
     navArgument(argument.key) { type = argument.type; defaultValue = argument.defaultValue }
 
-fun NavBackStackEntry.getString(argument: NavArgument): String? {
-    return arguments?.read { getString(argument.key) }
+fun NavBackStackEntry.getString(argument: NavArgument): String {
+    return arguments?.read { getString(argument.key) } ?: argument.defaultValue as String
 }
 
-fun NavBackStackEntry.getInt(argument: NavArgument): Int? {
-    return arguments?.read { getInt(argument.key) }
+fun NavBackStackEntry.getInt(argument: NavArgument): Int {
+    return arguments?.read { getInt(argument.key) } ?: argument.defaultValue as Int
+}
+
+fun NavBackStackEntry.getLong(argument: NavArgument): Long {
+    return arguments?.read { getLong(argument.key) } ?: argument.defaultValue as Long
 }
 
 
@@ -335,7 +344,7 @@ fun NavigationGraph(
         ) {
             composable(
                 route = Screen.HOME_INFO.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     onCloseApplication()
                 }
@@ -343,9 +352,9 @@ fun NavigationGraph(
                 HomeInfoScreen(
                     viewModel = viewModel,
                     hapticFeedback = hapticFeedback,
-                    onNavigateDateScreen = {
+                    onNavigateDateScreen = { selectedDate ->
                         isNavigatingTopLevel.value = false
-                        navigateToScreen(navController, Screen.HOME_DATE)
+                        navigateToScreen(navController, Screen.HOME_DATE, selectedDate)
                     },
                     onNavigateColumnsScreen = {
                         isNavigatingTopLevel.value = false
@@ -363,21 +372,25 @@ fun NavigationGraph(
             }
             
             composable(
-                route = Screen.HOME_DATE.getNavRoute()
-            ) {
+                route = Screen.HOME_DATE.getNavRoute(),
+                arguments = listOf(arg(NavArgument.SELECTED_DATE))
+            ) { backStackEntry ->
                 BackHandler {
                     onNavigateBack()
                 }
                 
+                val selectedDate = backStackEntry.getLong(NavArgument.SELECTED_DATE)
+                
                 HomeDateScreen(
                     viewModel = viewModel,
-                    hapticFeedback = hapticFeedback
+                    hapticFeedback = hapticFeedback,
+                    initialSelectedDateMs = selectedDate
                 )
             }
             
             composable(
                 route = Screen.HOME_COLUMNS.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     onNavigateBack()
                 }
@@ -390,7 +403,7 @@ fun NavigationGraph(
             
             composable(
                 route = Screen.HOME_ROWS.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     onNavigateBack()
                 }
@@ -403,7 +416,7 @@ fun NavigationGraph(
             
             composable(
                 route = Screen.HOME_GRIDS.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     onNavigateBack()
                 }
@@ -421,7 +434,7 @@ fun NavigationGraph(
         ) {
             composable(
                 route = Screen.SHARE_GENERATE.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     isNavigatingTopLevel.value = true
                     selectNavigationTab(navController, NavigationTab.HOME, hapticFeedback)
@@ -439,7 +452,7 @@ fun NavigationGraph(
             
             composable(
                 route = Screen.SHARE_SCAN.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     onNavigateBack()
                 }
@@ -466,7 +479,7 @@ fun NavigationGraph(
         ) {
             composable(
                 route = Screen.SETTINGS_OPTIONS.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     isNavigatingTopLevel.value = true
                     selectNavigationTab(navController, NavigationTab.HOME, hapticFeedback)
@@ -484,7 +497,7 @@ fun NavigationGraph(
             
             composable(
                 route = Screen.SETTINGS_ABOUT.getNavRoute()
-            ) {
+            ) { backStackEntry ->
                 BackHandler {
                     onNavigateBack()
                 }

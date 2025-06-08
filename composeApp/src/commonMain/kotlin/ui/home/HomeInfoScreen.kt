@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import config.isPortraitMode
 import data.MainViewModel
+import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_about_orientation
 import foundation.composeapp.generated.resources.app_about_platform
@@ -35,7 +36,7 @@ import ui.TitleText
 fun HomeInfoScreen(
     viewModel: MainViewModel,
     hapticFeedback: () -> Unit,
-    onNavigateDateScreen: () -> Unit,
+    onNavigateDateScreen: (selectedDate: Long) -> Unit,
     onNavigateColumnsScreen: () -> Unit,
     onNavigateRowsScreen: () -> Unit,
     onNavigateGridsScreen: () -> Unit
@@ -80,7 +81,12 @@ fun HomeInfoScreen(
                 .padding(horizontal = 16.dp),
             text = stringResource(Res.string.navigation_home_date)
         ) {
-            onNavigateDateScreen()
+            viewModel.showDatePickerSheet(
+                selectedDate = getTodayUtcMs(),
+                onDateSelected = { selectedDate ->
+                    onNavigateDateScreen(selectedDate)
+                }
+            )
             hapticFeedback()
         }
         

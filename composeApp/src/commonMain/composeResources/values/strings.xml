@@ -7,9 +7,10 @@
     <string name="app_build"></string>
 
     <string name="app_about_orientation">Orientation: %1$s</string>
-    <string name="app_date_elapsed_seconds">Elapsed seconds: %1$s</string>
+    <string name="app_date_elapsed_seconds">App session: %1$s seconds</string>
     <string name="app_date_today">Today's date: %1$s</string>
     <string name="app_date_selected">Selected date: %1$s</string>
+    <string name="app_days_between">Days between: %1$s</string>
     <string name="app_about_build">Version</string>
     <string name="app_about_version">Build</string>
     <string name="app_about_platform">Platform: %1$s</string>
@@ -94,7 +95,7 @@
     <string name="settings_about_licenses_title">Licenses</string>
     <string name="settings_about_licenses_unknown">Unknown</string>
 
-    <string name="navigation_home_date">Datetime, BottomSheet</string>
+    <string name="navigation_home_date">Datetime, BottomSheet, NavArgs</string>
     <string name="navigation_home_date_select">Select a date</string>
     <string name="navigation_home_columns">Columns, Expandable Cards</string>
     <string name="navigation_home_rows">Rows, Scroll Helpers</string>

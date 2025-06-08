@@ -112,7 +112,8 @@ sealed class ActiveBottomSheet {
     data object ShareApp : ActiveBottomSheet()
     
     data class DatePicker(
-        var selectedDate: Long
+        var selectedDate: Long,
+        var onDateSelected: (Long) -> Unit
     ) : ActiveBottomSheet()
 }
 
@@ -188,14 +189,15 @@ fun ShareAppBottomSheet(
 @Composable
 fun DatePickerBottomSheet(
     viewModel: MainViewModel,
-    selectedDate: Long = getTodayUtcMs(),
-    hapticFeedback: () -> Unit
+    hapticFeedback: () -> Unit,
+    initialSelectedDateMs: Long = getTodayUtcMs(),
+    onDateSelected: (Long) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(true)
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = selectedDate,
+        initialSelectedDateMillis = initialSelectedDateMs,
         initialDisplayMode = DisplayMode.Input,
         selectableDates = PastOrPresentSelectableDates
     )
@@ -232,7 +234,7 @@ fun DatePickerBottomSheet(
             TextButton(
                 text = stringResource(Res.string.navigation_confirm)
             ) {
-                viewModel.setSelectedDate(datePickerState.selectedDateMillis ?: selectedDate)
+                onDateSelected(datePickerState.selectedDateMillis ?: initialSelectedDateMs)
                 closeSheet()
             }
             

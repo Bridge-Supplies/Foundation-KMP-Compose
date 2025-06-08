@@ -947,7 +947,7 @@ fun Modifier.circularReveal(
 ) = clip(CircularRevealShape(progress, offset))
 
 private class CircularRevealShape(
-    @FloatRange(from = 0.0, to = 1.0) private val progress: Float,
+    @param:FloatRange(from = 0.0, to = 1.0) private val progress: Float,
     private val offset: Offset? = null
 ) : Shape {
     override fun createOutline(

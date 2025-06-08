@@ -183,8 +183,9 @@ fun MainScaffold(
                     val sheetData = (currentBottomSheet as ActiveBottomSheet.DatePicker)
                     DatePickerBottomSheet(
                         viewModel = viewModel,
-                        selectedDate = sheetData.selectedDate,
-                        hapticFeedback = hapticFeedback
+                        hapticFeedback = hapticFeedback,
+                        initialSelectedDateMs = sheetData.selectedDate,
+                        onDateSelected = sheetData.onDateSelected
                     )
                 }
                 

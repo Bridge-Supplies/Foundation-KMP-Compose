@@ -97,10 +97,6 @@ class MainViewModel(
     
     // SESSION
     
-    private val _selectedDate = MutableStateFlow(getTodayUtcMs())
-    var selectedDate = _selectedDate.asStateFlow()
-        private set
-    
     private val _sharedText = MutableStateFlow("")
     var sharedText = _sharedText.asStateFlow()
         private set
@@ -210,10 +206,6 @@ class MainViewModel(
         }
     }
     
-    fun setSelectedDate(selectedDate: Long) {
-        _selectedDate.value = selectedDate
-    }
-    
     fun setSharedText(text: String) {
         _sharedText.value = text
     }
@@ -245,8 +237,16 @@ class MainViewModel(
         _currentBottomSheet.value = ActiveBottomSheet.None
     }
     
-    fun showDatePickerSheet(selectedDate: Long) {
-        setBottomSheet(ActiveBottomSheet.DatePicker(selectedDate))
+    fun showDatePickerSheet(
+        selectedDate: Long,
+        onDateSelected: (Long) -> Unit
+    ) {
+        setBottomSheet(
+            sheet = ActiveBottomSheet.DatePicker(
+                selectedDate = selectedDate,
+                onDateSelected = onDateSelected
+            )
+        )
     }
     
     fun showShareSheet() {
