@@ -108,9 +108,9 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 * Rename package name and directories
   - `bridge.supplies.foundation` to your package name
   - ie `/composeApp/src/androidMain/kotlin/bridge/supplies/foundation`
-* Create keystore.properties file in root directory
-  - example in README.md
-* Find+Replace some values
+* Create `keystore.properties` file in root directory
+  - example in `README.md`
+* Find + Replace All some values
   - `foundation.composeapp.generated.resources` = `[app-name].composeapp.generated.resources`
   - `bridge.supplies.foundation.BuildConfig` = `your.package.name.BuildConfig`
 * Update `settings.gradle.kts`
@@ -143,11 +143,11 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
     - `PRODUCT_BUNDLE_IDENTIFIER`, `PRODUCT_NAME`, and `INFOPLIST_KEY_CFBundleDisplayName` = your app name
   - Android Studio may require reboot to successfully build iOS
 
-### After a successful build
+### After a successful Android build
 * Update run configurations
-  - Delete extra `composeApp` and `iosApp` configs
+  - Delete extra `composeApp` (Android) and `iosApp` configs
   - Update Desktop config to use correct Main Application class name, ie: `app-name` value
-* Update `README.md`
+* Update `README.md`, if applicable
 * Update `AppConfig`
   - Update `shareUrl` if applicable
 * Update `SettingsAboutScreen` Easter Egg
