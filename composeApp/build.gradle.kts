@@ -208,7 +208,7 @@ android {
 
 compose.desktop {
     application {
-        mainClass = libs.versions.app.packageName.get() + libs.versions.app.mainName.get()
+        mainClass = libs.versions.app.packageName.get() + "." + libs.versions.app.name.get()
         
         nativeDistributions {
             targetFormats(

@@ -1,13 +1,12 @@
 [versions]
 #build info
 app-packageName = "bridge.supplies.foundation"
-app-mainName = ".Foundation"
 app-name = "Foundation"
 app-description = "Foundational KMP Compose template application."
 app-copyright = "© 2025 Bridge Supplies. All rights reserved."
 app-vendor = "Bridge Supplies"
-app-versionName = "1.2.0" # "Version"
-app-versionCode = "202506070" # "Build"
+app-versionName = "1.2.1" # "Version"
+app-versionCode = "202506120" # "Build"
 android-minSdk = "28"
 android-targetSdk = "35"
 android-compileSdk = "35"

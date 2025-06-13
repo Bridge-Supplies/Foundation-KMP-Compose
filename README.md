@@ -1,6 +1,6 @@
 # Foundation (KMP-Compose Template)
 ## Presented by [Bridge Supplies](https://bridge.supplies)
-### Latest version: 1.2.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
+### Latest version: 1.2.1 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
 
 This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
 
@@ -99,42 +99,64 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
   - `libs.versions.toml` defines build info (package name, versionCode, versionName, supported Android SDKs) and package libraries
     - App build/version here applies to Android and Desktop, iOS must modify `project.pbxproj` manually
 
-
-## Template cloning instructions
-
-### Naming and versioning
+## Project Configuration Setup
 
 > [!CAUTION]
 > Apparently naming your app "Foundation" doesn't work on iOS due to a conflict with some Accessibility package, so it's called "Foundation_" there instead.
 
-- Shared
-  - `settings.gradle.kts`
-    - `rootProject.name`: Name of project's root directory
-- Android
-  - `libs.versions.toml`
-    - `app-name`: App display name in launcher
-    - `app-packageName`: package name
-    - `app-versionCode`: build version code, usually date in `YYYYMMDD0` format
-    - `app-versionName`: build version name, usually in `Major.Minor.Patch` notation
-    - `android-minSdk`/`android-targetSdk`/`android-compileSdk`: supported Android API levels
-  - `AndroidManifest.xml`
-    - `android:name`: name of class containing the `Application` implementation (ex: ".Foundation" = `Foundation.android.kt`)
-- iOS
-  - `libs.versions.toml`
-    - `app-packageName`: bundle ID
-  - `/iosApp/Configuration/Config.xcconfig`: bundle ID (again), app name
-  - `/iosApp/iosApp/Info.plist`: bundle ID (again), app name (again)
-  - `/iosApp/iosApp.xcodeproj`: in Xcode, select `iosApp` > `Build Settings`
-    - `Packaging` > `Product Name`: for app name ("Foundation_")
-    - `Packaging` > `Product Bundle Identifier`: bundle ID
-    - `General` > `Identity` > `Display Name`, `Bundle Identifier`, `Version`, `Build`
-    - Can also manually edit `project.pbxproj` to update build version information
-- Desktop
-  - `libs.versions.toml`
-    - `app-name`: display name on window
-    - `app-packageName`: package name
-    - `app-mainName`: name of class containing your `main()` function, also appears as MacOS menu item
-    - `app-versionName`: build version name, usually in `Major.Minor.Patch` notation
+### Before building
+* Rename package name and directories
+  - `bridge.supplies.foundation` to your package name
+  - ie `/composeApp/src/androidMain/kotlin/bridge/supplies/foundation`
+* Create keystore.properties file in root directory
+  - example in README.md
+* Find+Replace some values
+  - `foundation.composeapp.generated.resources` = `[app-name].composeapp.generated.resources`
+  - `bridge.supplies.foundation.BuildConfig` = `your.package.name.BuildConfig`
+* Update `settings.gradle.kts`
+  - `rootProject.name` = your app name
+* Update `libs.versions.toml`
+  - `app-packageName` = the full package name, for example `bridge.supplies.foundation`
+  - `app-name` = the visible app name, name of class containing your Desktop `main()` function, and shows as MacOS menu item
+  - `app-description` = a brief description of your app
+  - `app-copyright` = your copyright information, if applicable
+  - `app-vendor` = your organization name
+  - `app-versionName` = your version, for example "1.0.0" (must be > 1.0.0 if deploying to Desktop)
+  - `app-versionCode` = your build, for example "202501010" format representing YYYYMMDD0
+  - `app-minSdk`, `app-targetSdk`, and `app-compileSdk` for your Android API targets
+* Update `strings.xml`
+  - `app_name` to your app name
+* Update Android and Desktop Application classes
+  - `Foundation.android.kt` to `YourAppName.android.kt`
+  - `Foundation.desktop.kt` to `YourAppName.desktop.kt`
+* Update `AndroidManifest.xml`
+  - <application `android:name`/> = the full package name + Application class name
+    - ie `bridge.supplies.foundation.Foundation`
+* Update iOS build files
+  - Update `Config.xcconfig`
+    - BUNDLE_ID = full package name + app name, for example `bridge.supplies.foundation.Foundation`
+    - APP_NAME = visible app name, for example "Foundation"
+  - Update `project.pbxproj`
+    - replace `Foundation_` = your app name
+    - `MARKETING_VERSION` = the same value as `app-versionName` in `libs.versions.toml`
+    - `CURRENT_PROJECT_VERSION` = the same value as `app-versionCode` in `libs.versions.toml`
+    - `PRODUCT_BUNDLE_IDENTIFIER`, `PRODUCT_NAME`, and `INFOPLIST_KEY_CFBundleDisplayName` = your app name
+  - Android Studio may require reboot to successfully build iOS
+
+### After a successful build
+* Update run configurations
+  - Delete extra `composeApp` and `iosApp` configs
+  - Update Desktop config to use correct Main Application class name, ie: `app-name` value
+* Update `README.md`
+* Update `AppConfig`
+  - Update `shareUrl` if applicable
+* Update `SettingsAboutScreen` Easter Egg
+  - `clickable` modifier on Build information
+* Update `Navigation.kt`
+  - Create new screens by adding a new entry to the `Screens` enum class
+  - If screens require navigation arguments, add a new entry to `NavArgument` enum class
+  - Add screens to specific `NavigationTab` enum class entries
+    - Screens can only exist inside one `NavigationTab`
 
 ### Icons
 - Shared
