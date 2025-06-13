@@ -109,7 +109,7 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
   - `bridge.supplies.foundation` to your package name
   - ie `/composeApp/src/androidMain/kotlin/bridge/supplies/foundation`
 * Create `keystore.properties` file in root directory
-  - example in `README.md`
+  - example in [Publishing](#publishing)
 * Find + Replace All some values
   - `foundation.composeapp.generated.resources` = `[app-name].composeapp.generated.resources`
   - `bridge.supplies.foundation.BuildConfig` = `your.package.name.BuildConfig`
