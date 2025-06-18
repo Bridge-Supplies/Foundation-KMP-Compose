@@ -134,8 +134,8 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
     - ie `bridge.supplies.foundation.Foundation`
 * Update iOS build files
   - Update `Config.xcconfig`
-    - BUNDLE_ID = full package name + app name, for example `bridge.supplies.foundation.Foundation`
-    - APP_NAME = visible app name, for example "Foundation"
+    - `BUNDLE_ID` = full package name + app name, for example `bridge.supplies.foundation.Foundation`
+    - `APP_NAME` = visible app name, for example "Foundation"
   - Update `project.pbxproj`
     - replace `Foundation_` = your app name
     - `MARKETING_VERSION` = the same value as `app-versionName` in `libs.versions.toml`
