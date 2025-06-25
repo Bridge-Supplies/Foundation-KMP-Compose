@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import data.MainViewModel
 import data.daysBetween
 import data.getDateDisplay
+import data.getDateTime
 import data.getTodayDate
 import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
@@ -31,13 +32,12 @@ import foundation.composeapp.generated.resources.app_date_selected
 import foundation.composeapp.generated.resources.app_date_today
 import foundation.composeapp.generated.resources.app_days_between
 import foundation.composeapp.generated.resources.navigation_home_date_select
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import ui.FloatingButton
 import ui.TitleText
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun HomeDateScreen(
     viewModel: MainViewModel,
@@ -50,9 +50,7 @@ fun HomeDateScreen(
     var selectedDate by remember { mutableStateOf(initialSelectedDateMs) }
     val selectedDateDisplay by remember(selectedDate) {
         derivedStateOf {
-            getDateDisplay(
-                Instant.fromEpochMilliseconds(selectedDate).toLocalDateTime(TimeZone.UTC).date
-            )
+            getDateDisplay(getDateTime(selectedDate))
         }
     }
     val daysBetween by remember(selectedDate, todaysDate) {

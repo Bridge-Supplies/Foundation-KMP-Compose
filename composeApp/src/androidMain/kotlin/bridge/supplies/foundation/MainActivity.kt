@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import config.showSystemUI
 import data.MainViewModel
 import data.koinViewModel
-import org.koin.compose.KoinContext
 import ui.App
 
 class MainActivity : ComponentActivity() {
@@ -17,19 +16,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         
         setContent {
-            KoinContext {
-                val viewModel = koinViewModel<MainViewModel>()
-                
-                App(
-                    viewModel = viewModel,
-                    onShowSystemUi = { isPortraitMode ->
-                        showSystemUI(isPortraitMode)
-                    },
-                    onCloseApplication = {
-                        finish()
-                    }
-                )
-            }
+            val viewModel = koinViewModel<MainViewModel>()
+            
+            App(
+                viewModel = viewModel,
+                onShowSystemUi = { isPortraitMode ->
+                    showSystemUI(isPortraitMode)
+                },
+                onCloseApplication = {
+                    finish()
+                }
+            )
         }
     }
 }
