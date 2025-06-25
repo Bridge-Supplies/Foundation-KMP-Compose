@@ -77,7 +77,6 @@ fun getTodayUtcMs(): Long {
 
 fun getDaysSinceBirth(birthdayTimeMs: Long): Int {
     val today = getTodayUtcMs()
-    
     val daysSinceBirth = daysBetween(today, birthdayTimeMs) + 1
     return daysSinceBirth
 }
