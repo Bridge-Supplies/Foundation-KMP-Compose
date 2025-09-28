@@ -7,6 +7,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -46,6 +47,8 @@ expect fun randomUuid(): String
 expect fun browseWeb(url: String): Boolean
 
 expect fun systemAppSettings()
+
+expect suspend fun setClipboardText(clipboard: Clipboard, text: String)
 
 
 // DATE/TIME

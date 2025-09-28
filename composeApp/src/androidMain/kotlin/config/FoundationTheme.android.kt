@@ -4,7 +4,9 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
@@ -17,9 +19,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.materialkolor.PaletteStyle
+import com.materialkolor.ktx.animateColorScheme
 import com.materialkolor.rememberDynamicColorScheme
 import data.MainViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 actual fun FoundationTheme(
     viewModel: MainViewModel,
@@ -62,7 +66,6 @@ actual fun FoundationTheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
                 isAmoled = useAmoled,
-                isExtendedFidelity = true,
                 style = usePalette.paletteStyle
             )
         }
@@ -72,7 +75,6 @@ actual fun FoundationTheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
                 isAmoled = useAmoled,
-                isExtendedFidelity = true,
                 style = PaletteStyle.Monochrome
             )
         }
@@ -100,7 +102,8 @@ actual fun FoundationTheme(
     }
     
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = animateColorScheme(colorScheme),
+        motionScheme = MotionScheme.expressive(),
         typography = Typography,
         content = content
     )

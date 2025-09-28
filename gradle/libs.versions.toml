@@ -13,15 +13,16 @@ android-compileSdk = "36"
 #packages
 agp = "8.13.0"
 junit = "4.13.2"
-androidx-core-ktx = "1.17.0"
-androidx-activity-compose = "1.11.0"
-compose-plugin = "1.9.0"
 kotlin = "2.2.20"
 kotlinx-datetime = "0.7.1-0.6.x-compat"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
 koin = "4.1.1"
 moko = "0.20.1"
+androidx-core-ktx = "1.17.0"
+androidx-activity-compose = "1.11.0"
+compose-plugin = "1.9.0"
+compose-material3 = "1.10.0-alpha01" # not matched with compose-plugin
 lifecycle-viewmodel = "2.9.4" # matched to compose-plugin version
 lifecycle-viewmodel-compose = "2.9.4" # matched to compose-plugin version
 navigation-compose = "2.9.0" # matched to compose-plugin version
@@ -29,7 +30,7 @@ androidx-datastore = "1.1.7"
 buildconfig = "5.6.8"
 korlibs-krypto = "4.0.10"
 korlibs-compression = "6.0.0"
-material-kolor = "2.1.1" # v3 adds support for Material 3 Expressive
+material-kolor = "3.0.1" # v3 adds support for Material 3 Expressive
 license-report = "2.9"
 g0dkar-qrcode-kotlin = "4.5.0"
 kscan = "0.2.0"
@@ -47,6 +48,7 @@ androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecy
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore"}
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore"}
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }

@@ -24,13 +24,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import config.isPortraitMode
 import data.MainViewModel
 import data.getTodayUtcMs
+import data.setClipboardText
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.navigation_close
 import foundation.composeapp.generated.resources.navigation_confirm
@@ -126,7 +126,7 @@ fun ShareAppBottomSheet(
     val sheetState = rememberModalBottomSheetState(true)
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
     val shareText = viewModel.platform.shareUrl
     
     val closeSheet: () -> Unit = {
@@ -174,7 +174,10 @@ fun ShareAppBottomSheet(
                     .padding(top = 4.dp),
                 text = stringResource(Res.string.share_sheet_copy_text)
             ) {
-                clipboardManager.setText(AnnotatedString(shareText))
+                coroutineScope.launch {
+                    setClipboardText(clipboard, shareText)
+                }
+                
                 closeSheet()
             }
             
