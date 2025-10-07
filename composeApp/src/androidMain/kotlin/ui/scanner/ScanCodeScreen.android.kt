@@ -23,7 +23,7 @@ import dev.icerock.moko.permissions.camera.CAMERA
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.launch
-import org.ncgroup.kscan.BarcodeFormats
+import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerView
 import ui.FloatingButton
@@ -84,7 +84,7 @@ actual fun CodeScanner(
             ScannerView(
                 modifier = modifier,
                 codeTypes = listOf(
-                    BarcodeFormats.FORMAT_QR_CODE,
+                    BarcodeFormat.FORMAT_QR_CODE,
                 ),
                 showUi = false
             ) { result ->

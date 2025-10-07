@@ -5,34 +5,35 @@ app-name = "Foundation"
 app-description = "Foundational KMP Compose template application."
 app-copyright = "© 2025 Bridge Supplies. All rights reserved."
 app-vendor = "Bridge Supplies"
-app-versionName = "1.2.1" # "Version"
-app-versionCode = "202506170" # "Build"
+app-versionName = "1.2.2" # "Version"
+app-versionCode = "202509290" # "Build"
 android-minSdk = "28"
-android-targetSdk = "35"
-android-compileSdk = "35"
+android-targetSdk = "36"
+android-compileSdk = "36"
 #packages
-agp = "8.10.1"
+agp = "8.13.0"
 junit = "4.13.2"
-androidx-core-ktx = "1.16.0"
-androidx-activity-compose = "1.10.1"
-compose-plugin = "1.8.1"
-kotlin = "2.2.0-RC2"
-kotlinx-datetime = "0.6.2"
+kotlin = "2.2.20"
+kotlinx-datetime = "0.7.1-0.6.x-compat"
 kotlinx-coroutines = "1.10.2"
-kotlinx-serialization-json = "1.8.1"
-koin = "4.0.4"
-moko = "0.19.1"
-lifecycle-viewmodel = "2.9.1" # matched to compose-plugin version
-lifecycle-viewmodel-compose = "2.9.0" # matched to compose-plugin version
-navigation-compose = "2.9.0-beta02" # matched to compose-plugin version
+kotlinx-serialization-json = "1.9.0"
+koin = "4.1.1"
+moko = "0.20.1"
+androidx-core-ktx = "1.17.0"
+androidx-activity-compose = "1.11.0"
+compose-plugin = "1.9.0"
+compose-material3 = "1.10.0-alpha01" # not matched with compose-plugin
+lifecycle-viewmodel = "2.9.4" # matched to compose-plugin version
+lifecycle-viewmodel-compose = "2.9.4" # matched to compose-plugin version
+navigation-compose = "2.9.0" # matched to compose-plugin version
 androidx-datastore = "1.1.7"
-buildconfig = "5.6.5"
+buildconfig = "5.6.8"
 korlibs-krypto = "4.0.10"
 korlibs-compression = "6.0.0"
-material-kolor = "2.1.1"
+material-kolor = "3.0.1" # v3 adds support for Material 3 Expressive
 license-report = "2.9"
-g0dkar-qrcode-kotlin = "4.1.1"
-kscan = "0.1.0-beta07"
+g0dkar-qrcode-kotlin = "4.5.0"
+kscan = "0.2.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -47,6 +48,7 @@ androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecy
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore"}
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidx-datastore"}
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
