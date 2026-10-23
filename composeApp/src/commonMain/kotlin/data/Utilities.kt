@@ -7,11 +7,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -22,6 +21,9 @@ import org.koin.compose.currentKoinScope
 import kotlin.enums.EnumEntries
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Composable
 inline fun <reified T : ViewModel> koinViewModel(): T {
@@ -46,6 +48,8 @@ expect fun browseWeb(url: String): Boolean
 
 expect fun systemAppSettings()
 
+expect suspend fun setClipboardText(clipboard: Clipboard, text: String)
+
 
 // DATE/TIME
 
@@ -53,19 +57,22 @@ fun getDateDisplay(
     date: LocalDate
 ): String {
     val month = date.month.name.lowercase().replaceFirstChar { it.uppercase() }
-    val day = date.dayOfMonth
+    val day = date.day
     val year = date.year
     return "$month $day, $year"
 }
 
+@OptIn(ExperimentalTime::class)
 fun getDateTime(timeMs: Long): LocalDate {
     return Instant.fromEpochMilliseconds(timeMs).toLocalDateTime(TimeZone.UTC).date
 }
 
+@OptIn(ExperimentalTime::class)
 fun getTodayDate(): LocalDate {
     return Clock.System.todayIn(TimeZone.currentSystemDefault())
 }
 
+@OptIn(ExperimentalTime::class)
 fun getTodayUtcMs(): Long {
     val today = getTodayDate()
     return today.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
@@ -73,11 +80,11 @@ fun getTodayUtcMs(): Long {
 
 fun getDaysSinceBirth(birthdayTimeMs: Long): Int {
     val today = getTodayUtcMs()
-    
     val daysSinceBirth = daysBetween(today, birthdayTimeMs) + 1
     return daysSinceBirth
 }
 
+@OptIn(ExperimentalTime::class)
 fun daysBetween(startMs: Long, endMs: Long): Int {
     val startInstant = Instant.fromEpochMilliseconds(min(startMs, endMs))
     val endInstant = Instant.fromEpochMilliseconds(max(startMs, endMs))

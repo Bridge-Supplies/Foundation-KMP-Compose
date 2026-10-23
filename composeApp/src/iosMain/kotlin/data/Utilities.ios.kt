@@ -1,7 +1,10 @@
 package data
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import org.jetbrains.skia.Image
 import platform.Foundation.NSURL
 import platform.Foundation.NSUUID
@@ -46,4 +49,9 @@ actual fun systemAppSettings() {
     } else {
         println("Cannot open app settings URL.")
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+actual suspend fun setClipboardText(clipboard: Clipboard, text: String) {
+    clipboard.setClipEntry(ClipEntry.withPlainText(text))
 }

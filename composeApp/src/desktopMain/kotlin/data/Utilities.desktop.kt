@@ -2,8 +2,11 @@ package data
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import org.jetbrains.skia.Image
 import java.awt.Desktop
+import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.net.URI
 import java.util.UUID
@@ -33,4 +36,8 @@ actual fun systemAppSettings() {
             desktop.open(appLocation)
         }
     }
+}
+
+actual suspend fun setClipboardText(clipboard: Clipboard, text: String) {
+    clipboard.setClipEntry(ClipEntry(StringSelection(text)))
 }
