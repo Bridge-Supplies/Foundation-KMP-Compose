@@ -1,10 +1,13 @@
 package data
 
+import android.content.ClipData
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import androidx.core.net.toUri
 import bridge.supplies.foundation.Foundation
 import java.util.UUID
@@ -31,4 +34,9 @@ actual fun systemAppSettings() {
         data = Uri.fromParts("package", Foundation.instance.packageName, null)
     }
     Foundation.instance.startActivity(intent, null)
+}
+
+actual suspend fun setClipboardText(clipboard: Clipboard, text: String) {
+    val clipData = ClipData.newPlainText("Copied Text", text)
+    clipboard.setClipEntry(ClipEntry(clipData))
 }

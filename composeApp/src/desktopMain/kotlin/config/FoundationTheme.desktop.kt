@@ -2,19 +2,24 @@ package config
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.materialkolor.PaletteStyle
+import com.materialkolor.ktx.animateColorScheme
 import com.materialkolor.rememberDynamicColorScheme
 import data.MainViewModel
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 actual fun FoundationTheme(
     viewModel: MainViewModel,
     content: @Composable () -> Unit
 ) {
+    val useExpressiveAnimation by viewModel.useExpressiveAnimation.collectAsState()
     val useColorTheme by viewModel.useColorTheme.collectAsState()
     val usePalette by viewModel.usePalette.collectAsState()
     val useDarkMode by viewModel.useDarkMode.collectAsState()
@@ -27,23 +32,21 @@ actual fun FoundationTheme(
         DarkMode.AMOLED -> true
     }
     
-    val colorScheme: ColorScheme = when {
-        useColorTheme == ColorTheme.RED || useColorTheme == ColorTheme.GREEN || useColorTheme == ColorTheme.BLUE -> {
+    val colorScheme: ColorScheme = when (useColorTheme) {
+        ColorTheme.RED, ColorTheme.GREEN, ColorTheme.BLUE -> {
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
                 isAmoled = useAmoled,
-                isExtendedFidelity = true,
                 style = usePalette.paletteStyle
             )
         }
         
-        useColorTheme == ColorTheme.OFF -> {
+        ColorTheme.OFF -> {
             rememberDynamicColorScheme(
                 seedColor = useColorTheme.color,
                 isDark = darkMode,
                 isAmoled = useAmoled,
-                isExtendedFidelity = true,
                 style = PaletteStyle.Monochrome
             )
         }
@@ -57,7 +60,8 @@ actual fun FoundationTheme(
     }
     
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = animateColorScheme(colorScheme),
+        motionScheme = if (useExpressiveAnimation) MotionScheme.expressive() else MotionScheme.standard(),
         typography = Typography,
         content = content
     )

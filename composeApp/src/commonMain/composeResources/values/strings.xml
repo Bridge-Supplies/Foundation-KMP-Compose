@@ -69,6 +69,8 @@
     <string name="app_settings_scroll_helpers_subtitle">Enable buttons to scroll horizontal content</string>
     <string name="app_settings_encryption_title">Encrypted sharing</string>
     <string name="app_settings_encryption_subtitle">Use encryption when generating QR codes</string>
+    <string name="app_settings_expressive_animation_title">Use Expressive animation</string>
+    <string name="app_settings_expressive_animation_subtitle">Enable the latest Material 3 motion scheme</string>
 
     <string name="theme_settings_title">Theming</string>
     <string name="theme_settings_color_theme_title">Color</string>

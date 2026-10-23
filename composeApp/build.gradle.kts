@@ -65,7 +65,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material3)
+            implementation(libs.compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -119,9 +119,9 @@ kotlin {
     }
     
     listOf(
-//        iosArm64(), // iOS Native
+        iosArm64(), // iOS Native
 //        iosX64(), // MacOS Simulator (Intel)
-        iosSimulatorArm64() // MacOS Simulator (Apple Silicon)
+//        iosSimulatorArm64() // MacOS Simulator (Apple Silicon)
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"

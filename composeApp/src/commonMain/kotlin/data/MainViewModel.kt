@@ -71,6 +71,10 @@ class MainViewModel(
     var useFullscreenLandscape = _useFullscreenLandscape.asStateFlow()
         private set
     
+    private val _useExpressiveAnimation = MutableStateFlow(StoredValue.EXPRESSIVE_ANIMATION().default)
+    var useExpressiveAnimation = _useExpressiveAnimation.asStateFlow()
+        private set
+    
     private val _useColorTheme = MutableStateFlow(StoredValue.COLOR_THEME().default)
     var useColorTheme = _useColorTheme.asStateFlow()
         private set
@@ -159,6 +163,12 @@ class MainViewModel(
                 repository.getFullscreenLandscapeFlow().collectLatest {
                     _useFullscreenLandscape.value = it
                 }
+            }
+        }
+        
+        launch {
+            repository.getExpressiveAnimationFlow().collectLatest {
+                _useExpressiveAnimation.value = it
             }
         }
         
@@ -292,6 +302,13 @@ class MainViewModel(
         _useFullscreenLandscape.value = enabled
         launch {
             repository.setFullscreenLandscape(enabled)
+        }
+    }
+    
+    fun useExpressiveAnimation(enabled: Boolean) {
+        _useExpressiveAnimation.value = enabled
+        launch {
+            repository.setExpressiveAnimation(enabled)
         }
     }
     
