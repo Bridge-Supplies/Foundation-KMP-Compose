@@ -34,6 +34,8 @@ import data.systemAppSettings
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_settings_encryption_subtitle
 import foundation.composeapp.generated.resources.app_settings_encryption_title
+import foundation.composeapp.generated.resources.app_settings_expressive_animation_subtitle
+import foundation.composeapp.generated.resources.app_settings_expressive_animation_title
 import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_subtitle
 import foundation.composeapp.generated.resources.app_settings_fullscreen_landscape_title
 import foundation.composeapp.generated.resources.app_settings_landing_tips_subtitle
@@ -158,6 +160,7 @@ fun GeneralSettings(
 ) {
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val useLandingTips by viewModel.useLandingTips.collectAsState()
+    val useExpressiveAnimation by viewModel.useExpressiveAnimation.collectAsState()
     val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
     val useVibration by viewModel.useVibration.collectAsState()
     val useScrollHelpers by viewModel.useScrollHelpers.collectAsState()
@@ -183,6 +186,15 @@ fun GeneralSettings(
             enabled = useLandingTips
         ) { enabled ->
             viewModel.useLandingTips(enabled)
+            hapticFeedback()
+        }
+        
+        SettingsSwitch(
+            title = stringResource(Res.string.app_settings_expressive_animation_title),
+            subtitle = stringResource(Res.string.app_settings_expressive_animation_subtitle),
+            enabled = useExpressiveAnimation
+        ) { enabled ->
+            viewModel.useExpressiveAnimation(enabled)
             hapticFeedback()
         }
         

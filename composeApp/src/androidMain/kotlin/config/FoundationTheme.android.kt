@@ -29,6 +29,7 @@ actual fun FoundationTheme(
     viewModel: MainViewModel,
     content: @Composable () -> Unit
 ) {
+    val useExpressiveAnimation by viewModel.useExpressiveAnimation.collectAsState()
     val useColorTheme by viewModel.useColorTheme.collectAsState()
     val usePalette by viewModel.usePalette.collectAsState()
     val useDarkMode by viewModel.useDarkMode.collectAsState()
@@ -103,7 +104,7 @@ actual fun FoundationTheme(
     
     MaterialTheme(
         colorScheme = animateColorScheme(colorScheme),
-        motionScheme = MotionScheme.expressive(),
+        motionScheme = if (useExpressiveAnimation) MotionScheme.expressive() else MotionScheme.standard(),
         typography = Typography,
         content = content
     )

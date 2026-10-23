@@ -39,6 +39,11 @@ sealed class StoredValue {
         val default: Boolean = false
     ) : StoredValue()
     
+    data class EXPRESSIVE_ANIMATION(
+        val key: Preferences.Key<Boolean> = booleanPreferencesKey("${SETTINGS_KEY}_expressive_animation"),
+        val default: Boolean = true
+    ) : StoredValue()
+    
     data class COLOR_THEME(
         val key: Preferences.Key<Int> = intPreferencesKey("${SETTINGS_KEY}_color_theme"),
         val default: ColorTheme = if (getPlatform().supportsFeature(Feature.DYNAMIC_COLORS))
@@ -130,6 +135,20 @@ class DataRepository(
     fun getFullscreenLandscapeFlow(): Flow<Boolean> =
         dataStore.data.map { preferences ->
             val pref = StoredValue.FULLSCREEN_LANDSCAPE()
+            preferences[pref.key] ?: pref.default
+        }
+    
+    // EXPRESSIVE ANIMATION
+    suspend fun setExpressiveAnimation(expressiveAnimation: Boolean) {
+        dataStore.edit { preferences ->
+            val pref = StoredValue.EXPRESSIVE_ANIMATION()
+            preferences[pref.key] = expressiveAnimation
+        }
+    }
+    
+    fun getExpressiveAnimationFlow(): Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            val pref = StoredValue.EXPRESSIVE_ANIMATION()
             preferences[pref.key] ?: pref.default
         }
     
