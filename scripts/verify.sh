@@ -265,7 +265,7 @@ if [ "$OVERALL" -eq 0 ]; then
     fi
 fi
 
-# --- UI tier (FND-08) --------------------------------------------------------
+# --- UI tier --------------------------------------------------------
 if [ "$OVERALL" -eq 0 ] && [ "$TIER" != "quick" ]; then
     if has_module foundation-ui; then
         run_gradle_step "ui-tests" ":foundation-ui:desktopTest"
@@ -275,7 +275,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" != "quick" ]; then
     fi
 fi
 
-# --- E2E tier (FND-08) -------------------------------------------------------
+# --- E2E tier -------------------------------------------------------
 if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     acquire_emulator_lock || exit 1
 
@@ -286,6 +286,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     fi
 
     # Locate maestro
+    export MAESTRO_CLI_NO_ANALYTICS=1 # opt out of Maestro's anonymous analytics
     MAESTRO="${MAESTRO:-maestro}"
     if ! command -v "$MAESTRO" >/dev/null 2>&1; then
         if [ -x "$HOME/.maestro/bin/maestro" ]; then
@@ -368,7 +369,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     # Run over-install harness if baseline exists
     if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
         BASELINES_DIR=""
-        for b in "$REPO/baselines/foundation" "$REPO/../baselines/foundation" "$REPO/../../baselines/foundation" "$HOME/Documents/GitHub/Bridge Supplies/baselines/foundation"; do
+        for b in ${E2E_BASELINES_DIR:+"$E2E_BASELINES_DIR"} "$REPO/baselines/foundation" "$REPO/../baselines/foundation" "$REPO/../../baselines/foundation"; do
             if [ -d "$b" ]; then
                 BASELINES_DIR="$b"
                 break

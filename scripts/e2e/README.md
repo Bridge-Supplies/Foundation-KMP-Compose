@@ -38,6 +38,7 @@ scripts/e2e/over-install.sh <baseline.apk> <new.apk> <seed-flow.yaml> <assert-fl
 
 #### Environment Variables
 
+- `E2E_BASELINES_DIR`: (`verify.sh e2e`) folder holding the baseline APK for the over-install check. Default: a `baselines/foundation/` folder in or above the repo; the check is skipped when none is found.
 - `APP_ID`: Application ID (e.g., `com.example.app.debug`). If omitted, `over-install.sh` automatically detects the package name from `<baseline.apk>` using `aapt`.
 - `ADB`: Explicit path to `adb` binary.
 - `MAESTRO`: Explicit path to `maestro` binary.

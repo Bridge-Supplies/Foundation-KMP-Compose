@@ -11,6 +11,7 @@
 #   scripts/e2e/over-install.sh <baseline.apk> <new.apk> <seed-flow> <assert-flow>
 
 set -euo pipefail
+export MAESTRO_CLI_NO_ANALYTICS=1 # opt out of Maestro's anonymous analytics
 
 if [ "$#" -lt 4 ]; then
     echo "Usage: $0 <baseline.apk> <new.apk> <seed-flow> <assert-flow>"
