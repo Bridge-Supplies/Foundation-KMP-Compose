@@ -27,7 +27,9 @@ import androidx.compose.ui.unit.dp
 import config.Feature
 import config.isPortraitMode
 import data.MainViewModel
+import bridge.supplies.foundation.core.crypto.QrCodec
 import data.SharedData
+import org.koin.compose.koinInject
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.generate_qr_code_encrypted_text
 import foundation.composeapp.generated.resources.generate_qr_code_text
@@ -60,6 +62,7 @@ fun ShareCodeScreen(
     val qrProcessedText by viewModel.processedQrText.collectAsState()
     val qrBitmap by viewModel.processedQrBitmap.collectAsState()
     
+    val qrCodec = koinInject<QrCodec>()
     val color = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.onPrimary
     
@@ -72,8 +75,8 @@ fun ShareCodeScreen(
         }
         delay(QR_GENERATION_DEBOUNCE_MS)
         withContext(Dispatchers.Default) {
-            val newProcessedText = SharedData.prepare(sharedText, useEncryptedShare)
-            if (newProcessedText != null && newProcessedText != qrProcessedText) {
+            val newProcessedText = qrCodec.encode(SharedData(sharedText), SharedData.serializer(), useEncryptedShare)
+            if (newProcessedText != qrProcessedText) {
                 val generatedQrBitmap = generateQrCode(
                     text = newProcessedText,
                     colorRgb = color.toArgb(),
