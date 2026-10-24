@@ -1,21 +1,22 @@
-# Foundation (KMP-Compose Template)
+# Foundation (KMP-Compose Library & Template)
 ## Presented by [Bridge Supplies](https://bridge.supplies)
-### Latest version: 1.2.2 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
+### Latest version: 2.0.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
 
-This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) project, targeting Android, iOS, and Desktop JVM (MacOS, Windows, Linux) platforms. It's an intentionally designed template to develop good-looking, decentralized, lightweight apps for commonly used platforms.
+Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) and [Compose Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) library and starter template targeting Android, iOS, and Desktop JVM (macOS, Windows, Linux). It provides a shared app shell, theming, persistence, offline QR sharing, and common UI components so apps can focus on their own features without duplicating infrastructure.
 
 ## Features
-- Material You theming
-- Nested, multiple-backstack navigation
-  - Adaptive BottomBar and NavigationRail
-  - TopAppBar back button handling
-- Easily share information between apps offline via QR codes
-  - Android/iOS can scan and import codes
-  - All platforms can generate codes
-  - Encryption and compression support
-- Utilities for orientation, build configurations, and customizable theming
-- Platform-specific screen transition animations
-- Automatic compilation of licensing information
+- Material You & Material 3 Expressive theming (dynamic system colors on Android 12+, preset seed colors, palette styles, Dark/AMOLED modes)
+- Type-safe multiple-backstack navigation built on Navigation 3 (`NavDisplay`)
+  - Adaptive `BottomAppBar` (portrait) and `NavigationRail` (landscape)
+  - Automatic `TopAppBar` title and back button handling, per-screen top bar actions, and immersive chrome-free screens
+- Offline data sharing via QR codes (`QrCodec`, `ShareQrCode`, `ScanQrScreen`)
+  - Android and iOS camera scanning with permission handling
+  - QR generation on all platforms with debounced rendering
+  - Versioned payload format with GZIP compression and AES-CBC encryption (random per-payload IV, with backward-compatible v1 decoding)
+- Single-instance `DataStore<Preferences>` settings storage (`FoundationSettings` and typed `SettingKey`s) shared between Foundation and the consuming app
+- Modal bottom sheet host (`SheetController`) with built-in date picker (`DateSheet`) and app-sharing (`ShareAppSheet`) sheets
+- Built-in Settings, About, and open-source license screens with declarative extension points
+- Platform services for URLs (`openUrl` with in-app browser support), system app settings (`openAppSettings`), haptics (`rememberHapticFeedback`), and window orientation (`isPortrait`)
 
 ## Screenshots
 ### Android
@@ -35,19 +36,20 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 ## Multiplatform libraries
 
 > [!TIP]
-> We've pre-configured KMP-supporting libraries that work across all platforms, with few limitations. It is recommended you familiarize yourself with these libraries before developing with Foundation.
+> Foundation pre-configures KMP-ready libraries across Android, iOS, and Desktop and exports its version catalog so consuming apps can share the exact same versions.
 
 - UI
-  - [Compose](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html)
-  - [Material3](https://m3.material.io/)
+  - [Compose Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html)
+  - [Material 3](https://m3.material.io/)
 - KotlinX
   - [Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
   - [Serialization](https://github.com/Kotlin/kotlinx.serialization)
   - [DateTime](https://github.com/Kotlin/kotlinx-datetime)
-- AndroidX
-  - [ViewModels](https://developer.android.com/jetpack/androidx/releases/lifecycle)
-  - [DataStore](https://developer.android.com/kotlin/multiplatform/datastore)
-  - [Compose Navigation](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-navigation-routing.html)
+- AndroidX & JetBrains
+  - [Lifecycle & ViewModels](https://developer.android.com/jetpack/androidx/releases/lifecycle)
+  - [DataStore Preferences](https://developer.android.com/kotlin/multiplatform/datastore)
+  - [Navigation 3](https://developer.android.com/guide/navigation/navigation-3) (`org.jetbrains.androidx.navigation3:navigation3-ui`)
+  - [AndroidX Browser](https://developer.android.com/jetpack/androidx/releases/browser) (Custom Tabs on Android)
 - Dependency injection
   - [Koin](https://insert-koin.io/docs/reference/koin-mp/kmp/)
 - Permission handling
@@ -56,160 +58,589 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
   - [g0dkar's QRCode](https://github.com/g0dkar/qrcode-kotlin) (Android, iOS, Desktop - QR generation)
   - [ismai117's KScan](https://github.com/ismai117/KScan) (Android, iOS - QR scanning)
 - Build
-  - [gmazzo's BuildConfig](https://github.com/gmazzo/gradle-buildconfig-plugin) (shared BuildConfig)
+  - [gmazzo's BuildConfig](https://github.com/gmazzo/gradle-buildconfig-plugin) (shared BuildConfig in the demo app)
 - Cryptography & compression
-  - [Korlib's Krypto](https://github.com/korlibs/korlibs/tree/main/korlibs-crypto) (Encryption, decryption)
-  - [Korlib's Compression](https://github.com/korlibs/korlibs/tree/main/korlibs-compression) (Zipping, unzipping)
+  - [Korlibs Crypto](https://github.com/korlibs/korlibs-crypto) (AES-CBC encryption/decryption and secure random IVs)
+  - [Korlibs Compression](https://github.com/korlibs/korlibs-compression) (GZIP compression/decompression)
 - Theming
-  - [jordond's MaterialKolor](https://github.com/jordond/materialkolor) (Material theme generation)
+  - [jordond's MaterialKolor](https://github.com/jordond/materialkolor) (dynamic Material color scheme generation)
 - Licensing
-  - [jk1's Gradle License Report](https://github.com/jk1/Gradle-License-Report) (Automated package license reporting)
-
+  - [jk1's Gradle License Report](https://github.com/jk1/Gradle-License-Report) (automated dependency license reporting)
 
 ## Project structure
 
-* `/composeApp` is the shared Kotlin Multiplatform library (`com.android.kotlin.multiplatform.library`) with all shared Compose Multiplatform code:
-  - `build.gradle.kts` declares targets and per-platform dependencies
-  - `/commonMain` is shared with all platforms.
-    - `/composeResources` contains `.xml` resources like `strings.xml`
-    - `App.kt` contains shared Compose UI with `Koin` and `Material`
-    - `AppConfig.kt` declares supported platform features and `expect`-ed platform functions
-    - `Color.kt` and `Theme.kt` contains theme information derived from the [Material Theme Builder](https://material-foundation.github.io/material-theme-builder/)
-    - `DataStore.kt` and `DataRepository.kt` contain the `DataStore Preferences` `expect` implementation and wrapper
-    - `FoundationTheme.kt` `expect`s a Theme definition for each platform
-    - `MainViewModel.kt` contains the `ViewModel` and `DataStore` implementations injected with `Koin`
-    - `Navigation.kt` and `/ui` contain Composable definitions for each screen
-  - `/androidMain` is for Android-specific code.
-    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
-  - `/iosMain` is for iOS-specific code.
-    - `MainViewController.kt` initializes libraries (Koin) and displays shared `App` Composable
-    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
-  - `/desktopMain` is for JVM-specific code.
-    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
-* `/androidApp` is the Android application (AGP 9 requires it to be separate from the KMP library):
-  - `build.gradle.kts` declares the application ID, versions, signing and build types
-  - `src/main/AndroidManifest.xml`, launcher icons in `src/main/res`
-  - `Foundation.kt` is the `Application` definition to initialize libraries (Koin)
-  - `MainActivity.kt` displays the shared `App` Composable
-* `/desktopApp` is the desktop (JVM) application:
-  - `build.gradle.kts` declares the main class and native distributions (DMG, etc.)
-  - `Foundation.kt` contains the `main()` class to initialize libraries (Koin) and display the shared `App` Composable
-* `/iosApp` contains the iOS Xcode project files.
-  - `Config.xcconfig` declares iOS package and app name
-  - `ContentView.swift` displays the `MainViewController`'s implementation of the shared `App` Composable
-  - `iOSApp.swift` displays the `ContentView` as the `App` controller
-  - `Info.plist` contains build definitions, permissions
-  - `project.pbxproj` contains build version information
-* `/gradle` contains shared Gradle package versions
-  - `libs.versions.toml` defines build info (package name, versionCode, versionName, supported Android SDKs) and package libraries
-    - App build/version here applies to Android and Desktop, iOS must modify `project.pbxproj` manually
+* `/foundation-core` (`bridge.supplies.foundation.core`) — Kotlin Multiplatform library without Compose:
+  - `config/` — `FoundationConfig`, `StorageConfig`, `FeatureFlags`
+  - `settings/` & `storage/` — `FoundationSettings`, `DataStoreSettings`, typed `SettingKey`s (`BooleanSetting`, `IntSetting`, `LongSetting`, `StringSetting`, `StringSetSetting`, `EnumSetting`, `JsonSetting`), `settingName()`, and per-platform DataStore file paths
+  - `crypto/` — `QrCodec`, `FoundationQrCodec` (v2 random-IV and legacy v1 decoding), low-level compression/encryption
+  - `platform/` — `FoundationPlatform`, `PlatformType`, `PlatformFeature`, `currentPlatform()`, `openUrl()`, `openAppSettings()`, `randomUuid()`, `FoundationAndroid`
+  - `sheets/` — `SheetRequest`, `SheetController`, `DefaultSheetController`
+  - `time/` & `text/` — date/time helpers (`getTodayUtcMs()`, `getDateDisplay()`, `getDateTime()`, etc.) and number formatting
+  - `di/` — `foundationCoreModule(config)`
+* `/foundation-ui` (`bridge.supplies.foundation.ui`) — Compose Multiplatform UI library (depends on `foundation-core` as `api`):
+  - `FoundationViewModel`, `foundationUiModule()`, `foundationViewModel()`, `rememberHapticFeedback()`, `isPortrait()`
+  - `shell/` — `FoundationApp`, `FoundationTab`, `RouteRegistry`, `Navigator`, `LocalNavigator`, `screenMetadata()`, `Chrome`, `TopBarAction`, `TopBarActions`, `Landing`, `ShellOptions`, platform transitions
+  - `theme/` — `FoundationTheme`, `ThemeConfig`, `ColorTheme`, `Palette`, `DarkMode`
+  - `settings/` — `FoundationSettingsScreen`, `BuiltInSettings`, `FoundationSettingKeys`, `SettingSwitch`, `SettingChoice`, `SettingsScope` DSL
+  - `sheets/` — `SheetHost`, `SheetContent`, `SheetScope`, `sheetController()`, `DateSheet`, `ShareAppSheet`, `SheetColumn`, `CloseButton`
+  - `about/` — `FoundationAboutScreen`, `AboutConfig`
+  - `qr/` — `ShareQrCode`, `ScanQrScreen`, `QrCodeScanner`
+  - `components/` & `util/` — `EdgeFade*` and `IndexedLazy*` lists, `TitledCard`, `ExpandableTitledCard`, `DatePickerCard`, `PastOrPresentSelectableDates`, `SettingsSwitch`, `SettingsSelector`, `QrCodeCard`, `koinViewModel()`, clipboard and bitmap utilities
+* Demo application (built strictly on the public API of `foundation-core` and `foundation-ui`):
+  - `/composeApp` (`bridge.supplies.foundation.demo`) — shared KMP library (`com.android.kotlin.multiplatform.library`) containing the demo screens, routes, view model, and resources
+  - `/androidApp` (`bridge.supplies.foundation`) — Android application module (`com.android.application`) with `Foundation` (`Application`), `MainActivity`, manifest, launcher icons, and signing config
+  - `/desktopApp` (`bridge.supplies.foundation`) — Desktop JVM entry point (`Foundation.main`) and `nativeDistributions`
+  - `/iosApp` — Xcode project linking the `ComposeApp` framework
+* `/consumer-test` — standalone Gradle build that includes Foundation via `includeBuild` and verifies library consumption, resource packaging, and `QrCodec` across Android, Desktop, and iOS
+* `/scripts` — `verify.sh` and `consumer-test.sh` verification scripts
+* `/gradle/libs.versions.toml` — version catalog exported as `foundationLibs` for consuming apps
 
-## Project Configuration Setup
+## Use Foundation as a library
+
+Apps consume Foundation as a **Git submodule** combined with a **Gradle composite build**. Gradle substitutes the Maven coordinates `bridge.supplies.foundation:foundation-ui` with the `:foundation-ui` subproject inside the submodule, and only configures `:foundation-core` and `:foundation-ui` (the demo modules are ignored).
+
+### 1. Add the submodule
+
+From your app repository's root directory:
+
+```bash
+git submodule add https://github.com/Bridge-Supplies/Foundation-KMP-Compose.git foundation
+git submodule update --init --recursive
+```
+
+### 2. Import `foundationLibs` and include the build in `settings.gradle.kts`
+
+In your app's `settings.gradle.kts`, import `foundation/gradle/libs.versions.toml` as a version catalog named `foundationLibs` and register the submodule with `includeBuild("foundation")`. Importing `foundationLibs` ensures your app uses the exact same Kotlin, AGP, and Compose plugin versions as the included Foundation build (mismatched plugin versions across a composite build cause Gradle classloader conflicts):
+
+```kotlin
+rootProject.name = "MyApp"
+
+pluginManagement {
+    repositories {
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
+        mavenCentral()
+    }
+    versionCatalogs {
+        // Foundation's catalog, so plugin and library versions match the included build exactly
+        create("foundationLibs") {
+            from(files("foundation/gradle/libs.versions.toml"))
+        }
+    }
+}
+
+includeBuild("foundation")
+
+include(":shared")
+```
+
+In your root `build.gradle.kts`, alias the plugins from `foundationLibs`:
+
+```kotlin
+plugins {
+    alias(foundationLibs.plugins.androidMultiplatformLibrary) apply false
+    alias(foundationLibs.plugins.jetbrainsCompose) apply false
+    alias(foundationLibs.plugins.compose.compiler) apply false
+    alias(foundationLibs.plugins.kotlinMultiplatform) apply false
+    alias(foundationLibs.plugins.kotlinxSerialization) apply false
+}
+```
+
+### 3. Depend on `foundation-ui` in your shared module
+
+In your shared KMP module's `build.gradle.kts` (adapted from `consumer-test/shared/build.gradle.kts`), add `bridge.supplies.foundation:foundation-ui` to `commonMain`. Because `:foundation-ui` exposes `:foundation-core` as an `api` dependency, you get both modules automatically.
+
+```kotlin
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    alias(foundationLibs.plugins.kotlinMultiplatform)
+    alias(foundationLibs.plugins.androidMultiplatformLibrary)
+    alias(foundationLibs.plugins.jetbrainsCompose)
+    alias(foundationLibs.plugins.compose.compiler)
+    alias(foundationLibs.plugins.kotlinxSerialization)
+}
+
+kotlin {
+    android {
+        namespace = "com.example.myapp.shared"
+        compileSdk = foundationLibs.versions.android.compileSdk.get().toInt()
+        minSdk = foundationLibs.versions.android.minSdk.get().toInt()
+        androidResources { enable = true }
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
+    }
+    jvm("desktop")
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+        }
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            // Resolved from the included Foundation build (dependency substitution by group:name)
+            implementation("bridge.supplies.foundation:foundation-ui:${foundationLibs.versions.app.versionName.get()}")
+            implementation(foundationLibs.kotlinx.serialization.json)
+            implementation(foundationLibs.compose.material.icons.extended)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(foundationLibs.kotlinx.coroutines.test)
+        }
+
+        named("desktopTest") {
+            dependencies {
+                // Skia native library for the host OS (Compose graphics classes load it)
+                implementation(compose.desktop.currentOs)
+            }
+        }
+    }
+}
+```
+
+### 4. `local.properties` and desktop tests
+
+- Ensure `local.properties` in your app root points `sdk.dir` to your Android SDK.
+- If your shared module runs `desktopTest` and touches Compose UI/graphics types (such as `ColorTheme`), include `implementation(compose.desktop.currentOs)` in the `desktopTest` source set so the host OS Skia native library is on the test classpath.
+
+---
+
+## Building an app on Foundation
+
+### 1. `FoundationConfig` and Koin initialization
+
+Create a `FoundationConfig` with your app's identity and register `foundationCoreModule(config)` and `foundationUiModule()` in Koin:
+
+```kotlin
+val foundationConfig = FoundationConfig(
+    appName = "MyApp",
+    packageName = "com.example.myapp",
+    version = "1.0.0",
+    build = "1",
+    encryptionKey = "My16ByteSecret!!", // must be exactly 16 bytes
+    shareUrl = "https://example.com/myapp",
+    storage = StorageConfig(
+        // Defaults to "settings.preferences_pb"; never change this for an existing app
+        // Optional iosDirectory / desktopDirectory overrides
+    ),
+    features = FeatureFlags(
+        qrSharing = true,
+        landingTips = true,
+    ),
+)
+
+val foundationModule: Module = module {
+    includes(foundationCoreModule(foundationConfig), foundationUiModule())
+}
+```
+
+On Android, call `FoundationAndroid.init(applicationContext)` before `startKoin`:
+
+```kotlin
+FoundationAndroid.init(context)
+startKoin {
+    androidContext(context)
+    modules(appViewModelModule, foundationModule)
+}
+```
+
+### 2. Navigation shell (`FoundationApp`, `RouteRegistry`, `FoundationTab`, `screenMetadata`)
+
+Define `@Serializable` routes implementing `NavKey`, register them in a `RouteRegistry` (required for multiplatform saved-state serialization), and list your top-level `FoundationTab`s:
+
+```kotlin
+@Serializable data object HomeInfo : NavKey
+@Serializable data class HomeDate(val selectedDateMs: Long) : NavKey
+@Serializable data object SettingsOptions : NavKey
+@Serializable data object SettingsAbout : NavKey
+
+val appRoutes = RouteRegistry {
+    subclass(HomeInfo::class, HomeInfo.serializer())
+    subclass(HomeDate::class, HomeDate.serializer())
+    subclass(SettingsOptions::class, SettingsOptions.serializer())
+    subclass(SettingsAbout::class, SettingsAbout.serializer())
+}
+
+val appTabs = listOf(
+    FoundationTab(
+        id = "home",
+        title = Res.string.tab_home_title,
+        icon = Icons.Outlined.Home,
+        selectedIcon = Icons.Filled.Home,
+        root = HomeInfo
+    ),
+    FoundationTab(
+        id = "settings",
+        title = Res.string.tab_settings_title,
+        icon = Icons.Outlined.Settings,
+        selectedIcon = Icons.Filled.Settings,
+        root = SettingsOptions
+    )
+)
+```
+
+Render `FoundationApp` at the root of your Compose hierarchy. Each entry can customize its top-bar title or request an immersive chrome-free layout (`Chrome.Immersive`) via `screenMetadata`:
+
+```kotlin
+@Composable
+fun App(
+    onShowSystemUi: (Boolean) -> Unit = {},
+    onCloseApplication: () -> Unit = {},
+) {
+    FoundationApp(
+        tabs = appTabs,
+        routes = appRoutes,
+        landing = Landing.Default(icon = Res.drawable.ic_launcher_foreground),
+        theme = ThemeConfig(),
+        shell = ShellOptions(),
+        onShowSystemUi = onShowSystemUi,
+        onCloseApplication = onCloseApplication,
+        sheets = { request ->
+            // Render app-specific SheetRequest types here
+        }
+    ) {
+        entry<HomeInfo> {
+            val navigator = LocalNavigator.current
+            HomeInfoScreen(
+                onNavigateDateScreen = { dateMs -> navigator.navigate(HomeDate(dateMs)) }
+            )
+        }
+
+        entry<HomeDate>(metadata = screenMetadata(title = Res.string.screen_home_date_title)) { route ->
+            HomeDateScreen(initialSelectedDateMs = route.selectedDateMs)
+        }
+
+        // Example of an immersive screen without top bar, bottom bar, or rail:
+        // entry<BattleRoute>(metadata = screenMetadata(chrome = Chrome.Immersive(hideSystemBars = true))) { ... }
+    }
+}
+```
+
+### 3. `LocalNavigator` and `TopBarActions`
+
+Inside any screen entry, read `LocalNavigator.current` to navigate within the active tab, jump across tabs, pop, or handle external deep links/shortcuts:
+
+```kotlin
+val navigator = LocalNavigator.current
+navigator.navigate(HomeDate(selectedDateMs))      // push onto current tab
+navigator.navigate("settings", SettingsAbout)     // switch to another tab and push
+navigator.selectTab("home")                       // switch tab (or pop to root if already selected)
+navigator.popToRoot()                             // pop current tab to its root route
+navigator.back()                                  // pop current tab, or return to first tab
+navigator.openFromOutside("home", HomeDate(ms))   // deep link / shortcut entry point
+```
+
+Screens can attach dynamic icon buttons to the top app bar while they are visible using `TopBarActions`:
+
+```kotlin
+val sheets = sheetController()
+val hapticFeedback = rememberHapticFeedback()
+
+TopBarActions(
+    listOf(
+        TopBarAction(Icons.Default.Share, Res.string.action_share) {
+            hapticFeedback()
+            sheets.show(ShareAppSheet)
+        }
+    )
+)
+```
+
+### 4. Settings storage and `FoundationSettingsScreen`
+
+Foundation owns the single `DataStore<Preferences>` instance (`settings.preferences_pb`). Define your app's keys with `settingName("<suffix>")` (which prefixes `"Settings_"` for backward compatibility):
+
+```kotlin
+val showHintsKey = BooleanSetting(settingName("show_hints"), default = true)
+val sortOrderKey = EnumSetting(settingName("sort_order"), SortOrder.DEFAULT, SortOrder.entries)
+val userProfileKey = JsonSetting(settingName("self_user"), UserProfile(), UserProfile.serializer())
+```
+
+> [!IMPORTANT]
+> `EnumSetting` stores the enum's ordinal (`Int`). Never reorder or remove enum entries in an existing app—only append new entries to the end.
+
+Read and write settings in Compose through `FoundationViewModel` (or inject `FoundationSettings` directly into your own ViewModels):
+
+```kotlin
+val foundation = foundationViewModel()
+val showHints by foundation.setting(showHintsKey).collectAsState()
+foundation.set(showHintsKey, false)
+```
+
+Build your settings screen with `FoundationSettingsScreen`. It renders Foundation's built-in Theming and System cards (configurable via `BuiltInSettings`) followed by your app's custom sections:
+
+```kotlin
+entry<SettingsOptions> {
+    val navigator = LocalNavigator.current
+    FoundationSettingsScreen(
+        builtIns = BuiltInSettings(),
+        onNavigateToAbout = { navigator.navigate(SettingsAbout) }
+    ) {
+        section(Res.string.app_custom_settings_title) {
+            switch(
+                key = showHintsKey,
+                title = Res.string.setting_show_hints_title,
+                subtitle = Res.string.setting_show_hints_subtitle
+            )
+            choice(
+                key = sortOrderKey,
+                title = Res.string.setting_sort_order_title,
+                label = { it.titleRes }
+            )
+            link(
+                title = Res.string.setting_advanced_title,
+                route = AdvancedSettingsRoute
+            )
+            custom {
+                // Any arbitrary @Composable content inside the section card
+            }
+        }
+    }
+}
+```
+
+### 5. Bottom sheets (`SheetController`, `DateSheet`, `ShareAppSheet`, custom `SheetContent`)
+
+Trigger built-in or custom modal bottom sheets from anywhere in Compose using `sheetController()` (or by injecting `SheetController` in a ViewModel):
+
+```kotlin
+val sheets = sheetController()
+
+// Built-in date picker sheet (pass PastOrPresentSelectableDates to disallow future dates)
+sheets.show(
+    DateSheet(
+        initialDateMs = getTodayUtcMs(),
+        selectableDates = PastOrPresentSelectableDates,
+        onSelected = { selectedDateMs ->
+            navigator.navigate(HomeDate(selectedDateMs))
+        }
+    )
+)
+
+// Built-in share-app QR + copy link sheet
+sheets.show(ShareAppSheet)
+```
+
+To add app-specific sheets, implement `SheetRequest` and pass a `sheets` lambda (`SheetContent`) to `FoundationApp`:
+
+```kotlin
+data class ConfirmDeleteSheet(val itemName: String, val onConfirm: () -> Unit) : SheetRequest
+
+FoundationApp(
+    tabs = appTabs,
+    routes = appRoutes,
+    sheets = { request ->
+        when (request) {
+            is ConfirmDeleteSheet -> SheetColumn {
+                BodyText(text = "Delete ${request.itemName}?")
+                TextButton(text = "Delete") {
+                    request.onConfirm()
+                    dismiss()
+                    hapticFeedback()
+                }
+                CloseButton()
+            }
+        }
+    }
+) { ... }
+```
+
+### 6. Landing, About, and licenses
+
+- **Landing screen:**
+  - `Landing.Default(icon = Res.drawable.ic_launcher_foreground, extraTips = listOf(Res.string.my_tip))` shows the circular reveal with the app icon, name, and a random tip (combining Foundation's platform-aware tips with `extraTips`).
+  - `Landing.Custom { onDone -> MyOnboardingScreen(onFinish = onDone) }` renders a custom onboarding flow.
+  - `Landing.None` skips the landing screen.
+- **About & licenses screen:**
+  Each app generates its own `licenses.json` in its shared module using the `com.github.jk1.dependency-license-report` plugin (see `composeApp/build.gradle.kts` for the `licenseReport` + `prepareLicenseReport` task setup) and passes the bytes to `FoundationAboutScreen`:
+
+```kotlin
+entry<SettingsAbout>(metadata = screenMetadata(title = Res.string.screen_about_title)) {
+    FoundationAboutScreen(
+        AboutConfig(
+            licensesJson = { Res.readBytes("files/json/licenses.json") },
+            onVersionClick = { openUrl("https://bridge.supplies") }
+        )
+    )
+}
+```
+
+### 7. QR code generation and scanning (`QrCodec`, `ShareQrCode`, `ScanQrScreen`)
+
+Any `@Serializable` type can be encoded into or decoded from a QR code:
+
+```kotlin
+@Serializable
+data class SharedData(@SerialName("m") val message: String)
+
+// Display a debounced, theme-colored QR code for `sharedData` (or null to hide):
+ShareQrCode(
+    modifier = Modifier.weight(1f),
+    value = sharedData,
+    serializer = SharedData.serializer()
+)
+
+// Full-screen camera scanner that decodes v2 and legacy v1 payloads:
+ScanQrScreen(
+    serializer = SharedData.serializer(),
+    onScanned = { data ->
+        viewModel.setSharedText(data.message)
+        navigator.back()
+    },
+    onPermissionDenied = {
+        hapticFeedback()
+        navigator.back()
+    }
+)
+```
+
+For direct string encoding/decoding outside of UI components, inject `QrCodec` (`koinInject<QrCodec>()`):
+
+```kotlin
+val encoded: String = qrCodec.encode(payload, SharedData.serializer(), encrypt = true)
+val decoded: Result<SharedData> = qrCodec.decode(encoded, SharedData.serializer())
+```
+
+### 8. Platform services and UI helpers
+
+- `openUrl(url, inApp = false)` — opens a URL in the external browser, or inside the app when `inApp = true` (Custom Tabs on Android, `SFSafariViewController` on iOS; Desktop always uses the system browser).
+- `openAppSettings()` — opens the operating system's settings page for the app.
+- `rememberHapticFeedback()` — returns a `() -> Unit` lambda that triggers haptic feedback when supported by the device and enabled in user settings.
+- `isPortrait()` — returns `true` when the window height is greater than or equal to its width.
+
+---
+
+## Upgrading Foundation in an app
+
+1. Bump the submodule to the target release tag or commit:
+   ```bash
+   cd foundation && git fetch --tags && git checkout v2.0.0 && cd ..
+   ```
+2. Read [`CHANGELOG.md`](CHANGELOG.md) for any breaking changes or migration steps.
+3. Run your app's verification script (`scripts/verify.sh quick`) and test on your target platforms.
+
+---
+
+## Use as a starter template
+
+If you are forking or cloning this repository as a standalone starter template instead of consuming it as a submodule library:
 
 > [!CAUTION]
-> Apparently naming your app "Foundation" doesn't work on iOS due to a conflict with some Accessibility package, so it's called "Foundation_" there instead.
+> Naming an iOS target "Foundation" conflicts with Apple's `Foundation` framework, so the iOS target in this repository is named `Foundation_`.
 
 ### Before building
-* Rename package name and directories
-  - `bridge.supplies.foundation` to your package name
-  - ie `/androidApp/src/main/kotlin/bridge/supplies/foundation` and `/desktopApp/src/main/kotlin/bridge/supplies/foundation`
-* Create `keystore.properties` file in root directory
-  - example in [Publishing](#publishing)
-* Find + Replace All some values
+* Rename the demo package name and directories:
+  - `bridge.supplies.foundation.demo` (in `/composeApp/src/commonMain/kotlin/...`, `androidMain`, `desktopMain`, `iosMain`) to your app package
+  - `bridge.supplies.foundation` in `/androidApp/src/main/kotlin/bridge/supplies/foundation` and `/desktopApp/src/main/kotlin/bridge/supplies/foundation` to your app package
+* Optionally create a `keystore.properties` file in the root directory (see [Publishing](#publishing)). Without `keystore.properties`, debug builds automatically fall back to a development encryption key and skip release signing.
+* Find + Replace across the project:
   - `foundation.composeapp.generated.resources` = `[app-name].composeapp.generated.resources`
   - `bridge.supplies.foundation.BuildConfig` = `your.package.name.BuildConfig`
-* Update `settings.gradle.kts`
+* Update `settings.gradle.kts`:
   - `rootProject.name` = your app name
-* Update `libs.versions.toml`
+* Update `gradle/libs.versions.toml`:
   - `app-packageName` = the full package name, for example `bridge.supplies.foundation`
-  - `app-name` = the visible app name, name of class containing your Desktop `main()` function, and shows as MacOS menu item
+  - `app-name` = the visible app name, name of the class containing your Desktop `main()` function, and macOS menu item name
   - `app-description` = a brief description of your app
-  - `app-copyright` = your copyright information, if applicable
+  - `app-copyright` = your copyright information
   - `app-vendor` = your organization name
-  - `app-versionName` = your version, for example "1.0.0" (must be > 1.0.0 if deploying to Desktop)
-  - `app-versionCode` = your build, for example "202501010" format representing YYYYMMDD0
-  - `app-minSdk`, `app-targetSdk`, and `app-compileSdk` for your Android API targets
-* Update `strings.xml`
+  - `app-versionName` = your version, for example `"1.0.0"` (must be `>= 1.0.0` for Desktop packaging)
+  - `app-versionCode` = your build number, for example `"202610240"` (`YYYYMMDD0`)
+  - `android-minSdk`, `android-targetSdk`, and `android-compileSdk` for your Android API targets
+* Update `composeApp/src/commonMain/composeResources/values/strings.xml`:
   - `app_name` to your app name
-* Update Android and Desktop Application classes
-  - `androidApp/.../Foundation.kt` to `YourAppName.kt`
-  - `desktopApp/.../Foundation.kt` to `YourAppName.kt` (keep it in your package directory, with a matching `package` line)
-* Update `AndroidManifest.xml`
-  - <application `android:name`/> = the full package name + Application class name
-    - ie `bridge.supplies.foundation.Foundation`
-* Update iOS build files
-  - Update `Config.xcconfig`
-    - `BUNDLE_ID` = full package name + app name, for example `bridge.supplies.foundation.Foundation`
-    - `APP_NAME` = visible app name, for example "Foundation"
-  - Update `project.pbxproj`
+* Update Android and Desktop Application classes:
+  - `androidApp/src/main/kotlin/.../Foundation.kt` to `YourAppName.kt`
+  - `desktopApp/src/main/kotlin/.../Foundation.kt` to `YourAppName.kt` (keep it in your package directory with a matching `package` declaration)
+* Update `androidApp/src/main/AndroidManifest.xml`:
+  - `<application android:name="..." />` = the full package name + Application class name (e.g. `bridge.supplies.foundation.Foundation`)
+* Update iOS build files in `/iosApp`:
+  - Update `Configuration/Config.xcconfig`:
+    - `BUNDLE_ID` = full package name + app name (e.g. `bridge.supplies.foundation.Foundation`)
+    - `APP_NAME` = visible app name (e.g. `Foundation`)
+  - Update `iosApp.xcodeproj/project.pbxproj`:
     - replace `Foundation_` = your app name
     - `MARKETING_VERSION` = the same value as `app-versionName` in `libs.versions.toml`
     - `CURRENT_PROJECT_VERSION` = the same value as `app-versionCode` in `libs.versions.toml`
     - `PRODUCT_BUNDLE_IDENTIFIER`, `PRODUCT_NAME`, and `INFOPLIST_KEY_CFBundleDisplayName` = your app name
-  - Android Studio may require reboot to successfully build iOS
 
-### After a successful Android build
-* Update run configurations
-  - Delete extra auto-generated `androidApp` and `iosApp` configs
-  - Update Desktop config to use correct Main Application class name, ie: `app-name` value
-* Update `README.md`, if applicable
-* Update `AppConfig`
-  - Update `shareUrl` if applicable
-* Update `SettingsAboutScreen` Easter Egg
-  - `clickable` modifier on Build information
-* Update `Navigation.kt`
-  - Create new screens by adding a new entry to the `Screens` enum class
-  - If screens require navigation arguments, add a new entry to `NavArgument` enum class
-  - Add screens to specific `NavigationTab` enum class entries
-    - Screens can only exist inside one `NavigationTab`
+### After a successful build
+* Update run configurations in `.run/` if needed:
+  - Update the Desktop configuration if you changed `app-packageName` or `app-name`
+* Update `foundationConfig` in `composeApp/.../config/AppConfig.kt`:
+  - Set `shareUrl` to your store or repository URL
+* Update `FoundationAboutScreen` in `composeApp/.../ui/Navigation.kt`:
+  - Customize or remove the `onVersionClick` easter egg
+* Define your routes and tabs in `composeApp/.../ui/Navigation.kt`
 
 ### Icons
 - Shared
-  - `composeApp/src/commonMain/composeResources/drawable` (if you want to draw it in-app)
+  - `composeApp/src/commonMain/composeResources/drawable` (used in-app, such as on the default landing screen)
     - `ic_launcher_foreground.xml`
     - `ic_launcher_background.xml`
 - Android
-  - `androidApp/src/main/res/drawable` (needed for icon generation)
+  - `androidApp/src/main/res/drawable`
     - `ic_launcher_foreground.xml`
     - `ic_launcher_background.xml`
-    - `ic_launcher_monochrome.xml` ([if needed](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive))
+    - `ic_launcher_monochrome.xml` ([adaptive icon guide](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive))
   - `androidApp/src/main/res/mipmap`
     - `ic_launcher.xml`
 - iOS
-  - `iosApp/Assets.xcassets/AppIcon.appiconset`
-    - 1024x1024 `.png`
-    - Also update corresponding `Contents.json`
+  - `iosApp/iosApp/Assets.xcassets/AppIcon.appiconset`
+    - 1024x1024 `.png` and corresponding `Contents.json`
 - Desktop
-  - Mac
-    - `assets/`
-    - `.icns` file
-  - Windows
-    - `assets/`
-    - `.ico` file
-  - Linux
-    - `assets/`
-    - `.png` file
+  - macOS: `assets/*.icns`
+  - Windows: `assets/*.ico`
+  - Linux: `assets/*.png`
 
 ### Run configurations
-- `Android`
-  - using the `Foundation.androidApp` module
-- `iOS`
-  - using `iosApp.xcodeproj` project file
-- `Desktop`
-  - runs `./gradlew :desktopApp:run`
-  - the main class is `app-packageName` + `.` + `app-name` from `libs.versions.toml`, so the desktop entry class must use that package and name
+- `Android`: runs the `Foundation.androidApp` module (`./gradlew :androidApp:assembleDebug`)
+- `iOS`: runs via `iosApp/iosApp.xcodeproj`
+- `Desktop`: runs `./gradlew :desktopApp:run` (main class is `app-packageName` + `.` + `app-name` from `gradle/libs.versions.toml`)
 
-### Publishing
+## Testing
+
+- **Repository verification:** run `scripts/verify.sh quick` to compile the Android debug app, compile the Desktop app, run common/Desktop unit tests across all modules, and run (or link) iOS simulator tests when iOS-relevant files change. UI and end-to-end verification tiers (`ui` and `e2e`) are reserved for a later release.
+- **Composite-build consumer test:** run `scripts/consumer-test.sh` (or `scripts/consumer-test.sh --no-ios` to skip iOS simulator linking/tests) to verify that `consumer-test/` compiles and passes unit tests against Foundation as an included build.
+
+## Publishing
 - Android
-  - Create a `keystore.properties` file in the repository root directory for production signing. Do not check this file into version control, or your `upload-keystore.jks`
-```
+  - Create a `keystore.properties` file in the repository root directory for production signing (and a production 16-byte `encryptionKey`). Never commit `keystore.properties` or your `.jks` keystore to version control.
+```properties
 storeFile=/Users/Example/Documents/Keystores/upload-keystore.jks
 storePassword=myStorePassword
 keyAlias=upload
 keyPassword=myKeyPassword
-encryptionKey=dataTransferEncryptionKey
+encryptionKey=16ByteSecretKey!
 ```
 - iOS
-  - _TBD_
+  - Archive and distribute through Xcode using `iosApp/iosApp.xcodeproj`.
 - Desktop
-  - _TBD_
+  - Package native distributions with `./gradlew :desktopApp:packageDistributionForCurrentOS` (or `packageDmg` / `packageMsi` / `packageDeb`).
