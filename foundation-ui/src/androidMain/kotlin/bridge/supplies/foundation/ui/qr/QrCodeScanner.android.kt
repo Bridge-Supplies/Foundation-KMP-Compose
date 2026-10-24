@@ -1,4 +1,4 @@
-package ui.scanner
+package bridge.supplies.foundation.ui.qr
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,8 +27,12 @@ import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerView
 import bridge.supplies.foundation.ui.components.FloatingButton
+import bridge.supplies.foundation.ui.resources.Res
+import bridge.supplies.foundation.ui.resources.scanner_allow_camera
+import bridge.supplies.foundation.ui.resources.scanner_request_camera
+import org.jetbrains.compose.resources.stringResource
 
-class PermissionsViewModel(
+internal class CameraPermissionViewModel(
     private val controller: PermissionsController
 ) : ViewModel() {
     
@@ -62,7 +66,7 @@ class PermissionsViewModel(
 }
 
 @Composable
-actual fun CodeScanner(
+public actual fun QrCodeScanner(
     modifier: Modifier,
     onSuccess: (String) -> Unit,
     onFailure: (String) -> Unit,
@@ -76,7 +80,7 @@ actual fun CodeScanner(
     BindEffect(controller)
     
     val viewModel = viewModel {
-        PermissionsViewModel(controller)
+        CameraPermissionViewModel(controller)
     }
     
     when (viewModel.state) {
@@ -89,12 +93,10 @@ actual fun CodeScanner(
             ) { result ->
                 when (result) {
                     is BarcodeResult.OnSuccess -> {
-                        println("Barcode: ${result.barcode.data}, format: ${result.barcode.format}")
                         onSuccess(result.barcode.data)
                     }
                     
                     is BarcodeResult.OnFailed -> {
-                        println("Error: ${result.exception.message}")
                         onFailure(result.exception.message ?: "")
                     }
 
@@ -109,7 +111,7 @@ actual fun CodeScanner(
             ) {
                 FloatingButton(
                     modifier = Modifier.align(Alignment.Center),
-                    text = "Allow camera permission"
+                    text = stringResource(Res.string.scanner_allow_camera)
                 ) {
                     controller.openAppSettings()
                     onDenied()
@@ -128,7 +130,7 @@ actual fun CodeScanner(
             ) {
                 FloatingButton(
                     modifier = Modifier.align(Alignment.Center),
-                    text = "Request camera permission"
+                    text = stringResource(Res.string.scanner_request_camera)
                 ) {
                     viewModel.provideOrRequestCameraPermission()
                 }

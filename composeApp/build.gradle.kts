@@ -109,16 +109,10 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             api(libs.androidx.lifecycle.viewmodel)
             api(libs.androidx.lifecycle.viewmodel.compose)
-            implementation(libs.androidx.datastore)
-            implementation(libs.androidx.datastore.preferences)
 
             api(libs.koin.core)
             api(libs.koin.compose)
 
-            implementation(libs.soywiz.korlibs.crypto)
-            implementation(libs.soywiz.korlibs.compression)
-            implementation(libs.material.kolor)
-            implementation(libs.g0dkar.qrcode.kotlin)
         }
 
         androidMain.dependencies {
@@ -127,17 +121,6 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.ismai117.kscan)
-            api(libs.moko.permissions)
-            api(libs.moko.permissions.camera)
-            api(libs.moko.permissions.compose)
-        }
-
-        iosMain.dependencies {
-            implementation(libs.ismai117.kscan)
-            api(libs.moko.permissions)
-            api(libs.moko.permissions.camera)
-            api(libs.moko.permissions.compose)
         }
 
         named("desktopMain") {

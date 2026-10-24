@@ -1,61 +1,43 @@
 package ui.scanner
 
-import bridge.supplies.foundation.ui.sheets.ShareAppSheet
-import bridge.supplies.foundation.ui.sheets.sheetController
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.core.platform.PlatformFeature
+import bridge.supplies.foundation.ui.components.FloatingButton
+import bridge.supplies.foundation.ui.components.TextInput
 import bridge.supplies.foundation.ui.foundationViewModel
-import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
 import bridge.supplies.foundation.ui.isPortrait
+import bridge.supplies.foundation.ui.qr.ShareQrCode
+import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
+import bridge.supplies.foundation.ui.sheets.ShareAppSheet
+import bridge.supplies.foundation.ui.sheets.sheetController
+import bridge.supplies.foundation.ui.shell.TopBarAction
+import bridge.supplies.foundation.ui.shell.TopBarActions
 import data.MainViewModel
-import bridge.supplies.foundation.core.crypto.QrCodec
 import data.SharedData
-import org.koin.compose.koinInject
 import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.action_share
 import foundation.composeapp.generated.resources.generate_qr_code_encrypted_text
 import foundation.composeapp.generated.resources.generate_qr_code_text
 import foundation.composeapp.generated.resources.scanner_button_text
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Share
-import foundation.composeapp.generated.resources.action_share
-import bridge.supplies.foundation.ui.shell.TopBarAction
-import bridge.supplies.foundation.ui.shell.TopBarActions
-import bridge.supplies.foundation.ui.components.FloatingButton
-import bridge.supplies.foundation.ui.components.QrCodeCard
-import bridge.supplies.foundation.ui.components.TextInput
-import bridge.supplies.foundation.ui.components.generateQrCode
 
-private const val QR_GENERATION_DEBOUNCE_MS = 300L
-
-@OptIn(FlowPreview::class)
 @Composable
 fun ShareCodeScreen(
     viewModel: MainViewModel,
@@ -67,30 +49,7 @@ fun ShareCodeScreen(
     val sharedText by viewModel.sharedText.collectAsState()
     val foundation = foundationViewModel()
     val useEncryptedShare by foundation.setting(FoundationSettingKeys.encryptedShare).collectAsState()
-    val qrBitmap by viewModel.processedQrBitmap.collectAsState()
-    
-    val qrCodec = koinInject<QrCodec>()
-    val color = MaterialTheme.colorScheme.primary
-    val backgroundColor = MaterialTheme.colorScheme.onPrimary
-    
-    // Each keystroke restarts this effect, cancelling any in-flight generation,
-    // so only the latest text is encrypted and rendered once typing pauses.
-    LaunchedEffect(sharedText, useEncryptedShare, color, backgroundColor) {
-        if (sharedText.isBlank()) {
-            viewModel.clearQr()
-            return@LaunchedEffect
-        }
-        delay(QR_GENERATION_DEBOUNCE_MS)
-        withContext(Dispatchers.Default) {
-            val newProcessedText = qrCodec.encode(SharedData(sharedText), SharedData.serializer(), useEncryptedShare)
-            val generatedQrBitmap = generateQrCode(
-                text = newProcessedText,
-                colorRgb = color.toArgb(),
-                backgroundColorRgb = backgroundColor.toArgb()
-            )
-            viewModel.setQr(newProcessedText, generatedQrBitmap)
-        }
-    }
+    val sharedData = sharedText.takeIf { it.isNotBlank() }?.let { SharedData(it) }
     
     val onUpdateSharedText = { newText: String ->
         viewModel.setSharedText(newText)
@@ -119,10 +78,10 @@ fun ShareCodeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            LoadingCodeDisplay(
+            ShareQrCode(
                 modifier = Modifier.weight(1f),
-                sharedText = sharedText,
-                qrBitmap = qrBitmap
+                value = sharedData,
+                serializer = SharedData.serializer()
             )
             
             CodeScannerInfo(
@@ -151,51 +110,11 @@ fun ShareCodeScreen(
                 onClickScanner = onClickScanner
             )
             
-            LoadingCodeDisplay(
+            ShareQrCode(
                 modifier = Modifier.weight(1f),
-                sharedText = sharedText,
-                qrBitmap = qrBitmap
+                value = sharedData,
+                serializer = SharedData.serializer()
             )
-        }
-    }
-}
-
-@Composable
-fun LoadingCodeDisplay(
-    modifier: Modifier = Modifier,
-    sharedText: String? = null,
-    qrBitmap: ImageBitmap? = null
-) {
-    Crossfade(
-        modifier = modifier,
-        targetState = qrBitmap
-    ) { qr ->
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (qr != null) {
-                QrCodeCard(
-                    qrBitmap = qr,
-                    cardColor = MaterialTheme.colorScheme.onSurface
-                )
-            } else {
-                if (!sharedText.isNullOrEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .fillMaxSize()
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                        )
-                    }
-                } else {
-                    Spacer(modifier = Modifier.fillMaxSize())
-                }
-            }
         }
     }
 }

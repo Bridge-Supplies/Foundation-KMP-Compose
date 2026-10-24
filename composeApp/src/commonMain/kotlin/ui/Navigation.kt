@@ -12,13 +12,14 @@ import androidx.navigation3.runtime.NavKey
 import bridge.supplies.foundation.core.platform.openUrl
 import bridge.supplies.foundation.ui.about.AboutConfig
 import bridge.supplies.foundation.ui.about.FoundationAboutScreen
+import bridge.supplies.foundation.ui.qr.ScanQrScreen
 import bridge.supplies.foundation.ui.settings.FoundationSettingsScreen
 import bridge.supplies.foundation.ui.shell.FoundationTab
-import bridge.supplies.foundation.ui.shell.LocalSnackbarHostState
 import bridge.supplies.foundation.ui.shell.LocalNavigator
 import bridge.supplies.foundation.ui.shell.RouteRegistry
 import bridge.supplies.foundation.ui.shell.screenMetadata
 import data.MainViewModel
+import data.SharedData
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.screen_about_title
 import foundation.composeapp.generated.resources.screen_home_columns_title
@@ -35,7 +36,6 @@ import ui.home.HomeDateScreen
 import ui.home.HomeGridsScreen
 import ui.home.HomeInfoScreen
 import ui.home.HomeRowsScreen
-import ui.scanner.ScanCodeScreen
 import ui.scanner.ShareCodeScreen
 
 // ROUTES
@@ -152,12 +152,10 @@ fun EntryProviderScope<NavKey>.appEntries(
 
     entry<ShareScan>(metadata = screenMetadata(title = Res.string.screen_scan_code_title)) {
         val navigator = LocalNavigator.current
-        ScanCodeScreen(
-            viewModel = viewModel,
-            snackbarHost = LocalSnackbarHostState.current,
-            hapticFeedback = hapticFeedback,
-            onSuccessfulScan = { sharedText ->
-                viewModel.setSharedText(sharedText)
+        ScanQrScreen(
+            serializer = SharedData.serializer(),
+            onScanned = { sharedData ->
+                viewModel.setSharedText(sharedData.message)
                 navigator.back()
             },
             onPermissionDenied = {
@@ -166,7 +164,7 @@ fun EntryProviderScope<NavKey>.appEntries(
             }
         )
     }
-
+    
     // SETTINGS
     entry<SettingsOptions> {
         val navigator = LocalNavigator.current

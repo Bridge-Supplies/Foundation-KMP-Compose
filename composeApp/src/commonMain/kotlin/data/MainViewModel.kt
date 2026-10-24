@@ -1,6 +1,5 @@
 package data
 
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -18,14 +17,6 @@ class MainViewModel : ViewModel() {
             action()
         }
     }
-    
-    private val _processedQrText = MutableStateFlow<String?>(null)
-    var processedQrText = _processedQrText.asStateFlow()
-        private set
-    
-    private val _processedQrBitmap = MutableStateFlow<ImageBitmap?>(null)
-    var processedQrBitmap = _processedQrBitmap.asStateFlow()
-        private set
     
     // SESSION
     
@@ -55,18 +46,5 @@ class MainViewModel : ViewModel() {
     
     fun setSharedText(text: String) {
         _sharedText.value = text
-    }
-    
-    fun setQr(
-        processedText: String?,
-        qr: ImageBitmap?
-    ) {
-        _processedQrText.value = processedText
-        _processedQrBitmap.value = qr
-    }
-    
-    fun clearQr() {
-        _processedQrText.value = null
-        _processedQrBitmap.value = null
     }
 }

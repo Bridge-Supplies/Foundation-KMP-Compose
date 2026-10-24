@@ -56,4 +56,12 @@
     <string name="settings_about_app_title">Application</string>
     <string name="settings_about_licenses_title">Licenses</string>
     <string name="settings_about_licenses_unknown">Unknown</string>
+    <string name="scanner_button_text">Scan code</string>
+    <string name="scanner_unsupported_text">This device does not support code scanning</string>
+    <string name="scanner_success_text">Message received</string>
+    <string name="scanner_error_text">Unable to scan code</string>
+    <string name="scanner_error_action">Try again</string>
+    <string name="scanner_done">Done</string>
+    <string name="scanner_allow_camera">Allow camera permission</string>
+    <string name="scanner_request_camera">Request camera permission</string>
 </resources>

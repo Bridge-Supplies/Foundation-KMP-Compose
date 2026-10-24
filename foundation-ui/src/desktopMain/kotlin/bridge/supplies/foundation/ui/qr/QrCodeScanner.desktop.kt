@@ -1,14 +1,14 @@
-package ui.scanner
+package bridge.supplies.foundation.ui.qr
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-actual fun CodeScanner(
+public actual fun QrCodeScanner(
     modifier: Modifier,
     onSuccess: (String) -> Unit,
     onFailure: (String) -> Unit,
     onDenied: () -> Unit
 ) {
-    // no-op
+    // no camera scanning on desktop (PlatformFeature.CODE_SCANNING is unsupported)
 }
