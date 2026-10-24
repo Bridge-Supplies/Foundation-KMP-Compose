@@ -10,11 +10,7 @@ set -u
 
 TIER="${1:-}"
 case "$TIER" in
-    quick|ui) ;;
-    e2e)
-        echo "not wired yet (FND-08)"
-        exit 2
-        ;;
+    quick|ui|e2e) ;;
     *)
         echo "Usage: scripts/verify.sh quick|ui|e2e" >&2
         exit 2
@@ -221,6 +217,26 @@ run_consumer_test_step() {
     return "$rc"
 }
 
+run_maestro_step() {
+    local name="$1"
+    shift
+    local start end rc
+    echo ">> $name: $*"
+    echo "=== $name: $* ===" >> "$LOG"
+    start="$(date +%s)"
+    "$@" >> "$LOG" 2>&1
+    rc=$?
+    end="$(date +%s)"
+    if [ "$rc" -eq 0 ]; then
+        record "$name" PASS $((end - start))
+    else
+        record "$name" FAIL $((end - start))
+        OVERALL=1
+        FAILED_STEP="$name"
+    fi
+    return "$rc"
+}
+
 RUN_START="$(date +%s)"
 
 run_gradle_step "android-debug" "$ANDROID_TASK"
@@ -257,6 +273,117 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" != "quick" ]; then
     if [ "$OVERALL" -eq 0 ]; then
         run_consumer_test_step
     fi
+fi
+
+# --- E2E tier (FND-08) -------------------------------------------------------
+if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
+    acquire_emulator_lock || exit 1
+
+    # Locate adb
+    ADB="${ADB:-$HOME/Library/Android/sdk/platform-tools/adb}"
+    if [ ! -x "$ADB" ] && command -v adb >/dev/null 2>&1; then
+        ADB="$(command -v adb)"
+    fi
+
+    # Locate maestro
+    MAESTRO="${MAESTRO:-maestro}"
+    if ! command -v "$MAESTRO" >/dev/null 2>&1; then
+        if [ -x "$HOME/.maestro/bin/maestro" ]; then
+            MAESTRO="$HOME/.maestro/bin/maestro"
+        fi
+    fi
+
+    # Ensure Android emulator is running
+    EMULATOR_WAS_RUNNING=0
+    if "$ADB" devices 2>/dev/null | grep -E "emulator-[0-9]+" | grep -q "device"; then
+        EMULATOR_WAS_RUNNING=1
+    fi
+
+    if [ "$EMULATOR_WAS_RUNNING" -eq 0 ]; then
+        echo ">> Booting Android emulator medium_phone..."
+        EMU_BIN="$HOME/Library/Android/sdk/emulator/emulator"
+        if [ ! -x "$EMU_BIN" ] && command -v emulator >/dev/null 2>&1; then
+            EMU_BIN="$(command -v emulator)"
+        fi
+        "$EMU_BIN" -avd medium_phone -netdelay none -netspeed full &
+        "$ADB" wait-for-device >> "$LOG" 2>&1
+        while [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
+            sleep 2
+        done
+        echo ">> Android emulator ready."
+    fi
+
+    # Locate Android debug APK
+    DEMO_APK=""
+    if [ -f "$REPO/androidApp/build/outputs/apk/debug/androidApp-debug.apk" ]; then
+        DEMO_APK="$REPO/androidApp/build/outputs/apk/debug/androidApp-debug.apk"
+    elif [ -f "$REPO/composeApp/build/outputs/apk/debug/composeApp-debug.apk" ]; then
+        DEMO_APK="$REPO/composeApp/build/outputs/apk/debug/composeApp-debug.apk"
+    fi
+
+    if [ -z "$DEMO_APK" ] || [ ! -f "$DEMO_APK" ]; then
+        run_gradle_step "demo-apk-build" "$ANDROID_TASK"
+        if [ -f "$REPO/androidApp/build/outputs/apk/debug/androidApp-debug.apk" ]; then
+            DEMO_APK="$REPO/androidApp/build/outputs/apk/debug/androidApp-debug.apk"
+        elif [ -f "$REPO/composeApp/build/outputs/apk/debug/composeApp-debug.apk" ]; then
+            DEMO_APK="$REPO/composeApp/build/outputs/apk/debug/composeApp-debug.apk"
+        fi
+    fi
+
+    # Run Android Maestro smoke flow
+    if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
+        "$ADB" install -r "$DEMO_APK" >> "$LOG" 2>&1
+        run_maestro_step "e2e-smoke-android" "$MAESTRO" --platform android test -e APP_ID=bridge.supplies.foundation.debug "$REPO/.maestro/smoke.yaml"
+    fi
+
+    # Run iOS Maestro smoke flow if simulator runtime exists
+    if [ "$OVERALL" -eq 0 ]; then
+        if xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
+            IOS_APP_PATH="$REPO/build/ios-derived/Build/Products/Debug-iphonesimulator/Foundation_.app"
+            if [ ! -d "$IOS_APP_PATH" ] && [ -f "$REPO/iosApp/iosApp.xcodeproj/project.pbxproj" ]; then
+                echo ">> Building iOS app for simulator..."
+                xcodebuild -project "$REPO/iosApp/iosApp.xcodeproj" -scheme iOS \
+                    -destination "generic/platform=iOS Simulator" \
+                    -derivedDataPath "$REPO/build/ios-derived" \
+                    CODE_SIGNING_ALLOWED=NO build >> "$LOG" 2>&1
+            fi
+            if [ -d "$IOS_APP_PATH" ]; then
+                BOOTED_SIM="$(xcrun simctl list devices 2>/dev/null | grep -E "iPhone.*\(Booted\)" | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/' | head -n 1)"
+                if [ -z "$BOOTED_SIM" ]; then
+                    BOOTED_SIM="CCE1DBF4-83D7-4A2E-A689-52F4D6419A8E"
+                    xcrun simctl boot "$BOOTED_SIM" 2>/dev/null || true
+                fi
+                xcrun simctl install "$BOOTED_SIM" "$IOS_APP_PATH" >> "$LOG" 2>&1
+                run_maestro_step "e2e-smoke-ios" "$MAESTRO" --platform ios test -e APP_ID=bridge.supplies.foundation.BridgeFoundation "$REPO/.maestro/smoke.yaml"
+            else
+                skip_step "e2e-smoke-ios" "iOS app build not available"
+            fi
+        else
+            skip_step "e2e-smoke-ios" "no iOS simulator runtime"
+        fi
+    fi
+
+    # Run over-install harness if baseline exists
+    if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
+        BASELINES_DIR=""
+        for b in "$REPO/baselines/foundation" "$REPO/../baselines/foundation" "$REPO/../../baselines/foundation" "$HOME/Documents/GitHub/Bridge Supplies/baselines/foundation"; do
+            if [ -d "$b" ]; then
+                BASELINES_DIR="$b"
+                break
+            fi
+        done
+        BASELINE_APK=""
+        if [ -n "$BASELINES_DIR" ]; then
+            BASELINE_APK="$(find "$BASELINES_DIR" -name "*.apk" 2>/dev/null | sort -V | tail -n 1)"
+        fi
+        if [ -n "$BASELINE_APK" ] && [ -f "$BASELINE_APK" ]; then
+            run_maestro_step "e2e-over-install" "$REPO/scripts/e2e/over-install.sh" "$BASELINE_APK" "$DEMO_APK" "$REPO/.maestro/seed-settings.yaml" "$REPO/.maestro/assert-settings.yaml"
+        else
+            skip_step "e2e-over-install" "no baseline APK found"
+        fi
+    fi
+
+    release_emulator_lock
 fi
 
 RUN_END="$(date +%s)"
