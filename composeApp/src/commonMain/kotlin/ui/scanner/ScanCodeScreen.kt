@@ -20,7 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.dp
 import data.MainViewModel
-import data.decryptAndUncompress
+import bridge.supplies.foundation.core.crypto.QrCodec
+import data.SharedData
+import org.koin.compose.koinInject
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.scanner_error_action
 import foundation.composeapp.generated.resources.scanner_error_text
@@ -47,6 +49,7 @@ fun ScanCodeScreen(
     onPermissionDenied: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val qrCodec = koinInject<QrCodec>()
     var successfulScan by remember { mutableStateOf(false) }
     
     val onScanFailure: () -> Unit = {
@@ -63,8 +66,8 @@ fun ScanCodeScreen(
     val onScanSuccess: (String) -> Unit = { scannedString ->
         if (!successfulScan) {
             coroutineScope.launch(Dispatchers.Main) {
-                val decryptedCode = scannedString.decryptAndUncompress()
-                if (decryptedCode?.message != null) {
+                val decryptedCode = qrCodec.decode(scannedString, SharedData.serializer()).getOrNull()
+                if (decryptedCode != null) {
                     val message = decryptedCode.message
                     successfulScan = true
                     
