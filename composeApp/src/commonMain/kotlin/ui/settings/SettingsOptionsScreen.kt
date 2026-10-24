@@ -30,7 +30,6 @@ import config.Feature
 import config.Palette
 import config.isPortraitMode
 import data.MainViewModel
-import data.systemAppSettings
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_settings_encryption_subtitle
 import foundation.composeapp.generated.resources.app_settings_encryption_title
@@ -56,13 +55,14 @@ import foundation.composeapp.generated.resources.theme_settings_palette_title
 import foundation.composeapp.generated.resources.theme_settings_title
 import org.jetbrains.compose.resources.stringResource
 import ui.AppBarAction
-import ui.BottomButton
-import ui.EdgeFadeLazyStaggeredVerticalGrid
 import ui.Screen
-import ui.SettingsSelector
-import ui.SettingsSwitch
-import ui.TitledCard
-import ui.rememberNestedScrollConnection
+import bridge.supplies.foundation.core.platform.systemAppSettings
+import bridge.supplies.foundation.ui.components.BottomButton
+import bridge.supplies.foundation.ui.components.EdgeFadeLazyStaggeredVerticalGrid
+import bridge.supplies.foundation.ui.components.SettingsSelector
+import bridge.supplies.foundation.ui.components.SettingsSwitch
+import bridge.supplies.foundation.ui.components.TitledCard
+import bridge.supplies.foundation.ui.components.rememberNestedScrollConnection
 
 @Composable
 fun SettingsOptionsScreen(

@@ -30,9 +30,9 @@ import foundation.composeapp.generated.resources.ic_launcher_foreground
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import ui.BodyText
-import ui.CircularReveal
-import ui.TitleText
+import bridge.supplies.foundation.ui.components.BodyText
+import bridge.supplies.foundation.ui.components.CircularReveal
+import bridge.supplies.foundation.ui.components.TitleText
 
 @Composable
 fun LandingScreen(

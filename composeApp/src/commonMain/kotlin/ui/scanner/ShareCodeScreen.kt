@@ -38,11 +38,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import ui.AppBarAction
-import ui.FloatingButton
-import ui.QrCodeCard
 import ui.Screen
-import ui.TextInput
-import ui.generateQrCode
+import bridge.supplies.foundation.ui.components.FloatingButton
+import bridge.supplies.foundation.ui.components.QrCodeCard
+import bridge.supplies.foundation.ui.components.TextInput
+import bridge.supplies.foundation.ui.components.generateQrCode
 
 private const val QR_GENERATION_DEBOUNCE_MS = 300L
 

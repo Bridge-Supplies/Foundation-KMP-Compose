@@ -15,12 +15,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import data.MainViewModel
-import ui.BodyText
-import ui.EdgeFadeColumn
-import ui.EdgeFadeIndexedLazyColumn
-import ui.ExpandableTitledCard
-import ui.SettingsSwitch
-import ui.rememberIndexedLazyListState
+import bridge.supplies.foundation.ui.components.BodyText
+import bridge.supplies.foundation.ui.components.EdgeFadeColumn
+import bridge.supplies.foundation.ui.components.EdgeFadeIndexedLazyColumn
+import bridge.supplies.foundation.ui.components.ExpandableTitledCard
+import bridge.supplies.foundation.ui.components.SettingsSwitch
+import bridge.supplies.foundation.ui.components.rememberIndexedLazyListState
 
 @Composable
 fun HomeColumnsScreen(

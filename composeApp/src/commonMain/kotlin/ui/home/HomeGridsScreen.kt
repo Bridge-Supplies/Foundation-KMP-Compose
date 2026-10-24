@@ -18,11 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import config.isPortraitMode
 import data.MainViewModel
-import ui.BodyText
-import ui.EdgeFadeLazyStaggeredVerticalGrid
-import ui.EdgeFadeLazyVerticalGrid
-import ui.SettingsSwitch
-import ui.TitledCard
+import bridge.supplies.foundation.ui.components.BodyText
+import bridge.supplies.foundation.ui.components.EdgeFadeLazyStaggeredVerticalGrid
+import bridge.supplies.foundation.ui.components.EdgeFadeLazyVerticalGrid
+import bridge.supplies.foundation.ui.components.SettingsSwitch
+import bridge.supplies.foundation.ui.components.TitledCard
 
 @Composable
 fun HomeGridsScreen(

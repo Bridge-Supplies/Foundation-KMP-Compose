@@ -21,11 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import data.MainViewModel
-import data.daysBetween
-import data.getDateDisplay
-import data.getDateTime
-import data.getTodayDate
-import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_date_elapsed_seconds
 import foundation.composeapp.generated.resources.app_date_selected
@@ -33,9 +28,14 @@ import foundation.composeapp.generated.resources.app_date_today
 import foundation.composeapp.generated.resources.app_days_between
 import foundation.composeapp.generated.resources.navigation_home_date_select
 import org.jetbrains.compose.resources.stringResource
-import ui.FloatingButton
-import ui.TitleText
 import kotlin.time.ExperimentalTime
+import bridge.supplies.foundation.core.time.daysBetween
+import bridge.supplies.foundation.core.time.getDateDisplay
+import bridge.supplies.foundation.core.time.getDateTime
+import bridge.supplies.foundation.core.time.getTodayDate
+import bridge.supplies.foundation.core.time.getTodayUtcMs
+import bridge.supplies.foundation.ui.components.FloatingButton
+import bridge.supplies.foundation.ui.components.TitleText
 
 @OptIn(ExperimentalTime::class)
 @Composable

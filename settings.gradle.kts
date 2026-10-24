@@ -33,6 +33,8 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp") // shared KMP library: demo app UI + Foundation code
+include(":foundation-core") // Foundation library: storage, crypto, platform services (no UI)
+include(":foundation-ui") // Foundation library: theme, shell, components
+include(":composeApp") // demo app shared code (KMP library)
 include(":androidApp") // Android entry point
 include(":desktopApp") // Desktop (JVM) entry point

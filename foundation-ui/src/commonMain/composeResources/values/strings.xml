@@ -1,0 +1,5 @@
+<resources>
+    <string name="button_expand_more">Expand content</string>
+    <string name="button_expand_less">Collapse content</string>
+    <string name="invalid_date">Invalid date</string>
+</resources>

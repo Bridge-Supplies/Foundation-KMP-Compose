@@ -16,7 +16,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import config.isPortraitMode
 import data.MainViewModel
-import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_about_orientation
 import foundation.composeapp.generated.resources.app_about_platform
@@ -28,9 +27,10 @@ import foundation.composeapp.generated.resources.navigation_home_grids
 import foundation.composeapp.generated.resources.navigation_home_rows
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import ui.EdgeFadeColumn
-import ui.FloatingButton
-import ui.TitleText
+import bridge.supplies.foundation.core.time.getTodayUtcMs
+import bridge.supplies.foundation.ui.components.EdgeFadeColumn
+import bridge.supplies.foundation.ui.components.FloatingButton
+import bridge.supplies.foundation.ui.components.TitleText
 
 @Composable
 fun HomeInfoScreen(

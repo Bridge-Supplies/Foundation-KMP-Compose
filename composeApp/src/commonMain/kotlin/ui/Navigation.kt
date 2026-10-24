@@ -51,7 +51,6 @@ import androidx.navigation.navigation
 import androidx.savedstate.read
 import config.PlatformType
 import data.MainViewModel
-import data.getTodayUtcMs
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.action_settings
 import foundation.composeapp.generated.resources.action_share
@@ -82,6 +81,15 @@ import ui.scanner.ScanCodeScreen
 import ui.scanner.ShareCodeScreen
 import ui.settings.SettingsAboutScreen
 import ui.settings.SettingsOptionsScreen
+import bridge.supplies.foundation.core.time.getTodayUtcMs
+import bridge.supplies.foundation.ui.components.ClickableIcon
+import bridge.supplies.foundation.ui.shell.BackHandler
+import bridge.supplies.foundation.ui.shell.ScreenEnterTransition
+import bridge.supplies.foundation.ui.shell.ScreenExitTransition
+import bridge.supplies.foundation.ui.shell.ScreenPopEnterTransition
+import bridge.supplies.foundation.ui.shell.ScreenPopExitTransition
+import bridge.supplies.foundation.ui.shell.TopLevelEnterTransition
+import bridge.supplies.foundation.ui.shell.TopLevelExitTransition
 
 // SCREENS
 
@@ -254,38 +262,6 @@ fun NavBackStackEntry.getLong(argument: NavArgument): Long {
 
 
 // COMPOSABLES
-
-@Composable
-expect fun BackHandler(
-    enabled: Boolean = true,
-    onBack: () -> Unit = { }
-)
-
-expect val TRANSITION_ENTER_MS: Int
-expect val TRANSITION_EXIT_MS: Int
-expect val TRANSITION_EASING: Easing
-expect val TRANSITION_OFFSET_DIV: Int
-
-fun TopLevelEnterTransition(): EnterTransition =
-    fadeIn(
-        animationSpec = tween(
-            durationMillis = TRANSITION_ENTER_MS,
-            easing = TRANSITION_EASING
-        )
-    )
-
-fun TopLevelExitTransition(): ExitTransition =
-    fadeOut(
-        animationSpec = tween(
-            durationMillis = TRANSITION_EXIT_MS,
-            easing = TRANSITION_EASING
-        )
-    )
-
-expect fun ScreenEnterTransition(): EnterTransition
-expect fun ScreenExitTransition(): ExitTransition
-expect fun ScreenPopEnterTransition(): EnterTransition
-expect fun ScreenPopExitTransition(): ExitTransition
 
 @Composable
 fun NavigationGraph(
