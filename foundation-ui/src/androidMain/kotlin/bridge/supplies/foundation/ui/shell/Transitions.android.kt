@@ -1,6 +1,7 @@
 package bridge.supplies.foundation.ui.shell
 
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -11,22 +12,22 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 
 @Composable
-actual fun BackHandler(
+public actual fun BackHandler(
     enabled: Boolean,
     onBack: () -> Unit
 ) {
     androidx.activity.compose.BackHandler(enabled, onBack)
 }
 
-actual val TRANSITION_ENTER_MS = 300
-actual val TRANSITION_EXIT_MS = 200
-actual val TRANSITION_EASING = FastOutSlowInEasing
-actual val TRANSITION_OFFSET_DIV = 6
+public actual val TRANSITION_ENTER_MS: Int = 300
+public actual val TRANSITION_EXIT_MS: Int = 200
+public actual val TRANSITION_EASING: Easing = FastOutSlowInEasing
+public actual val TRANSITION_OFFSET_DIV: Int = 6
 
 internal actual val RAIL_VERTICALLY_CENTERED = true
 internal actual val CENTER_TOP_BAR_TITLE = false
 
-actual fun ScreenEnterTransition(): EnterTransition =
+public actual fun ScreenEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     ) + slideInHorizontally(
@@ -34,7 +35,7 @@ actual fun ScreenEnterTransition(): EnterTransition =
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     )
 
-actual fun ScreenExitTransition(): ExitTransition =
+public actual fun ScreenExitTransition(): ExitTransition =
     fadeOut(
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     ) + slideOutHorizontally(
@@ -42,7 +43,7 @@ actual fun ScreenExitTransition(): ExitTransition =
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     )
 
-actual fun ScreenPopEnterTransition(): EnterTransition =
+public actual fun ScreenPopEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     ) + slideInHorizontally(
@@ -50,7 +51,7 @@ actual fun ScreenPopEnterTransition(): EnterTransition =
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     )
 
-actual fun ScreenPopExitTransition(): ExitTransition =
+public actual fun ScreenPopExitTransition(): ExitTransition =
     fadeOut(
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     ) + slideOutHorizontally(

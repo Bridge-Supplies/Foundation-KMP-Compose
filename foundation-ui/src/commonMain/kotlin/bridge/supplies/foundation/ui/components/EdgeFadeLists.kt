@@ -73,7 +73,7 @@ import kotlinx.coroutines.launch
 // REMEMBERS
 
 @Composable
-fun rememberNestedScrollConnection(
+public fun rememberNestedScrollConnection(
     firstVisibleItemScrollOffset: () -> Int,
     onScrollUp: (Boolean) -> Unit
 ): NestedScrollConnection {
@@ -101,7 +101,7 @@ fun rememberNestedScrollConnection(
 // WRAPPER
 
 @Composable
-fun EdgeFadeWrapper(
+public fun EdgeFadeWrapper(
     orientation: Orientation,
     showStartEdgeFade: Boolean,
     showEndEdgeFade: Boolean,
@@ -164,7 +164,7 @@ fun EdgeFadeWrapper(
 }
 
 @Composable
-fun BoxScope.AnimatedVerticalEdgeFade(
+public fun BoxScope.AnimatedVerticalEdgeFade(
     isVisible: Boolean,
     isStartEdge: Boolean,
     fadeColor: Color = MaterialTheme.colorScheme.background,
@@ -243,7 +243,7 @@ fun BoxScope.AnimatedVerticalEdgeFade(
 }
 
 @Composable
-fun BoxScope.AnimatedHorizontalEdgeFade(
+public fun BoxScope.AnimatedHorizontalEdgeFade(
     isVisible: Boolean,
     isStartEdge: Boolean,
     fadeColor: Color = MaterialTheme.colorScheme.background,
@@ -324,7 +324,7 @@ fun BoxScope.AnimatedHorizontalEdgeFade(
 // STATIC LISTS
 
 @Composable
-fun EdgeFadeColumn(
+public fun EdgeFadeColumn(
     modifier: Modifier = Modifier,
     state: ScrollState,
     // alignments
@@ -399,7 +399,7 @@ fun EdgeFadeColumn(
 }
 
 @Composable
-fun EdgeFadeRow(
+public fun EdgeFadeRow(
     modifier: Modifier = Modifier,
     state: ScrollState,
     // alignments
@@ -479,7 +479,7 @@ fun EdgeFadeRow(
 // LAZY LISTS
 
 @Composable
-fun EdgeFadeIndexedLazyColumn(
+public fun EdgeFadeIndexedLazyColumn(
     modifier: Modifier = Modifier,
     state: IndexedLazyListState,
     // alignments
@@ -559,7 +559,7 @@ fun EdgeFadeIndexedLazyColumn(
 }
 
 @Composable
-fun EdgeFadeIndexedLazyRow(
+public fun EdgeFadeIndexedLazyRow(
     modifier: Modifier = Modifier,
     state: IndexedLazyListState,
     // alignments
@@ -639,7 +639,7 @@ fun EdgeFadeIndexedLazyRow(
 }
 
 @Composable
-fun EdgeFadeLazyVerticalGrid(
+public fun EdgeFadeLazyVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyGridState,
     columns: Int,
@@ -721,7 +721,7 @@ fun EdgeFadeLazyVerticalGrid(
 }
 
 @Composable
-fun EdgeFadeLazyStaggeredVerticalGrid(
+public fun EdgeFadeLazyStaggeredVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState,
     columns: Int,

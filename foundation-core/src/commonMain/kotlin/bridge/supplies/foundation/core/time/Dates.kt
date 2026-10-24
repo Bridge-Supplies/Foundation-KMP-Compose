@@ -14,7 +14,7 @@ import kotlin.time.Instant
 
 // DATE/TIME
 
-fun getDateDisplay(
+public fun getDateDisplay(
     date: LocalDate
 ): String {
     val month = date.month.name.lowercase().replaceFirstChar { it.uppercase() }
@@ -24,29 +24,29 @@ fun getDateDisplay(
 }
 
 @OptIn(ExperimentalTime::class)
-fun getDateTime(timeMs: Long): LocalDate {
+public fun getDateTime(timeMs: Long): LocalDate {
     return Instant.fromEpochMilliseconds(timeMs).toLocalDateTime(TimeZone.UTC).date
 }
 
 @OptIn(ExperimentalTime::class)
-fun getTodayDate(): LocalDate {
+public fun getTodayDate(): LocalDate {
     return Clock.System.todayIn(TimeZone.currentSystemDefault())
 }
 
 @OptIn(ExperimentalTime::class)
-fun getTodayUtcMs(): Long {
+public fun getTodayUtcMs(): Long {
     val today = getTodayDate()
     return today.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
 }
 
-fun getDaysSinceBirth(birthdayTimeMs: Long): Int {
+public fun getDaysSinceBirth(birthdayTimeMs: Long): Int {
     val today = getTodayUtcMs()
     val daysSinceBirth = daysBetween(today, birthdayTimeMs) + 1
     return daysSinceBirth
 }
 
 @OptIn(ExperimentalTime::class)
-fun daysBetween(startMs: Long, endMs: Long): Int {
+public fun daysBetween(startMs: Long, endMs: Long): Int {
     val startInstant = Instant.fromEpochMilliseconds(min(startMs, endMs))
     val endInstant = Instant.fromEpochMilliseconds(max(startMs, endMs))
     return startInstant.daysUntil(endInstant, timeZone = TimeZone.currentSystemDefault())

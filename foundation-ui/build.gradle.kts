@@ -16,7 +16,7 @@ compose.resources {
 }
 
 kotlin {
-    explicitApiWarning() // becomes explicitApi() (errors) once the public API settles
+    explicitApi()
     
     android {
         namespace = "bridge.supplies.foundation.ui"

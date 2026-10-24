@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import qrcode.QRCode
 import bridge.supplies.foundation.ui.util.bitmapFromBytes
 
-fun generateQrCode(
+public fun generateQrCode(
     text: String,
     colorRgb: Int,
     backgroundColorRgb: Int
@@ -35,7 +35,7 @@ fun generateQrCode(
 }
 
 @Composable
-fun CodeDisplay(
+public fun CodeDisplay(
     modifier: Modifier = Modifier,
     text: String,
     color: Color,
@@ -66,7 +66,7 @@ fun CodeDisplay(
 }
 
 @Composable
-fun QrCodeCard(
+public fun QrCodeCard(
     modifier: Modifier = Modifier,
     qrBitmap: ImageBitmap,
     cardColor: Color

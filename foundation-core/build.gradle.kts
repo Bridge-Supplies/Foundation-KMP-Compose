@@ -10,7 +10,7 @@ group = "bridge.supplies.foundation"
 version = libs.versions.app.versionName.get()
 
 kotlin {
-    explicitApiWarning() // becomes explicitApi() (errors) once the public API settles
+    explicitApi()
     
     android {
         namespace = "bridge.supplies.foundation.core"
