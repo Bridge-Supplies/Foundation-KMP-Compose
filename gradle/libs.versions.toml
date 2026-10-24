@@ -11,7 +11,7 @@ android-minSdk = "28"
 android-targetSdk = "36"
 android-compileSdk = "36"
 #packages
-agp = "8.13.0"
+agp = "8.13.2"
 junit = "4.13.2"
 kotlin = "2.2.20"
 kotlinx-datetime = "0.7.1-0.6.x-compat"
