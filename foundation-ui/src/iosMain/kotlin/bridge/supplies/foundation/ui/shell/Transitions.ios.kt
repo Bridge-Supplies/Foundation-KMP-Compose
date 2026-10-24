@@ -23,6 +23,9 @@ actual val TRANSITION_EXIT_MS = 300
 actual val TRANSITION_EASING = LinearOutSlowInEasing
 actual val TRANSITION_OFFSET_DIV = 4
 
+internal actual val RAIL_VERTICALLY_CENTERED = true
+internal actual val CENTER_TOP_BAR_TITLE = true
+
 actual fun ScreenEnterTransition(): EnterTransition =
     slideInHorizontally(
         initialOffsetX = { it },

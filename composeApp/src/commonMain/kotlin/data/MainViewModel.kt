@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import ui.AppBarAction
 import ui.sheets.ActiveBottomSheet
 
 class MainViewModel(
@@ -46,11 +45,7 @@ class MainViewModel(
     private val _currentBottomSheet: MutableStateFlow<ActiveBottomSheet> = MutableStateFlow(ActiveBottomSheet.None)
     var currentBottomSheet = _currentBottomSheet.asStateFlow()
         private set
-    
-    private val _activeAppBarAction = MutableStateFlow<AppBarAction?>(null)
-    var activeAppBarAction = _activeAppBarAction.asStateFlow()
-        private set
-    
+
     private val _licenses = MutableStateFlow(LicenseMap())
     var licenses = _licenses.asStateFlow()
         private set
@@ -261,17 +256,6 @@ class MainViewModel(
     
     fun showShareSheet() {
         setBottomSheet(ActiveBottomSheet.ShareApp)
-    }
-    
-    
-    // APP BAR ACTIONS
-    
-    fun startAppBarAction(action: AppBarAction) {
-        _activeAppBarAction.value = action
-    }
-    
-    fun consumeAppBarAction() {
-        _activeAppBarAction.value = null
     }
     
     
