@@ -36,26 +36,33 @@ tasks.named("preBuild") {
     dependsOn("prepareLicenseReport")
 }
 
-fun getKeystoreProperties(): Properties {
+// keystore.properties is optional: without it the build uses a dev-only encryption key
+// and skips the release signing config (see README > Publishing).
+fun getKeystoreProperties(): Properties? {
     val keystorePropertiesFile = rootProject.file("keystore.properties")
-    val keystoreProperties = Properties()
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-    return keystoreProperties
+    if (!keystorePropertiesFile.exists()) return null
+    return Properties().apply { FileInputStream(keystorePropertiesFile).use { load(it) } }
 }
+
+// Dev-only fallback. Must be exactly 16 bytes (used as the AES key and IV). Never ship it.
+val devEncryptionKey = "BridgeDevKey0016"
 
 buildConfig {
     val keystoreProperties = getKeystoreProperties()
+    if (keystoreProperties == null) {
+        logger.warn("keystore.properties not found: using the dev-only encryption key; release signing is disabled.")
+    }
     
     packageName(libs.versions.app.packageName.get())
     buildConfigField("APP_VERSION", libs.versions.app.versionName.get())
     buildConfigField("APP_BUILD", libs.versions.app.versionCode.get())
-    buildConfigField("ENCRYPTION_KEY", keystoreProperties["encryptionKey"] as String)
+    buildConfigField("ENCRYPTION_KEY", keystoreProperties?.getProperty("encryptionKey") ?: devEncryptionKey)
 }
 
 kotlin {
     androidTarget()
     jvm("desktop")
-    tasks.register("testClasses")
+    tasks.register("testClasses") // Android Studio workaround: lets the IDE run KMP tests
     
     sourceSets {
         commonTest.dependencies {
@@ -87,9 +94,6 @@ kotlin {
             implementation(libs.soywiz.korlibs.compression)
             implementation(libs.material.kolor)
             implementation(libs.g0dkar.qrcode.kotlin)
-            
-            // TESTING
-            implementation(libs.junit)
         }
         
         androidMain.dependencies {
@@ -134,7 +138,6 @@ kotlin {
     
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
@@ -145,13 +148,13 @@ android {
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
     
     signingConfigs {
-        create("release") {
-            val keystoreProperties = getKeystoreProperties()
-            
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
+        getKeystoreProperties()?.let { keystoreProperties ->
+            create("release") {
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
         }
     }
     
