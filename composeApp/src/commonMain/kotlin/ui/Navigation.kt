@@ -9,7 +9,7 @@ import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material.icons.outlined.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import bridge.supplies.foundation.core.platform.browseWeb
+import bridge.supplies.foundation.core.platform.openUrl
 import bridge.supplies.foundation.ui.about.AboutConfig
 import bridge.supplies.foundation.ui.about.FoundationAboutScreen
 import bridge.supplies.foundation.ui.settings.FoundationSettingsScreen
@@ -179,7 +179,7 @@ fun EntryProviderScope<NavKey>.appEntries(
         FoundationAboutScreen(
             AboutConfig(
                 licensesJson = { Res.readBytes("files/json/licenses.json") },
-                onVersionClick = { browseWeb("https://www.youtube.com/shorts/lCJo8vhmIdc") }
+                onVersionClick = { openUrl("https://www.youtube.com/shorts/lCJo8vhmIdc") }
             )
         )
     }

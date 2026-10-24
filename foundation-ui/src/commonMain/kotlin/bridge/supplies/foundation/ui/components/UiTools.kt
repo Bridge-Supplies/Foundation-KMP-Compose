@@ -1007,11 +1007,23 @@ object PastOrPresentSelectableDates : SelectableDates {
     override fun isSelectableYear(year: Int): Boolean = year <= getTodayDate().year
 }
 
+/**
+ * A date picker in a card. [title] replaces the headline text (default: the selected date, e.g. "Birthday: …"),
+ * and [trailing] adds content after it, e.g. an icon for the selected date.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerCard(
     modifier: Modifier = Modifier,
-    datePickerState: DatePickerState
+    datePickerState: DatePickerState,
+    title: @Composable (selectedDateMs: Long?) -> String = { dateMs ->
+        if (dateMs != null) {
+            getDateDisplay(getDateTime(dateMs))
+        } else {
+            stringResource(Res.string.invalid_date)
+        }
+    },
+    trailing: (@Composable (selectedDateMs: Long?) -> Unit)? = null
 ) {
     Card(
         modifier = modifier,
@@ -1026,23 +1038,24 @@ fun DatePickerCard(
             title = null,
             headline = {
                 val dateMs = datePickerState.selectedDateMillis
-                val dateText = if (dateMs != null) {
-                    getDateDisplay(getDateTime(dateMs))
-                } else {
-                    stringResource(Res.string.invalid_date)
-                }
                 
                 Row(
                     modifier = Modifier
-                        .padding(start = 24.dp)
+                        .padding(start = 24.dp, end = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = dateText,
+                        text = title(dateMs),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                             .animateContentSize()
                     )
+                    
+                    if (trailing != null) {
+                        Spacer(Modifier.weight(1f))
+                        trailing(dateMs)
+                    }
                 }
             }
         )

@@ -30,7 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import bridge.supplies.foundation.core.platform.browseWeb
+import bridge.supplies.foundation.core.platform.openUrl
 import bridge.supplies.foundation.ui.components.BottomButton
 import bridge.supplies.foundation.ui.components.ClickableIcon
 import bridge.supplies.foundation.ui.components.EdgeFadeIndexedLazyColumn
@@ -161,7 +161,7 @@ public fun FoundationAboutScreen(
                                 contentDescription = licenseTitle
                             ) {
                                 hapticFeedback()
-                                browseWeb(licenseUrl)
+                                openUrl(licenseUrl)
                             }
                         }
                     }
@@ -173,7 +173,7 @@ public fun FoundationAboutScreen(
                         license = license,
                         onViewModuleUrl = { url ->
                             hapticFeedback()
-                            browseWeb(url)
+                            openUrl(url)
                         }
                     )
                 }
@@ -196,7 +196,7 @@ public fun FoundationAboutScreen(
                 )
             ) {
                 hapticFeedback()
-                browseWeb(FOUNDATION_URL)
+                openUrl(FOUNDATION_URL)
             }
         }
     }

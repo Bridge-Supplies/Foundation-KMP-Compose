@@ -32,7 +32,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import bridge.supplies.foundation.core.platform.PlatformFeature
-import bridge.supplies.foundation.core.platform.systemAppSettings
+import bridge.supplies.foundation.core.platform.openAppSettings
 import bridge.supplies.foundation.core.settings.EnumSetting
 import bridge.supplies.foundation.core.settings.SettingKey
 import bridge.supplies.foundation.ui.components.BottomButton
@@ -139,7 +139,7 @@ public fun FoundationSettingsScreen(
     TopBarActions(
         listOf(
             TopBarAction(Icons.Default.Settings, Res.string.action_settings) {
-                systemAppSettings()
+                openAppSettings()
                 hapticFeedback()
             }
         )
