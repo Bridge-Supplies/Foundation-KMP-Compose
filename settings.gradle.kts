@@ -33,4 +33,6 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
+include(":composeApp") // shared KMP library: demo app UI + Foundation code
+include(":androidApp") // Android entry point
+include(":desktopApp") // Desktop (JVM) entry point

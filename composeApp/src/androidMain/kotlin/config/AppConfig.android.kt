@@ -80,10 +80,15 @@ fun ComponentActivity.showSystemUI(show: Boolean) {
 
 // Koin modules
 
+/** Application context, captured when the app module initializes Foundation via [KoinInitializer]. */
+lateinit var appContext: Context
+    private set
+
 actual class KoinInitializer(
     private val context: Context
 ) {
     actual fun init() {
+        appContext = context.applicationContext
         startKoin {
             androidContext(context)
             androidLogger()

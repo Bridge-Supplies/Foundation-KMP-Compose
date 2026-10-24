@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -35,7 +34,8 @@ import foundation.composeapp.generated.resources.generate_qr_code_text
 import foundation.composeapp.generated.resources.scanner_button_text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import ui.AppBarAction
 import ui.FloatingButton
@@ -43,6 +43,8 @@ import ui.QrCodeCard
 import ui.Screen
 import ui.TextInput
 import ui.generateQrCode
+
+private const val QR_GENERATION_DEBOUNCE_MS = 300L
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -52,7 +54,6 @@ fun ShareCodeScreen(
     onNavigateToScanner: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
-    val coroutineScope = rememberCoroutineScope()
     val appBarAction by viewModel.activeAppBarAction.collectAsState()
     val sharedText by viewModel.sharedText.collectAsState()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
@@ -62,22 +63,23 @@ fun ShareCodeScreen(
     val color = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.onPrimary
     
+    // Each keystroke restarts this effect, cancelling any in-flight generation,
+    // so only the latest text is encrypted and rendered once typing pauses.
     LaunchedEffect(sharedText, useEncryptedShare, color, backgroundColor) {
-        coroutineScope.launch(Dispatchers.Default) {
-            if (sharedText.isBlank()) {
-                viewModel.clearQr()
-            } else {
-                val newProcessedText = SharedData.prepare(sharedText, useEncryptedShare)
-                if (newProcessedText != null && newProcessedText != qrProcessedText) {
-                    
-                    val generatedQrBitmap = generateQrCode(
-                        text = newProcessedText,
-                        colorRgb = color.toArgb(),
-                        backgroundColorRgb = backgroundColor.toArgb()
-                    )
-                    
-                    viewModel.setQr(newProcessedText, generatedQrBitmap)
-                }
+        if (sharedText.isBlank()) {
+            viewModel.clearQr()
+            return@LaunchedEffect
+        }
+        delay(QR_GENERATION_DEBOUNCE_MS)
+        withContext(Dispatchers.Default) {
+            val newProcessedText = SharedData.prepare(sharedText, useEncryptedShare)
+            if (newProcessedText != null && newProcessedText != qrProcessedText) {
+                val generatedQrBitmap = generateQrCode(
+                    text = newProcessedText,
+                    colorRgb = color.toArgb(),
+                    backgroundColorRgb = backgroundColor.toArgb()
+                )
+                viewModel.setQr(newProcessedText, generatedQrBitmap)
             }
         }
     }

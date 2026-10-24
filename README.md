@@ -68,8 +68,8 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 
 ## Project structure
 
-* `/composeApp/src` contains all shared Compose Multiplatform applications code:
-  - `build.gradle.kts` declares per-platform package dependencies and signing configurations
+* `/composeApp` is the shared Kotlin Multiplatform library (`com.android.kotlin.multiplatform.library`) with all shared Compose Multiplatform code:
+  - `build.gradle.kts` declares targets and per-platform dependencies
   - `/commonMain` is shared with all platforms.
     - `/composeResources` contains `.xml` resources like `strings.xml`
     - `App.kt` contains shared Compose UI with `Koin` and `Material`
@@ -80,15 +80,20 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
     - `MainViewModel.kt` contains the `ViewModel` and `DataStore` implementations injected with `Koin`
     - `Navigation.kt` and `/ui` contain Composable definitions for each screen
   - `/androidMain` is for Android-specific code.
-    - `Foundation.android.kt` is the `Application` definition to initialize libraries (Koin)
-    - `MainActivity.kt` displays the shared `App` Composable
     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
   - `/iosMain` is for iOS-specific code.
     - `MainViewController.kt` initializes libraries (Koin) and displays shared `App` Composable
     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
   - `/desktopMain` is for JVM-specific code.
-    - `bridge/supplies/foundation/Foundation.desktop.kt` contains the `main()` class to initialize libraries (Koin) and display shared `App` Composable
-     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
+    - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
+* `/androidApp` is the Android application (AGP 9 requires it to be separate from the KMP library):
+  - `build.gradle.kts` declares the application ID, versions, signing and build types
+  - `src/main/AndroidManifest.xml`, launcher icons in `src/main/res`
+  - `Foundation.kt` is the `Application` definition to initialize libraries (Koin)
+  - `MainActivity.kt` displays the shared `App` Composable
+* `/desktopApp` is the desktop (JVM) application:
+  - `build.gradle.kts` declares the main class and native distributions (DMG, etc.)
+  - `Foundation.kt` contains the `main()` class to initialize libraries (Koin) and display the shared `App` Composable
 * `/iosApp` contains the iOS Xcode project files.
   - `Config.xcconfig` declares iOS package and app name
   - `ContentView.swift` displays the `MainViewController`'s implementation of the shared `App` Composable
@@ -107,7 +112,7 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 ### Before building
 * Rename package name and directories
   - `bridge.supplies.foundation` to your package name
-  - ie `/composeApp/src/androidMain/kotlin/bridge/supplies/foundation`
+  - ie `/androidApp/src/main/kotlin/bridge/supplies/foundation` and `/desktopApp/src/main/kotlin/bridge/supplies/foundation`
 * Create `keystore.properties` file in root directory
   - example in [Publishing](#publishing)
 * Find + Replace All some values
@@ -127,8 +132,8 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 * Update `strings.xml`
   - `app_name` to your app name
 * Update Android and Desktop Application classes
-  - `Foundation.android.kt` to `YourAppName.android.kt`
-  - `Foundation.desktop.kt` to `YourAppName.desktop.kt` (keep it in your package directory, with a matching `package` line)
+  - `androidApp/.../Foundation.kt` to `YourAppName.kt`
+  - `desktopApp/.../Foundation.kt` to `YourAppName.kt` (keep it in your package directory, with a matching `package` line)
 * Update `AndroidManifest.xml`
   - <application `android:name`/> = the full package name + Application class name
     - ie `bridge.supplies.foundation.Foundation`
@@ -145,7 +150,7 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 
 ### After a successful Android build
 * Update run configurations
-  - Delete extra `composeApp` (Android) and `iosApp` configs
+  - Delete extra auto-generated `androidApp` and `iosApp` configs
   - Update Desktop config to use correct Main Application class name, ie: `app-name` value
 * Update `README.md`, if applicable
 * Update `AppConfig`
@@ -164,11 +169,11 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
     - `ic_launcher_foreground.xml`
     - `ic_launcher_background.xml`
 - Android
-  - `composeApp/src/androidMain/kotlin/res/drawable` (needed for icon generation)
+  - `androidApp/src/main/res/drawable` (needed for icon generation)
     - `ic_launcher_foreground.xml`
     - `ic_launcher_background.xml`
     - `ic_launcher_monochrome.xml` ([if needed](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive))
-  - `composeApp/src/androidMain/kotlin/res/mipmap`
+  - `androidApp/src/main/res/mipmap`
     - `ic_launcher.xml`
 - iOS
   - `iosApp/Assets.xcassets/AppIcon.appiconset`
@@ -187,11 +192,11 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 
 ### Run configurations
 - `Android`
-  - using `Foundation.composeApp.main` module
+  - using the `Foundation.androidApp` module
 - `iOS`
   - using `iosApp.xcodeproj` project file
 - `Desktop`
-  - runs `./gradlew :composeApp:run`
+  - runs `./gradlew :desktopApp:run`
   - the main class is `app-packageName` + `.` + `app-name` from `libs.versions.toml`, so the desktop entry class must use that package and name
 
 ### Publishing

@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.core.net.toUri
-import bridge.supplies.foundation.Foundation
+import config.appContext
 import java.util.UUID
 
 actual fun bitmapFromBytes(bytes: ByteArray): ImageBitmap {
@@ -24,16 +24,16 @@ actual fun browseWeb(
     val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
-    Foundation.instance.startActivity(intent, null)
+    appContext.startActivity(intent, null)
     return true
 }
 
 actual fun systemAppSettings() {
     val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        data = Uri.fromParts("package", Foundation.instance.packageName, null)
+        data = Uri.fromParts("package", appContext.packageName, null)
     }
-    Foundation.instance.startActivity(intent, null)
+    appContext.startActivity(intent, null)
 }
 
 actual suspend fun setClipboardText(clipboard: Clipboard, text: String) {

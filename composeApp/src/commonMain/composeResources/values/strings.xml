@@ -11,8 +11,8 @@
     <string name="app_date_today">Today's date: %1$s</string>
     <string name="app_date_selected">Selected date: %1$s</string>
     <string name="app_days_between">Days between: %1$s</string>
-    <string name="app_about_build">Version</string>
-    <string name="app_about_version">Build</string>
+    <string name="app_about_build">Build</string>
+    <string name="app_about_version">Version</string>
     <string name="app_about_platform">Platform: %1$s</string>
 
     <string name="tab_home_title">Home</string>
