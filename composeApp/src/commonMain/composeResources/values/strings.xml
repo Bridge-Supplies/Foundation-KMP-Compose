@@ -1,6 +1,5 @@
 <resources>
     <string name="developer_name">Bridge Supplies</string>
-    <string name="tag_built_with_foundation">Built with Foundation</string>
     <!-- Version information overwritten by Gradle -->
     <string name="app_name">Foundation</string>
     <string name="app_version"></string>
@@ -11,8 +10,6 @@
     <string name="app_date_today">Today's date: %1$s</string>
     <string name="app_date_selected">Selected date: %1$s</string>
     <string name="app_days_between">Days between: %1$s</string>
-    <string name="app_about_build">Build</string>
-    <string name="app_about_version">Version</string>
     <string name="app_about_platform">Platform: %1$s</string>
 
     <string name="tab_home_title">Home</string>
@@ -31,20 +28,11 @@
     <string name="screen_about_title">About</string>
 
     <!--  Foundation  -->
-    <string name="landing_tip_dark_mode">This device supports automatic\nlight/dark mode in Settings.</string>
-    <string name="landing_tip_theme_colors">When manually setting a color theme,\nyou can pick the color's intensity.</string>
     <!--  tied to feature  -->
-    <string name="landing_tip_fullscreen_landscape">If landscape orientation is cramped,\nenable fullscreen mode in Settings.</string>
-    <string name="landing_tip_dynamic_colors">This device supports adaptive color theming.\nLook for "Auto" in Settings.</string>
-    <string name="landing_tip_vibration">Prefer no vibrations?\nDisable haptic feedback in Settings.</string>
-    <string name="landing_tip_code_scanning">You can read messages by scanning\nshared QR codes with the camera.</string>
-    <string name="landing_tip_code_importing">You can import messages\nby scanning stored images.</string>
-    <string name="landing_tip_app_sharing">Friend doesn't have the app?\nThey can scan the download link from your Share tab.</string>
 
     <string name="generate_qr_code_text">Text to share</string>
     <string name="generate_qr_code_encrypted_text">Encrypted text to share</string>
     <string name="share_button_text">Share app</string>
-    <string name="share_sheet_copy_text">Copy to clipboard</string>
     <string name="scanner_button_text">Scan code</string>
     <string name="generate_button_text">Generate code</string>
     <string name="import_button_text">Import code</string>
@@ -55,44 +43,7 @@
     <string name="scanner_error_action">Try again</string>
     <string name="scanner_done">Done</string>
 
-    <string name="app_settings_title">System</string>
-    <string name="app_settings_landing_tips_title">Show tips on app launch</string>
-    <string name="app_settings_landing_tips_subtitle">Learn about features when opening the app</string>
-    <string name="app_settings_fullscreen_landscape_title">Fullscreen landscape</string>
-    <string name="app_settings_fullscreen_landscape_subtitle">Horizontal orientation hides system UI</string>
-    <string name="app_settings_vibration_title">Haptic feedback</string>
-    <string name="app_settings_vibration_subtitle">Interactions can vibrate the device</string>
-    <string name="app_settings_scroll_helpers_title">Use scroll helpers</string>
-    <string name="app_settings_scroll_helpers_subtitle">Enable buttons to scroll horizontal content</string>
-    <string name="app_settings_encryption_title">Encrypted sharing</string>
-    <string name="app_settings_encryption_subtitle">Use encryption when generating QR codes</string>
-    <string name="app_settings_expressive_animation_title">Use Expressive animation</string>
-    <string name="app_settings_expressive_animation_subtitle">Enable the latest Material 3 motion scheme</string>
 
-    <string name="theme_settings_title">Theming</string>
-    <string name="theme_settings_color_theme_title">Color</string>
-    <string name="theme_settings_color_theme_subtitle">Match system colors or select a preset</string>
-    <string name="theme_settings_color_theme_subtitle_no_dynamic_colors">Select a color or go monochrome</string>
-    <string name="theme_settings_color_theme_auto">Auto</string>
-    <string name="theme_settings_color_theme_red">Fire</string>
-    <string name="theme_settings_color_theme_green">Earth</string>
-    <string name="theme_settings_color_theme_blue">Water</string>
-    <string name="theme_settings_color_theme_off">Air</string>
-    <string name="theme_settings_dark_mode_title">Dark mode</string>
-    <string name="theme_settings_dark_mode_subtitle">Match system dark mode or force an option</string>
-    <string name="theme_settings_dark_mode_auto">Auto</string>
-    <string name="theme_settings_dark_mode_light">Light</string>
-    <string name="theme_settings_dark_mode_dark">Dark</string>
-    <string name="theme_settings_dark_mode_amoled">Darkest</string>
-    <string name="theme_settings_palette_title">Palette</string>
-    <string name="theme_settings_palette_subtitle">Modify the intensity of colors</string>
-    <string name="theme_settings_palette_neutral">Neutral</string>
-    <string name="theme_settings_palette_spot">Spot</string>
-    <string name="theme_settings_palette_tinted">Tinted</string>
-    <string name="theme_settings_palette_bold">Bold</string>
-    <string name="settings_about_app_title">Application</string>
-    <string name="settings_about_licenses_title">Licenses</string>
-    <string name="settings_about_licenses_unknown">Unknown</string>
 
     <string name="navigation_home_date">Datetime, BottomSheet, NavArgs</string>
     <string name="navigation_home_date_select">Select a date</string>
@@ -100,14 +51,12 @@
     <string name="navigation_home_rows">Rows, Scroll Helpers</string>
     <string name="navigation_home_lazy_toggle">Lazy loading</string>
     <string name="navigation_home_grids">Grids, Staggered</string>
+    <string name="app_settings_scroll_helpers_title">Use scroll helpers</string>
+    <string name="app_settings_scroll_helpers_subtitle">Enable buttons to scroll horizontal content</string>
     <string name="navigation_home_staggered_toggle">Staggered grid</string>
-    <string name="navigation_settings_about">About app</string>
     <string name="navigation_back">Back</string>
-    <string name="navigation_close">Close</string>
-    <string name="navigation_confirm">Confirm</string>
     <string name="navigation_cancel">Cancel</string>
 
     <string name="action_share">Share app</string>
-    <string name="action_settings">System settings</string>
 
 </resources>

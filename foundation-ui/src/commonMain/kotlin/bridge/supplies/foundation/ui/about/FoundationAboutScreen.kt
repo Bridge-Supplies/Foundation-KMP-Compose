@@ -1,4 +1,4 @@
-package ui.settings
+package bridge.supplies.foundation.ui.about
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -21,25 +21,16 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import data.License
-import data.MainViewModel
-import foundation.composeapp.generated.resources.Res
-import foundation.composeapp.generated.resources.app_about_build
-import foundation.composeapp.generated.resources.app_about_version
-import foundation.composeapp.generated.resources.app_name
-import foundation.composeapp.generated.resources.settings_about_licenses_unknown
-import foundation.composeapp.generated.resources.tag_built_with_foundation
-import org.jetbrains.compose.resources.stringResource
-import bridge.supplies.foundation.core.platform.browseWeb
+import bridge.supplies.foundation.core.platform.openUrl
 import bridge.supplies.foundation.ui.components.BottomButton
 import bridge.supplies.foundation.ui.components.ClickableIcon
 import bridge.supplies.foundation.ui.components.EdgeFadeIndexedLazyColumn
@@ -49,15 +40,46 @@ import bridge.supplies.foundation.ui.components.StickyHeader
 import bridge.supplies.foundation.ui.components.TitledCard
 import bridge.supplies.foundation.ui.components.rememberIndexedLazyListState
 import bridge.supplies.foundation.ui.components.rememberNestedScrollConnection
+import bridge.supplies.foundation.ui.foundationViewModel
+import bridge.supplies.foundation.ui.rememberHapticFeedback
+import bridge.supplies.foundation.ui.resources.Res
+import bridge.supplies.foundation.ui.resources.app_about_build
+import bridge.supplies.foundation.ui.resources.app_about_version
+import bridge.supplies.foundation.ui.resources.settings_about_licenses_unknown
+import bridge.supplies.foundation.ui.resources.tag_built_with_foundation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.stringResource
 
+private const val FOUNDATION_URL = "https://github.com/Bridge-Supplies/Foundation-KMP-Compose"
+
+public class AboutConfig(
+    /**
+     * The license report JSON generated in the app's shared module (jk1 license-report), e.g.
+     * `{ Res.readBytes("files/json/licenses.json") }`. It covers Foundation's dependencies and the app's.
+     */
+    public val licensesJson: suspend () -> ByteArray,
+    /** Called when the version row is tapped (an easter egg, for example). */
+    public val onVersionClick: (() -> Unit)? = null,
+    /** Extra rows in the app card, below version and build. */
+    public val extraContent: (@Composable () -> Unit)? = null,
+)
+
+/** App name, version and build, then the open source licenses grouped by license, and a "Built with Foundation" link. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SettingsAboutScreen(
-    viewModel: MainViewModel,
-    hapticFeedback: () -> Unit
+public fun FoundationAboutScreen(
+    config: AboutConfig
 ) {
     val horPaddingMod = Modifier.padding(horizontal = 16.dp)
-    val licenses by viewModel.licenses.collectAsState()
+    val viewModel = foundationViewModel()
+    val hapticFeedback = rememberHapticFeedback()
+    val licenses by produceState(LicenseMap()) {
+        value = withContext(Dispatchers.Default) { loadLicenses(config.licensesJson()) }
+    }
     val listState = rememberIndexedLazyListState()
     
     var bottomButtonsVisible by remember { mutableStateOf(true) }
@@ -81,20 +103,26 @@ fun SettingsAboutScreen(
             item {
                 TitledCard(
                     modifier = horPaddingMod,
-                    title = stringResource(Res.string.app_name)
+                    title = viewModel.config.appName
                 ) {
                     OptionDetailText(
                         modifier = Modifier
-                            .clickable {
-                                hapticFeedback()
-                                browseWeb("https://www.youtube.com/shorts/lCJo8vhmIdc")
-                            }
+                            .then(
+                                if (config.onVersionClick != null) {
+                                    Modifier.clickable {
+                                        hapticFeedback()
+                                        config.onVersionClick.invoke()
+                                    }
+                                } else {
+                                    Modifier
+                                }
+                            )
                             .padding(
                                 vertical = 8.dp,
                                 horizontal = 16.dp
                             ),
                         title = stringResource(Res.string.app_about_version),
-                        subtitle = viewModel.platform.version,
+                        subtitle = viewModel.config.version,
                     )
                     
                     OptionDetailText(
@@ -104,8 +132,10 @@ fun SettingsAboutScreen(
                                 horizontal = 16.dp
                             ),
                         title = stringResource(Res.string.app_about_build),
-                        subtitle = viewModel.platform.build,
+                        subtitle = viewModel.config.build,
                     )
+                    
+                    config.extraContent?.invoke()
                     
                     Spacer(Modifier.height(8.dp))
                 }
@@ -131,7 +161,7 @@ fun SettingsAboutScreen(
                                 contentDescription = licenseTitle
                             ) {
                                 hapticFeedback()
-                                browseWeb(licenseUrl)
+                                openUrl(licenseUrl)
                             }
                         }
                     }
@@ -143,7 +173,7 @@ fun SettingsAboutScreen(
                         license = license,
                         onViewModuleUrl = { url ->
                             hapticFeedback()
-                            browseWeb(url)
+                            openUrl(url)
                         }
                     )
                 }
@@ -166,14 +196,14 @@ fun SettingsAboutScreen(
                 )
             ) {
                 hapticFeedback()
-                browseWeb("https://github.com/Bridge-Supplies/Foundation-KMP-Compose")
+                openUrl(FOUNDATION_URL)
             }
         }
     }
 }
 
 @Composable
-fun LicenseCard(
+private fun LicenseCard(
     modifier: Modifier = Modifier,
     license: License,
     onViewModuleUrl: (String) -> Unit
@@ -201,3 +231,38 @@ fun LicenseCard(
         }
     }
 }
+
+
+// Licenses (jk1 license-report JSON)
+
+@Serializable
+private data class License(
+    val moduleName: String = "",
+    val moduleUrl: String = "",
+    val moduleVersion: String = "",
+    val moduleLicense: String = "",
+    val moduleLicenseUrl: String = ""
+)
+
+@Serializable
+private data class LicenseList(
+    @SerialName("dependencies") val licenses: List<License> = emptyList()
+)
+
+private data class LicenseMap(
+    val mapping: Map<String, List<License>> = emptyMap()
+)
+
+private val licenseJson = Json { ignoreUnknownKeys = true }
+
+private fun loadLicenses(bytes: ByteArray): LicenseMap = LicenseMap(
+    licenseJson.decodeFromString<LicenseList>(bytes.decodeToString()).licenses
+        .sortedBy {
+            it.moduleName
+        }
+        .groupBy {
+            it.moduleLicenseUrl
+                .replaceFirst(oldValue = "https://", newValue = "")
+                .replaceFirst(oldValue = "http://", newValue = "")
+        }
+)

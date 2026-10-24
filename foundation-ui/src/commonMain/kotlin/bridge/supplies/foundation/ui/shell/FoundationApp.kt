@@ -37,6 +37,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +47,6 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.EntryProviderScope
@@ -55,13 +55,30 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import bridge.supplies.foundation.ui.components.ClickableIcon
+import bridge.supplies.foundation.ui.FoundationViewModel
+import bridge.supplies.foundation.ui.foundationViewModel
+import bridge.supplies.foundation.ui.isPortrait
+import bridge.supplies.foundation.ui.rememberHapticFeedback
+import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
+import bridge.supplies.foundation.ui.sheets.SheetContent
+import bridge.supplies.foundation.ui.sheets.SheetHost
+import bridge.supplies.foundation.ui.theme.FoundationTheme
+import bridge.supplies.foundation.ui.theme.ThemeConfig
 import bridge.supplies.foundation.ui.resources.Res
 import bridge.supplies.foundation.ui.resources.navigation_back
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 /** What [FoundationApp] shows before the tabs. */
 public sealed interface Landing {
     public data object None : Landing
+    
+    /** The app [icon] and name, with a random tip (Foundation's plus [extraTips]) when tips are enabled. */
+    public class Default(
+        public val icon: DrawableResource,
+        public val extraTips: List<StringResource> = emptyList(),
+    ) : Landing
 
     /** App-drawn landing (e.g. onboarding). Call `onDone` to continue to the first tab. */
     public class Custom(public val content: @Composable (onDone: () -> Unit) -> Unit) : Landing
@@ -81,13 +98,13 @@ public val LocalSnackbarHostState: ProvidableCompositionLocal<SnackbarHostState>
 /**
  * The app shell: tabs with one back stack each, a top bar, and a bottom bar (portrait) or rail (landscape).
  *
+ * Applies [FoundationTheme] and reads Foundation's settings (fullscreen landscape, haptics) from [FoundationViewModel].
+ *
  * @param tabs top-level destinations, the first one is the start tab
  * @param routes serializers for every route used in [entries]
- * @param fullscreenLandscape hide the system bars in landscape
  * @param onShowSystemUi called with whether the system bars should show
  * @param onCloseApplication called on back from the start tab's root
- * @param onHapticFeedback called on tab selection and back navigation
- * @param overlay drawn above the screens, e.g. bottom sheets
+ * @param sheets content for the app's own [SheetRequest][bridge.supplies.foundation.core.sheets.SheetRequest]s; Foundation draws the sheet
  * @param entries the app's screens: `entry<MyRoute>(metadata = screenMetadata(…)) { route -> … }`
  */
 @Composable
@@ -95,14 +112,32 @@ public fun FoundationApp(
     tabs: List<FoundationTab>,
     routes: RouteRegistry,
     landing: Landing = Landing.None,
+    theme: ThemeConfig = ThemeConfig(),
     shell: ShellOptions = ShellOptions(),
-    fullscreenLandscape: Boolean = false,
     onShowSystemUi: (Boolean) -> Unit = { },
     onCloseApplication: () -> Unit = { },
-    onHapticFeedback: () -> Unit = { },
-    overlay: @Composable () -> Unit = { },
+    sheets: SheetContent = { },
     entries: EntryProviderScope<NavKey>.() -> Unit,
 ) {
+    FoundationTheme(theme) {
+        FoundationShell(tabs, routes, landing, shell, onShowSystemUi, onCloseApplication, sheets, entries)
+    }
+}
+
+@Composable
+private fun FoundationShell(
+    tabs: List<FoundationTab>,
+    routes: RouteRegistry,
+    landing: Landing,
+    shell: ShellOptions,
+    onShowSystemUi: (Boolean) -> Unit,
+    onCloseApplication: () -> Unit,
+    sheets: SheetContent,
+    entries: EntryProviderScope<NavKey>.() -> Unit,
+) {
+    val viewModel = foundationViewModel()
+    val fullscreenLandscape by viewModel.setting(FoundationSettingKeys.fullscreenLandscape).collectAsState()
+    val onHapticFeedback = rememberHapticFeedback()
     val navigator = rememberNavigator(tabs, routes)
     val snackbarHost = remember { SnackbarHostState() }
     val actionHost = remember { TopBarActionHost() }
@@ -117,7 +152,7 @@ public fun FoundationApp(
         }
     }
 
-    val isPortrait = isPortraitWindow()
+    val isPortrait = isPortrait()
     val metadata = provider(navigator.currentRoute).metadata
     val chrome = if (landingDone) metadata.screenChrome else Chrome.Immersive()
     val showBars = chrome is Chrome.Standard
@@ -217,7 +252,11 @@ public fun FoundationApp(
                         .padding(innerPadding)
                 ) { tabId ->
                     if (tabId == null) {
-                        (landing as? Landing.Custom)?.content?.invoke { landingDone = true }
+                        when (landing) {
+                            is Landing.Default -> DefaultLandingScreen(landing) { landingDone = true }
+                            is Landing.Custom -> landing.content { landingDone = true }
+                            Landing.None -> Unit
+                        }
                     } else {
                         // Keeps each tab's screen state while another tab is shown
                         tabStateHolder.SaveableStateProvider(tabId) {
@@ -233,7 +272,7 @@ public fun FoundationApp(
                     }
                 }
 
-                overlay()
+                SheetHost(sheets)
             }
         }
     }
@@ -361,10 +400,4 @@ private fun ShellBottomBar(
             )
         }
     }
-}
-
-@Composable
-internal fun isPortraitWindow(): Boolean {
-    val size = LocalWindowInfo.current.containerSize
-    return size.width <= size.height
 }

@@ -1,48 +1,18 @@
 package config
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalWindowInfo
-import bridge.supplies.foundation.BuildConfig
-import data.DataRepository
 import data.MainViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-
-// System info
-
-actual fun getPlatform() = object : Platform {
-    override val type = PlatformType.DESKTOP
-    override val name = "Java ${System.getProperty("java.version")}"
-    override val version = BuildConfig.APP_VERSION
-    override val build = BuildConfig.APP_BUILD
-    override val shareUrl = "https://github.com/Bridge-Supplies/Foundation-KMP-Compose"
-    override val supportedFeatures = listOf<Feature>()
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-actual fun isPortraitMode(): Boolean {
-    val config = LocalWindowInfo.current.containerSize
-    val pxHeight = config.height.toFloat()
-    val pxWidth = config.width.toFloat()
-    return (pxWidth / pxHeight) <= 1f
-}
-
 
 // Koin modules
 
 actual class KoinInitializer() {
     actual fun init() {
         startKoin {
-            modules(platformModule, viewModelModule, dataStoreModule)
+            modules(viewModelModule, foundationModule)
         }
     }
-}
-
-actual val platformModule = module {
-    single { getPlatform() }
 }
 
 actual val viewModelModule = module {

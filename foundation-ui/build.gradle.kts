@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 group = "bridge.supplies.foundation"
@@ -51,6 +52,15 @@ kotlin {
             api(libs.koin.compose)
             
             implementation(libs.g0dkar.qrcode.kotlin)
+            implementation(libs.material.kolor)
+        }
+        
+        androidMain.dependencies {
+            implementation(libs.androidx.core.ktx)
+        }
+        
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
         
         named("desktopMain") {

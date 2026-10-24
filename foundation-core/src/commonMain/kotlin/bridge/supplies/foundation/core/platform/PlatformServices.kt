@@ -1,7 +1,12 @@
 package bridge.supplies.foundation.core.platform
 
-expect fun randomUuid(): String
+public expect fun randomUuid(): String
 
-expect fun browseWeb(url: String): Boolean
+/**
+ * Opens [url] in the browser, or inside the app when [inApp] is true (Custom Tabs on Android,
+ * SFSafariViewController on iOS; desktop always uses the browser). Returns false if nothing could open it.
+ */
+public expect fun openUrl(url: String, inApp: Boolean = false): Boolean
 
-expect fun systemAppSettings()
+/** Opens this app's page in the system settings (permissions, notifications, …). */
+public expect fun openAppSettings()

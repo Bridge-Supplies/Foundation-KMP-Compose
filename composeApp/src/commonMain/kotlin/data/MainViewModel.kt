@@ -1,28 +1,16 @@
 package data
 
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import config.ColorTheme
-import config.DarkMode
-import config.Feature
-import config.Palette
-import config.Platform
-import config.PlatformType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import ui.sheets.ActiveBottomSheet
 
-class MainViewModel(
-    val platform: Platform,
-    private val repository: DataRepository
-) : ViewModel() {
+/** Demo state. Foundation's settings live in FoundationViewModel. */
+class MainViewModel : ViewModel() {
     
     private fun launch(action: suspend () -> Unit) {
         // define Default to address Desktop build issue of missing Main thread
@@ -39,61 +27,6 @@ class MainViewModel(
     var processedQrBitmap = _processedQrBitmap.asStateFlow()
         private set
     
-    
-    // FOUNDATION
-    
-    private val _currentBottomSheet: MutableStateFlow<ActiveBottomSheet> = MutableStateFlow(ActiveBottomSheet.None)
-    var currentBottomSheet = _currentBottomSheet.asStateFlow()
-        private set
-
-    private val _licenses = MutableStateFlow(LicenseMap())
-    var licenses = _licenses.asStateFlow()
-        private set
-    
-    private val _desktopResolutionX = MutableStateFlow(SettingKeys.desktopResolutionX.default)
-    var desktopResolutionX = _desktopResolutionX.asStateFlow()
-        private set
-    
-    private val _desktopResolutionY = MutableStateFlow(SettingKeys.desktopResolutionY.default)
-    var desktopResolutionY = _desktopResolutionY.asStateFlow()
-        private set
-    
-    private val _useLandingTips = MutableStateFlow(SettingKeys.landingTips.default)
-    var useLandingTips = _useLandingTips.asStateFlow()
-        private set
-    
-    private val _useFullscreenLandscape = MutableStateFlow(SettingKeys.fullscreenLandscape.default)
-    var useFullscreenLandscape = _useFullscreenLandscape.asStateFlow()
-        private set
-    
-    private val _useExpressiveAnimation = MutableStateFlow(SettingKeys.expressiveAnimation.default)
-    var useExpressiveAnimation = _useExpressiveAnimation.asStateFlow()
-        private set
-    
-    private val _useColorTheme = MutableStateFlow(SettingKeys.colorTheme.default)
-    var useColorTheme = _useColorTheme.asStateFlow()
-        private set
-    
-    private val _usePalette = MutableStateFlow(SettingKeys.paletteStyle.default)
-    var usePalette = _usePalette.asStateFlow()
-        private set
-    
-    private val _useDarkMode = MutableStateFlow(SettingKeys.darkMode.default)
-    var useDarkMode = _useDarkMode.asStateFlow()
-        private set
-    
-    private val _useVibration = MutableStateFlow(SettingKeys.vibration.default)
-    var useVibration = _useVibration.asStateFlow()
-        private set
-    
-    private val _useScrollHelpers = MutableStateFlow(SettingKeys.scrollHelpers.default)
-    var useScrollHelpers = _useScrollHelpers.asStateFlow()
-        private set
-    
-    private val _useEncryptedShare = MutableStateFlow(SettingKeys.encryptedShare.default)
-    var useEncryptedShare = _useEncryptedShare.asStateFlow()
-        private set
-    
     // SESSION
     
     private val _sharedText = MutableStateFlow("")
@@ -105,100 +38,9 @@ class MainViewModel(
     
     
     init {
-        launchFlows()
         startTimer()
     }
     
-    private fun launchFlows() {
-        
-        // FOUNDATION
-        
-        launch {
-            _licenses.value = LicenseMap(
-                loadLicenseFile().licenses
-                    .sortedBy {
-                        it.moduleName
-                    }
-                    .groupBy {
-                        it.moduleLicenseUrl
-                            .replaceFirst(oldValue = "https://", newValue = "")
-                            .replaceFirst(oldValue = "http://", newValue = "")
-                    }
-            )
-        }
-        
-        if (platform.type == PlatformType.DESKTOP) {
-            launch {
-                repository.getDesktopResolutionXFlow().collectLatest {
-                    _desktopResolutionX.value = it
-                }
-            }
-            
-            launch {
-                repository.getDesktopResolutionYFlow().collectLatest {
-                    _desktopResolutionY.value = it
-                }
-            }
-        }
-        
-        launch {
-            repository.getLandingTipsFlow().collectLatest {
-                _useLandingTips.value = it
-            }
-        }
-        
-        launch {
-            repository.getEncryptedShareFlow().collectLatest {
-                _useEncryptedShare.value = it
-            }
-        }
-        
-        if (platform.supportsFeature(Feature.FULLSCREEN_LANDSCAPE)) {
-            launch {
-                repository.getFullscreenLandscapeFlow().collectLatest {
-                    _useFullscreenLandscape.value = it
-                }
-            }
-        }
-        
-        launch {
-            repository.getExpressiveAnimationFlow().collectLatest {
-                _useExpressiveAnimation.value = it
-            }
-        }
-        
-        launch {
-            repository.getColorThemeFlow().collectLatest {
-                _useColorTheme.value = it
-            }
-        }
-        
-        launch {
-            repository.getPaletteStyleFlow().collectLatest {
-                _usePalette.value = it
-            }
-        }
-        
-        launch {
-            repository.getDarkModeFlow().collectLatest {
-                _useDarkMode.value = it
-            }
-        }
-        
-        if (platform.supportsFeature(Feature.VIBRATION)) {
-            launch {
-                repository.getVibrationFlow().collectLatest {
-                    _useVibration.value = it
-                }
-            }
-        }
-        
-        launch {
-            repository.getScrollHelpersFlow().collectLatest {
-                _useScrollHelpers.value = it
-            }
-        }
-    }
     
     // UTILITIES
     
@@ -215,9 +57,6 @@ class MainViewModel(
         _sharedText.value = text
     }
     
-    fun supportsFeature(feature: Feature) =
-        platform.supportsFeature(feature)
-    
     fun setQr(
         processedText: String?,
         qr: ImageBitmap?
@@ -229,122 +68,5 @@ class MainViewModel(
     fun clearQr() {
         _processedQrText.value = null
         _processedQrBitmap.value = null
-    }
-    
-    
-    // BOTTOM SHEETS
-    
-    private fun setBottomSheet(sheet: ActiveBottomSheet) {
-        _currentBottomSheet.value = sheet
-    }
-    
-    fun hideBottomSheet() {
-        _currentBottomSheet.value = ActiveBottomSheet.None
-    }
-    
-    fun showDatePickerSheet(
-        selectedDate: Long,
-        onDateSelected: (Long) -> Unit
-    ) {
-        setBottomSheet(
-            sheet = ActiveBottomSheet.DatePicker(
-                selectedDate = selectedDate,
-                onDateSelected = onDateSelected
-            )
-        )
-    }
-    
-    fun showShareSheet() {
-        setBottomSheet(ActiveBottomSheet.ShareApp)
-    }
-    
-    
-    // FOUNDATION
-    
-    fun setDesktopResolutionX(x: Int) {
-        _desktopResolutionX.value = x
-        launch {
-            repository.setDesktopResolutionX(x)
-        }
-    }
-    
-    fun setDesktopResolutionY(y: Int) {
-        _desktopResolutionY.value = y
-        launch {
-            repository.setDesktopResolutionY(y)
-        }
-    }
-    
-    fun useLandingTips(enabled: Boolean) {
-        _useLandingTips.value = enabled
-        launch {
-            repository.setLandingTips(enabled)
-        }
-    }
-    
-    fun useFullscreenLandscape(enabled: Boolean) {
-        _useFullscreenLandscape.value = enabled
-        launch {
-            repository.setFullscreenLandscape(enabled)
-        }
-    }
-    
-    fun useExpressiveAnimation(enabled: Boolean) {
-        _useExpressiveAnimation.value = enabled
-        launch {
-            repository.setExpressiveAnimation(enabled)
-        }
-    }
-    
-    fun useColorTheme(option: ColorTheme) {
-        _useColorTheme.value = option
-        clearQr()
-        launch {
-            repository.setColorTheme(option)
-        }
-    }
-    
-    fun usePalette(option: Palette) {
-        _usePalette.value = option
-        clearQr()
-        launch {
-            repository.setPaletteStyle(option)
-        }
-    }
-    
-    fun useDarkMode(option: DarkMode) {
-        _useDarkMode.value = option
-        clearQr()
-        launch {
-            repository.setDarkMode(option)
-        }
-    }
-    
-    fun useVibration(enabled: Boolean) {
-        _useVibration.value = enabled
-        launch {
-            repository.setVibration(enabled)
-        }
-    }
-    
-    fun hapticFeedback(haptics: HapticFeedback) {
-        if (useVibration.value && supportsFeature(Feature.VIBRATION)) {
-            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        }
-    }
-    
-    fun useScrollHelpers(enabled: Boolean) {
-        _useScrollHelpers.value = enabled
-        launch {
-            repository.setScrollHelpers(enabled)
-        }
-    }
-    
-    fun useEncryptedShare(enabled: Boolean) {
-        _useEncryptedShare.value = enabled
-        clearQr()
-        launch {
-            repository.setEncryptedShare(enabled)
-        }
     }
 }
