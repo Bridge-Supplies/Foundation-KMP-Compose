@@ -9,13 +9,13 @@
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
-      <option name="scriptParameters" value="-DmainClass=Foundation --quiet" />
+      <option name="scriptParameters" value="--quiet" />
       <option name="taskDescriptions">
         <list />
       </option>
       <option name="taskNames">
         <list>
-          <option value="desktopRun" />
+          <option value=":composeApp:run" />
         </list>
       </option>
       <option name="vmOptions" />
