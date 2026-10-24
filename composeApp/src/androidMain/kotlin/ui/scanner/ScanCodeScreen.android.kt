@@ -85,8 +85,7 @@ actual fun CodeScanner(
                 modifier = modifier,
                 codeTypes = listOf(
                     BarcodeFormat.FORMAT_QR_CODE,
-                ),
-                scannerUiOptions = null
+                )
             ) { result ->
                 when (result) {
                     is BarcodeResult.OnSuccess -> {
@@ -98,10 +97,7 @@ actual fun CodeScanner(
                         println("Error: ${result.exception.message}")
                         onFailure(result.exception.message ?: "")
                     }
-                    
-                    BarcodeResult.OnCanceled -> {
-                        onFailure("")
-                    }
+
                 }
             }
         }
