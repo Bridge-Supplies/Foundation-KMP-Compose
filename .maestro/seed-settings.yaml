@@ -1,0 +1,13 @@
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 10000
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Water"
+    timeout: 5000
+- tapOn: "Water"
+- tapOn: "Bold"
+- tapOn: "Dark"

@@ -1,0 +1,39 @@
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 10000
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Theming"
+    timeout: 5000
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertVisible:
+          checked: true
+          containsChild:
+            text: "Water"
+      - assertVisible:
+          checked: true
+          containsChild:
+            text: "Bold"
+      - assertVisible:
+          checked: true
+          containsChild:
+            text: "Dark"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible:
+          text: "Water"
+          selected: true
+      - assertVisible:
+          text: "Bold"
+          selected: true
+      - assertVisible:
+          text: "Dark"
+          selected: true
