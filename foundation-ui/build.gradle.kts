@@ -79,5 +79,19 @@ kotlin {
                 implementation(compose.desktop.common)
             }
         }
+        
+        named("desktopTest") {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.compose.ui.test)
+                implementation(libs.compose.ui.test.junit4)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
     }
+}
+
+tasks.withType<Test>().configureEach {
+    systemProperty("recordGolden", System.getProperty("recordGolden", "false"))
+    environment("RECORD_GOLDEN", System.getenv("RECORD_GOLDEN") ?: System.getProperty("recordGolden", "false"))
 }

@@ -1,0 +1,54 @@
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 10000
+- assertVisible: ".*(Platform|Orientation).*"
+
+# Open Date screen via DateSheet, then back
+- tapOn: "Datetime, BottomSheet, NavArgs"
+- extendedWaitUntil:
+    visible: "Confirm"
+    timeout: 5000
+- tapOn: "Confirm"
+- extendedWaitUntil:
+    visible: "Back"
+    timeout: 5000
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible: "Datetime, BottomSheet, NavArgs"
+    timeout: 5000
+
+# Tab: Share
+- tapOn: "Share"
+- extendedWaitUntil:
+    visible: "Scan code"
+    timeout: 5000
+
+# Tab: Settings
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Theming"
+    timeout: 5000
+
+# Toggle a settings switch
+- scrollUntilVisible:
+    element:
+      text: "Show tips on app launch"
+    direction: DOWN
+- tapOn: "Show tips on app launch"
+
+# Open About screen, then back
+- scrollUntilVisible:
+    element:
+      text: "About app"
+    direction: DOWN
+- tapOn: "About app"
+- extendedWaitUntil:
+    visible: ".*(Version|Build).*"
+    timeout: 5000
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible: "Theming"
+    timeout: 5000
