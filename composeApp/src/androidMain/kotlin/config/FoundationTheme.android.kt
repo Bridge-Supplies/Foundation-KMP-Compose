@@ -22,6 +22,9 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.ktx.animateColorScheme
 import com.materialkolor.rememberDynamicColorScheme
 import data.MainViewModel
+import bridge.supplies.foundation.ui.theme.DarkColorScheme
+import bridge.supplies.foundation.ui.theme.LightColorScheme
+import bridge.supplies.foundation.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

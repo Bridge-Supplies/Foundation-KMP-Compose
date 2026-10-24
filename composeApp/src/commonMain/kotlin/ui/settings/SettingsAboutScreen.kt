@@ -32,7 +32,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import data.License
 import data.MainViewModel
-import data.browseWeb
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_about_build
 import foundation.composeapp.generated.resources.app_about_version
@@ -40,15 +39,16 @@ import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.settings_about_licenses_unknown
 import foundation.composeapp.generated.resources.tag_built_with_foundation
 import org.jetbrains.compose.resources.stringResource
-import ui.BottomButton
-import ui.ClickableIcon
-import ui.EdgeFadeIndexedLazyColumn
-import ui.HintText
-import ui.OptionDetailText
-import ui.StickyHeader
-import ui.TitledCard
-import ui.rememberIndexedLazyListState
-import ui.rememberNestedScrollConnection
+import bridge.supplies.foundation.core.platform.browseWeb
+import bridge.supplies.foundation.ui.components.BottomButton
+import bridge.supplies.foundation.ui.components.ClickableIcon
+import bridge.supplies.foundation.ui.components.EdgeFadeIndexedLazyColumn
+import bridge.supplies.foundation.ui.components.HintText
+import bridge.supplies.foundation.ui.components.OptionDetailText
+import bridge.supplies.foundation.ui.components.StickyHeader
+import bridge.supplies.foundation.ui.components.TitledCard
+import bridge.supplies.foundation.ui.components.rememberIndexedLazyListState
+import bridge.supplies.foundation.ui.components.rememberNestedScrollConnection
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

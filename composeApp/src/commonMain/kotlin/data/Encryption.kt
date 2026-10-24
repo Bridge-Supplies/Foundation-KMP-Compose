@@ -1,15 +1,8 @@
 package data
 
 import bridge.supplies.foundation.BuildConfig
-import korlibs.crypto.AES
-import korlibs.crypto.Padding
-import korlibs.encoding.Hex
-import korlibs.io.compression.compress
-import korlibs.io.compression.deflate.GZIP
-import korlibs.io.compression.uncompress
-import korlibs.io.lang.UTF8
-import korlibs.io.lang.toByteArray
-import korlibs.io.lang.toString
+import bridge.supplies.foundation.core.crypto.compressAndEncryptV1
+import bridge.supplies.foundation.core.crypto.decryptAndDecompressV1
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -42,35 +35,11 @@ inline fun <reified T> deserializeData(json: String): T? = try {
     null
 }
 
-fun SharedData.compressAndEncrypt(): String? {
-    val key = BuildConfig.ENCRYPTION_KEY.toByteArray()
-    
-    val encrypted = try {
-        val jsonBytes = serializeData(this).toByteArray()
-        val compressedBytes = GZIP.compress(jsonBytes)
-        val encryptedBytes = AES.encryptAesCbc(compressedBytes, key, key, Padding.PKCS7Padding)
-        val encodedHex = Hex.encode(encryptedBytes)
-        encodedHex
-    } catch (e: Exception) {
-        null
-    }
-    
-    return encrypted
-}
+fun SharedData.compressAndEncrypt(): String? =
+    compressAndEncryptV1(serializeData(this), BuildConfig.ENCRYPTION_KEY)
 
 fun String.decryptAndUncompress(): SharedData? {
-    val key = BuildConfig.ENCRYPTION_KEY.toByteArray()
-    
-    val decrypted = try {
-        val decryptedBytes = AES.decryptAesCbc(Hex.decode(this), key, key, Padding.PKCS7Padding)
-        val uncompressedBytes = GZIP.uncompress(decryptedBytes)
-        val jsonString = uncompressedBytes.toString(UTF8)
-        val data = deserializeData<SharedData>(jsonString)
-        data
-    } catch (e: Exception) {
-        null
-    }
-    
+    val decrypted = decryptAndDecompressV1(this, BuildConfig.ENCRYPTION_KEY)?.let { deserializeData<SharedData>(it) }
     if (decrypted != null) {
         return decrypted
     } else {

@@ -29,8 +29,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import config.isPortraitMode
 import data.MainViewModel
-import data.getTodayUtcMs
-import data.setClipboardText
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.navigation_close
 import foundation.composeapp.generated.resources.navigation_confirm
@@ -40,12 +38,14 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import ui.CodeDisplay
-import ui.DatePickerCard
-import ui.EdgeFadeColumn
-import ui.HintText
-import ui.PastOrPresentSelectableDates
-import ui.TextButton
+import bridge.supplies.foundation.core.time.getTodayUtcMs
+import bridge.supplies.foundation.ui.components.CodeDisplay
+import bridge.supplies.foundation.ui.components.DatePickerCard
+import bridge.supplies.foundation.ui.components.EdgeFadeColumn
+import bridge.supplies.foundation.ui.components.HintText
+import bridge.supplies.foundation.ui.components.PastOrPresentSelectableDates
+import bridge.supplies.foundation.ui.components.TextButton
+import bridge.supplies.foundation.ui.util.setClipboardText
 
 @OptIn(ExperimentalMaterial3Api::class)
 fun CoroutineScope.hideSheet(sheetState: SheetState, viewModel: MainViewModel) {

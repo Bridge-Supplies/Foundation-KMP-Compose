@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerView
-import ui.FloatingButton
+import bridge.supplies.foundation.ui.components.FloatingButton
 
 class PermissionsViewModel(
     private val controller: PermissionsController

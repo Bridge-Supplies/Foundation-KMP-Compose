@@ -25,12 +25,12 @@ import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_settings_scroll_helpers_subtitle
 import foundation.composeapp.generated.resources.app_settings_scroll_helpers_title
 import org.jetbrains.compose.resources.stringResource
-import ui.BodyText
-import ui.EdgeFadeIndexedLazyRow
-import ui.EdgeFadeRow
-import ui.SettingsSwitch
-import ui.TitledCard
-import ui.rememberIndexedLazyListState
+import bridge.supplies.foundation.ui.components.BodyText
+import bridge.supplies.foundation.ui.components.EdgeFadeIndexedLazyRow
+import bridge.supplies.foundation.ui.components.EdgeFadeRow
+import bridge.supplies.foundation.ui.components.SettingsSwitch
+import bridge.supplies.foundation.ui.components.TitledCard
+import bridge.supplies.foundation.ui.components.rememberIndexedLazyListState
 
 @Composable
 fun HomeRowsScreen(

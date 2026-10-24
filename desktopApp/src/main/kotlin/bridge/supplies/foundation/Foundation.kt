@@ -5,12 +5,12 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import data.MainViewModel
-import data.koinViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 import ui.App
 import java.awt.Dimension
+import bridge.supplies.foundation.ui.util.koinViewModel
 
 class Foundation {
     companion object {

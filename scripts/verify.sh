@@ -135,7 +135,7 @@ if has_module desktopApp; then
 fi
 if has_module composeApp && module_has_desktop_target composeApp; then
     [ -z "$DESKTOP_TASK" ] && DESKTOP_TASK=":composeApp:compileKotlinDesktop"
-    TEST_TASK=":composeApp:desktopTest"
+    TEST_TASK="desktopTest" # every module with a desktop target
 fi
 if [ -z "$TEST_TASK" ]; then
     TEST_TASK="$ANDROID_UNIT_TEST"
@@ -209,11 +209,11 @@ fi
 if [ "$OVERALL" -eq 0 ]; then
     if [ "$IOS_CHANGED" -eq 1 ]; then
         if xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
-            run_gradle_step "ios-tests" ":composeApp:iosSimulatorArm64Test"
+            run_gradle_step "ios-tests" "iosSimulatorArm64Test"
         else
             # No simulator runtime installed: still compile + link the test binary so code breakage is caught.
             echo "no iOS simulator runtime installed: linking iOS tests without running them"
-            run_gradle_step "ios-link (no simulator)" ":composeApp:linkDebugTestIosSimulatorArm64"
+            run_gradle_step "ios-link (no simulator)" "linkDebugTestIosSimulatorArm64"
         fi
     else
         echo "skipped iOS (no iOS-related changes)"

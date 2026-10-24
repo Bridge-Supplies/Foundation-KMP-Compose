@@ -7,6 +7,8 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
+import bridge.supplies.foundation.core.storage.createDataStore
+import bridge.supplies.foundation.core.storage.dataStoreFileName
 
 @OptIn(ExperimentalForeignApi::class)
 fun dataStore(): DataStore<Preferences> = createDataStore(

@@ -27,8 +27,8 @@ import foundation.composeapp.generated.resources.scanner_error_text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
-import ui.CircularReveal
-import ui.showSnackBar
+import bridge.supplies.foundation.ui.components.CircularReveal
+import bridge.supplies.foundation.ui.components.showSnackBar
 
 @Composable
 expect fun CodeScanner(

@@ -17,6 +17,8 @@ plugins {
 licenseReport {
     // KMP has no plain runtimeClasspath; scan the Android and desktop runtime dependencies
     configurations = arrayOf("androidRuntimeClasspath", "desktopRuntimeClasspath")
+    // Foundation's own modules aren't third-party licenses (and resolving their Android variants is ambiguous)
+    excludeGroups = arrayOf("bridge.supplies.foundation")
     renderers = arrayOf(
         JsonReportRenderer("licenses.json")
     )
@@ -89,6 +91,8 @@ kotlin {
         }
 
         commonMain.dependencies {
+            api(projects.foundationUi)
+            
             // api: these types appear in this module's public API, used by androidApp/desktopApp
             api(libs.compose.runtime)
             api(libs.compose.foundation)
