@@ -5,7 +5,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalWindowInfo
 import data.DataRepository
 import data.MainViewModel
-import data.dataStore
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -55,8 +54,4 @@ actual val platformModule = module {
 
 actual val viewModelModule = module {
     singleOf(::MainViewModel)
-}
-
-actual val dataStoreModule = module {
-    single { DataRepository(dataStore()) }
 }

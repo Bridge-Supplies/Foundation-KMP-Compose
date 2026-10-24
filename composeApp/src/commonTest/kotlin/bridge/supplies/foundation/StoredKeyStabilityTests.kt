@@ -1,29 +1,33 @@
 package bridge.supplies.foundation
 
-import data.StoredValue
+import config.ColorTheme
+import config.DarkMode
+import config.Palette
+import data.SettingKeys
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Persisted preference keys must never change: apps built on Foundation (and their users' saved settings)
- * depend on these exact names in `settings.preferences_pb`. If a rename is ever needed, write a migration.
+ * Persisted settings must never change shape: apps built on Foundation (and their users' saved settings)
+ * depend on these exact key names in `settings.preferences_pb`, and enums are stored as ordinals.
+ * If a change is ever needed, write a migration.
  */
 class StoredKeyStabilityTests {
-
+    
     @Test
     fun settingKeyNamesAreStable() {
         val actual = listOf(
-            StoredValue.DESKTOP_RESOLUTION_X().key.name,
-            StoredValue.DESKTOP_RESOLUTION_Y().key.name,
-            StoredValue.LANDING_TIPS().key.name,
-            StoredValue.FULLSCREEN_LANDSCAPE().key.name,
-            StoredValue.EXPRESSIVE_ANIMATION().key.name,
-            StoredValue.COLOR_THEME().key.name,
-            StoredValue.PALETTE_STYLE().key.name,
-            StoredValue.DARK_MODE().key.name,
-            StoredValue.VIBRATION().key.name,
-            StoredValue.SCROLL_HELPERS().key.name,
-            StoredValue.ENCRYPTED_SHARE().key.name,
+            SettingKeys.desktopResolutionX.name,
+            SettingKeys.desktopResolutionY.name,
+            SettingKeys.landingTips.name,
+            SettingKeys.fullscreenLandscape.name,
+            SettingKeys.expressiveAnimation.name,
+            SettingKeys.colorTheme.name,
+            SettingKeys.paletteStyle.name,
+            SettingKeys.darkMode.name,
+            SettingKeys.vibration.name,
+            SettingKeys.scrollHelpers.name,
+            SettingKeys.encryptedShare.name,
         )
         val expected = listOf(
             "Settings_desktop_resolution_x",
@@ -39,5 +43,13 @@ class StoredKeyStabilityTests {
             "Settings_encrypted_share",
         )
         assertEquals(expected, actual)
+    }
+    
+    @Test
+    fun enumOrdinalsAreStable() {
+        // Stored as ordinals: only ever append new entries
+        assertEquals(listOf("AUTO", "RED", "GREEN", "BLUE", "OFF"), ColorTheme.entries.map { it.name })
+        assertEquals(listOf("NEUTRAL", "SPOT", "TINTED", "BOLD"), Palette.entries.map { it.name })
+        assertEquals(listOf("AUTO", "LIGHT", "DARK", "AMOLED"), DarkMode.entries.map { it.name })
     }
 }

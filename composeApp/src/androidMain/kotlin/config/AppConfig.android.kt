@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import bridge.supplies.foundation.BuildConfig
 import data.DataRepository
 import data.MainViewModel
-import data.dataStore
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -104,8 +103,4 @@ actual val platformModule = module {
 
 actual val viewModelModule = module {
     viewModelOf(::MainViewModel)
-}
-
-actual val dataStoreModule = module {
-    single { DataRepository(dataStore(get())) }
 }

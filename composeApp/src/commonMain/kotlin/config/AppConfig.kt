@@ -9,7 +9,13 @@ import foundation.composeapp.generated.resources.landing_tip_fullscreen_landscap
 import foundation.composeapp.generated.resources.landing_tip_theme_colors
 import foundation.composeapp.generated.resources.landing_tip_vibration
 import org.jetbrains.compose.resources.StringResource
+import bridge.supplies.foundation.BuildConfig
+import bridge.supplies.foundation.core.config.FoundationConfig
+import bridge.supplies.foundation.core.di.foundationCoreModule
+import data.DataRepository
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
 
 // System info
 
@@ -83,6 +89,19 @@ expect class KoinInitializer {
 
 expect val platformModule: Module
 
-expect val dataStoreModule: Module
+/** Foundation configuration for this app (identity from the generated BuildConfig). */
+val foundationConfig = FoundationConfig(
+    appName = BuildConfig.APP_NAME,
+    packageName = BuildConfig.PACKAGE_NAME,
+    version = BuildConfig.APP_VERSION,
+    build = BuildConfig.APP_BUILD,
+    encryptionKey = BuildConfig.ENCRYPTION_KEY,
+)
+
+/** Foundation's shared settings DataStore, plus this app's repository on top of it. */
+val dataStoreModule: Module = module {
+    includes(foundationCoreModule(foundationConfig))
+    singleOf(::DataRepository)
+}
 
 expect val viewModelModule: Module

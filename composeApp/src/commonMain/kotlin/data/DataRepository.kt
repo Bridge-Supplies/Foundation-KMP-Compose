@@ -1,10 +1,10 @@
 package data
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
+import bridge.supplies.foundation.core.settings.BooleanSetting
+import bridge.supplies.foundation.core.settings.EnumSetting
+import bridge.supplies.foundation.core.settings.FoundationSettings
+import bridge.supplies.foundation.core.settings.IntSetting
+import bridge.supplies.foundation.core.settings.settingName
 import config.ColorTheme
 import config.DarkMode
 import config.Feature
@@ -12,255 +12,73 @@ import config.Palette
 import config.PlatformType
 import config.getPlatform
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
-const val SETTINGS_KEY = "Settings"
-
-sealed class StoredValue {
-    // FOUNDATION
-    
-    data class DESKTOP_RESOLUTION_X(
-        val key: Preferences.Key<Int> = intPreferencesKey("${SETTINGS_KEY}_desktop_resolution_x"),
-        val default: Int = 800
-    ) : StoredValue()
-    
-    data class DESKTOP_RESOLUTION_Y(
-        val key: Preferences.Key<Int> = intPreferencesKey("${SETTINGS_KEY}_desktop_resolution_y"),
-        val default: Int = 480
-    ) : StoredValue()
-    
-    data class LANDING_TIPS(
-        val key: Preferences.Key<Boolean> = booleanPreferencesKey("${SETTINGS_KEY}_landing_tips"),
-        val default: Boolean = true
-    ) : StoredValue()
-    
-    data class FULLSCREEN_LANDSCAPE(
-        val key: Preferences.Key<Boolean> = booleanPreferencesKey("${SETTINGS_KEY}_fullscreen_landscape"),
-        val default: Boolean = false
-    ) : StoredValue()
-    
-    data class EXPRESSIVE_ANIMATION(
-        val key: Preferences.Key<Boolean> = booleanPreferencesKey("${SETTINGS_KEY}_expressive_animation"),
-        val default: Boolean = true
-    ) : StoredValue()
-    
-    data class COLOR_THEME(
-        val key: Preferences.Key<Int> = intPreferencesKey("${SETTINGS_KEY}_color_theme"),
-        val default: ColorTheme = if (getPlatform().supportsFeature(Feature.DYNAMIC_COLORS))
-            ColorTheme.AUTO else ColorTheme.OFF
-    ) : StoredValue()
-    
-    data class PALETTE_STYLE(
-        val key: Preferences.Key<Int> = intPreferencesKey("${SETTINGS_KEY}_palette_style"),
-        val default: Palette = Palette.TINTED
-    ) : StoredValue()
-    
-    data class DARK_MODE(
-        val key: Preferences.Key<Int> = intPreferencesKey("${SETTINGS_KEY}_dark_mode"),
-        val default: DarkMode = DarkMode.AUTO
-    ) : StoredValue()
-    
-    data class VIBRATION(
-        val key: Preferences.Key<Boolean> = booleanPreferencesKey("${SETTINGS_KEY}_vibration"),
-        val default: Boolean = true
-    ) : StoredValue()
-    
-    data class SCROLL_HELPERS(
-        val key: Preferences.Key<Boolean> = booleanPreferencesKey("${SETTINGS_KEY}_scroll_helpers"),
-        val default: Boolean = getPlatform().type == PlatformType.DESKTOP
+/**
+ * Persisted settings. Key names and encodings (enums as ordinals) must never change:
+ * existing users' settings live under these names (see StoredKeyStabilityTests).
+ */
+object SettingKeys {
+    val desktopResolutionX = IntSetting(settingName("desktop_resolution_x"), 800)
+    val desktopResolutionY = IntSetting(settingName("desktop_resolution_y"), 480)
+    val landingTips = BooleanSetting(settingName("landing_tips"), true)
+    val fullscreenLandscape = BooleanSetting(settingName("fullscreen_landscape"), false)
+    val expressiveAnimation = BooleanSetting(settingName("expressive_animation"), true)
+    val colorTheme = EnumSetting(
+        settingName("color_theme"),
+        if (getPlatform().supportsFeature(Feature.DYNAMIC_COLORS)) ColorTheme.AUTO else ColorTheme.OFF,
+        ColorTheme.entries
     )
-    
-    data class ENCRYPTED_SHARE(
-        val key: Preferences.Key<Boolean> = booleanPreferencesKey("${SETTINGS_KEY}_encrypted_share"),
-        val default: Boolean = true
-    ) : StoredValue()
+    val paletteStyle = EnumSetting(settingName("palette_style"), Palette.TINTED, Palette.entries)
+    val darkMode = EnumSetting(settingName("dark_mode"), DarkMode.AUTO, DarkMode.entries)
+    val vibration = BooleanSetting(settingName("vibration"), true)
+    val scrollHelpers = BooleanSetting(settingName("scroll_helpers"), getPlatform().type == PlatformType.DESKTOP)
+    val encryptedShare = BooleanSetting(settingName("encrypted_share"), true)
 }
 
-
 class DataRepository(
-    private val dataStore: DataStore<Preferences>
+    private val settings: FoundationSettings
 ) {
-    // FOUNDATION
+    suspend fun setDesktopResolutionX(desktopResolutionX: Int) = settings.set(SettingKeys.desktopResolutionX, desktopResolutionX)
     
-    // DESKTOP RESOLUTION X
-    suspend fun setDesktopResolutionX(desktopResolutionX: Int) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.DESKTOP_RESOLUTION_X()
-            preferences[pref.key] = desktopResolutionX
-        }
-    }
+    fun getDesktopResolutionXFlow(): Flow<Int> = settings.flow(SettingKeys.desktopResolutionX)
     
-    fun getDesktopResolutionXFlow(): Flow<Int> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.DESKTOP_RESOLUTION_X()
-            preferences[pref.key] ?: pref.default
-        }
+    suspend fun setDesktopResolutionY(desktopResolutionY: Int) = settings.set(SettingKeys.desktopResolutionY, desktopResolutionY)
     
-    // DESKTOP RESOLUTION Y
-    suspend fun setDesktopResolutionY(desktopResolutionY: Int) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.DESKTOP_RESOLUTION_Y()
-            preferences[pref.key] = desktopResolutionY
-        }
-    }
+    fun getDesktopResolutionYFlow(): Flow<Int> = settings.flow(SettingKeys.desktopResolutionY)
     
-    fun getDesktopResolutionYFlow(): Flow<Int> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.DESKTOP_RESOLUTION_Y()
-            preferences[pref.key] ?: pref.default
-        }
+    suspend fun setLandingTips(landingTips: Boolean) = settings.set(SettingKeys.landingTips, landingTips)
     
-    // LANDING TIPS
-    suspend fun setLandingTips(landingTips: Boolean) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.LANDING_TIPS()
-            preferences[pref.key] = landingTips
-        }
-    }
+    fun getLandingTipsFlow(): Flow<Boolean> = settings.flow(SettingKeys.landingTips)
     
-    fun getLandingTipsFlow(): Flow<Boolean> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.LANDING_TIPS()
-            preferences[pref.key] ?: pref.default
-        }
+    suspend fun setFullscreenLandscape(fullscreenLandscape: Boolean) = settings.set(SettingKeys.fullscreenLandscape, fullscreenLandscape)
     
-    // FULLSCREEN LANDSCAPE
-    suspend fun setFullscreenLandscape(fullscreenLandscape: Boolean) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.FULLSCREEN_LANDSCAPE()
-            preferences[pref.key] = fullscreenLandscape
-        }
-    }
+    fun getFullscreenLandscapeFlow(): Flow<Boolean> = settings.flow(SettingKeys.fullscreenLandscape)
     
-    fun getFullscreenLandscapeFlow(): Flow<Boolean> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.FULLSCREEN_LANDSCAPE()
-            preferences[pref.key] ?: pref.default
-        }
+    suspend fun setExpressiveAnimation(expressiveAnimation: Boolean) = settings.set(SettingKeys.expressiveAnimation, expressiveAnimation)
     
-    // EXPRESSIVE ANIMATION
-    suspend fun setExpressiveAnimation(expressiveAnimation: Boolean) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.EXPRESSIVE_ANIMATION()
-            preferences[pref.key] = expressiveAnimation
-        }
-    }
+    fun getExpressiveAnimationFlow(): Flow<Boolean> = settings.flow(SettingKeys.expressiveAnimation)
     
-    fun getExpressiveAnimationFlow(): Flow<Boolean> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.EXPRESSIVE_ANIMATION()
-            preferences[pref.key] ?: pref.default
-        }
+    suspend fun setColorTheme(colorTheme: ColorTheme) = settings.set(SettingKeys.colorTheme, colorTheme)
     
-    // COLOR THEMING (Dynamic colors available on Android 12+)
-    suspend fun setColorTheme(colorTheme: ColorTheme) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.COLOR_THEME()
-            preferences[pref.key] = colorTheme.ordinal
-        }
-    }
+    fun getColorThemeFlow(): Flow<ColorTheme> = settings.flow(SettingKeys.colorTheme)
     
-    fun getColorThemeFlow(): Flow<ColorTheme> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.COLOR_THEME()
-            val colorTheme = preferences[pref.key]
-            if (colorTheme != null) {
-                try {
-                    ColorTheme.entries[colorTheme]
-                } catch (e: Exception) {
-                    pref.default
-                }
-            } else {
-                pref.default
-            }
-        }
+    suspend fun setPaletteStyle(paletteStyle: Palette) = settings.set(SettingKeys.paletteStyle, paletteStyle)
     
-    // PALETTE STYLE
-    suspend fun setPaletteStyle(palette: Palette) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.PALETTE_STYLE()
-            preferences[pref.key] = palette.ordinal
-        }
-    }
+    fun getPaletteStyleFlow(): Flow<Palette> = settings.flow(SettingKeys.paletteStyle)
     
-    fun getPaletteStyleFlow(): Flow<Palette> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.PALETTE_STYLE()
-            val palette = preferences[pref.key]
-            if (palette != null) {
-                try {
-                    Palette.entries[palette]
-                } catch (e: Exception) {
-                    pref.default
-                }
-            } else {
-                pref.default
-            }
-        }
+    suspend fun setDarkMode(darkMode: DarkMode) = settings.set(SettingKeys.darkMode, darkMode)
     
-    // DARK MODE
-    suspend fun setDarkMode(darkMode: DarkMode) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.DARK_MODE()
-            preferences[pref.key] = darkMode.ordinal
-        }
-    }
+    fun getDarkModeFlow(): Flow<DarkMode> = settings.flow(SettingKeys.darkMode)
     
-    fun getDarkModeFlow(): Flow<DarkMode> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.DARK_MODE()
-            val darkMode = preferences[pref.key]
-            if (darkMode != null) {
-                try {
-                    DarkMode.entries[darkMode]
-                } catch (e: Exception) {
-                    pref.default
-                }
-            } else {
-                pref.default
-            }
-        }
+    suspend fun setVibration(vibration: Boolean) = settings.set(SettingKeys.vibration, vibration)
     
-    // VIBRATION
-    suspend fun setVibration(vibration: Boolean) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.VIBRATION()
-            preferences[pref.key] = vibration
-        }
-    }
+    fun getVibrationFlow(): Flow<Boolean> = settings.flow(SettingKeys.vibration)
     
-    fun getVibrationFlow(): Flow<Boolean> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.VIBRATION()
-            preferences[pref.key] ?: pref.default
-        }
+    suspend fun setScrollHelpers(scrollHelpers: Boolean) = settings.set(SettingKeys.scrollHelpers, scrollHelpers)
     
-    // SCROLL HELPERS
-    suspend fun setScrollHelpers(scrollHelpers: Boolean) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.SCROLL_HELPERS()
-            preferences[pref.key] = scrollHelpers
-        }
-    }
+    fun getScrollHelpersFlow(): Flow<Boolean> = settings.flow(SettingKeys.scrollHelpers)
     
-    fun getScrollHelpersFlow(): Flow<Boolean> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.SCROLL_HELPERS()
-            preferences[pref.key] ?: pref.default
-        }
+    suspend fun setEncryptedShare(encryptedShare: Boolean) = settings.set(SettingKeys.encryptedShare, encryptedShare)
     
-    // ENCRYPTED SHARE
-    suspend fun setEncryptedShare(encryptedShare: Boolean) {
-        dataStore.edit { preferences ->
-            val pref = StoredValue.ENCRYPTED_SHARE()
-            preferences[pref.key] = encryptedShare
-        }
-    }
-    
-    fun getEncryptedShareFlow(): Flow<Boolean> =
-        dataStore.data.map { preferences ->
-            val pref = StoredValue.ENCRYPTED_SHARE()
-            preferences[pref.key] ?: pref.default
-        }
-    
+    fun getEncryptedShareFlow(): Flow<Boolean> = settings.flow(SettingKeys.encryptedShare)
 }

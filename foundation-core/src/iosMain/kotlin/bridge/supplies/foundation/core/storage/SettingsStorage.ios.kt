@@ -1,18 +1,15 @@
-package data
+package bridge.supplies.foundation.core.storage
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
+import bridge.supplies.foundation.core.config.FoundationConfig
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
-import bridge.supplies.foundation.core.storage.createDataStore
-import bridge.supplies.foundation.core.storage.dataStoreFileName
 
 @OptIn(ExperimentalForeignApi::class)
-fun dataStore(): DataStore<Preferences> = createDataStore(
-    producePath = {
+public actual fun settingsFilePath(config: FoundationConfig): String {
+    val directory = config.storage.iosDirectory?.invoke() ?: run {
         val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
             directory = NSDocumentDirectory,
             inDomain = NSUserDomainMask,
@@ -20,6 +17,7 @@ fun dataStore(): DataStore<Preferences> = createDataStore(
             create = false,
             error = null,
         )
-        requireNotNull(documentDirectory).path + "/$dataStoreFileName"
+        requireNotNull(documentDirectory).path
     }
-)
+    return "$directory/${config.storage.fileName}"
+}
