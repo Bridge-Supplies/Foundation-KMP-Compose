@@ -39,8 +39,11 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
-import ui.AppBarAction
-import ui.Screen
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import foundation.composeapp.generated.resources.action_share
+import bridge.supplies.foundation.ui.shell.TopBarAction
+import bridge.supplies.foundation.ui.shell.TopBarActions
 import bridge.supplies.foundation.ui.components.FloatingButton
 import bridge.supplies.foundation.ui.components.QrCodeCard
 import bridge.supplies.foundation.ui.components.TextInput
@@ -56,7 +59,6 @@ fun ShareCodeScreen(
     onNavigateToScanner: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
-    val appBarAction by viewModel.activeAppBarAction.collectAsState()
     val sharedText by viewModel.sharedText.collectAsState()
     val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
     val qrProcessedText by viewModel.processedQrText.collectAsState()
@@ -96,19 +98,14 @@ fun ShareCodeScreen(
         onNavigateToScanner()
     }
     
-    Screen.SHARE_GENERATE.actions.forEach { action ->
-        if (appBarAction == action) {
-            when (action) {
-                AppBarAction.SHARE -> {
-                    hapticFeedback()
-                    viewModel.showShareSheet()
-                    viewModel.consumeAppBarAction()
-                }
-                
-                else -> {}
+    TopBarActions(
+        listOf(
+            TopBarAction(Icons.Default.Share, Res.string.action_share) {
+                hapticFeedback()
+                viewModel.showShareSheet()
             }
-        }
-    }
+        )
+    )
     
     if (isPortraitMode) {
         Column(

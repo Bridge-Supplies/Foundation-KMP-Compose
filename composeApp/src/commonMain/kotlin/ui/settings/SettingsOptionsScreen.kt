@@ -54,8 +54,11 @@ import foundation.composeapp.generated.resources.theme_settings_palette_subtitle
 import foundation.composeapp.generated.resources.theme_settings_palette_title
 import foundation.composeapp.generated.resources.theme_settings_title
 import org.jetbrains.compose.resources.stringResource
-import ui.AppBarAction
-import ui.Screen
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import foundation.composeapp.generated.resources.action_settings
+import bridge.supplies.foundation.ui.shell.TopBarAction
+import bridge.supplies.foundation.ui.shell.TopBarActions
 import bridge.supplies.foundation.core.platform.systemAppSettings
 import bridge.supplies.foundation.ui.components.BottomButton
 import bridge.supplies.foundation.ui.components.EdgeFadeLazyStaggeredVerticalGrid
@@ -71,7 +74,6 @@ fun SettingsOptionsScreen(
     onNavigateToAbout: () -> Unit
 ) {
     val isPortraitMode = isPortraitMode()
-    val appBarAction by viewModel.activeAppBarAction.collectAsState()
     val listState = rememberLazyStaggeredGridState()
     
     var bottomButtonsVisible by remember { mutableStateOf(true) }
@@ -81,19 +83,14 @@ fun SettingsOptionsScreen(
         bottomButtonsVisible = scrollUp
     }
     
-    Screen.SETTINGS_OPTIONS.actions.forEach { action ->
-        if (appBarAction == action) {
-            when (action) {
-                AppBarAction.SETTINGS -> {
-                    systemAppSettings()
-                    viewModel.consumeAppBarAction()
-                    hapticFeedback()
-                }
-                
-                else -> {}
+    TopBarActions(
+        listOf(
+            TopBarAction(Icons.Default.Settings, Res.string.action_settings) {
+                systemAppSettings()
+                hapticFeedback()
             }
-        }
-    }
+        )
+    )
     
     Box(
         modifier = Modifier

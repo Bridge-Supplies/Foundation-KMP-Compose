@@ -21,6 +21,10 @@ expect val TRANSITION_EXIT_MS: Int
 expect val TRANSITION_EASING: Easing
 expect val TRANSITION_OFFSET_DIV: Int
 
+// Platform-specific shell layout defaults (see ShellOptions)
+internal expect val RAIL_VERTICALLY_CENTERED: Boolean
+internal expect val CENTER_TOP_BAR_TITLE: Boolean
+
 fun TopLevelEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(

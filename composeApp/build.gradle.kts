@@ -111,7 +111,6 @@ kotlin {
             api(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
-            implementation(libs.navigation.compose)
 
             api(libs.koin.core)
             api(libs.koin.compose)

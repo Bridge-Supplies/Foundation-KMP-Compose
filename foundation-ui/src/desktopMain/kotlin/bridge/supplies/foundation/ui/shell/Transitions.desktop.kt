@@ -23,6 +23,9 @@ actual val TRANSITION_EXIT_MS = 100
 actual val TRANSITION_EASING = FastOutLinearInEasing
 actual val TRANSITION_OFFSET_DIV = 10
 
+internal actual val RAIL_VERTICALLY_CENTERED = false
+internal actual val CENTER_TOP_BAR_TITLE = false
+
 actual fun ScreenEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)

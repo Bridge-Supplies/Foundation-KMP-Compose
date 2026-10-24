@@ -43,6 +43,7 @@ kotlin {
             api(libs.compose.ui)
             api(libs.compose.components.resources)
             implementation(libs.compose.material.icons.extended)
+            api(libs.navigation3.ui)
             
             api(libs.androidx.lifecycle.viewmodel)
             api(libs.androidx.lifecycle.viewmodel.compose)
