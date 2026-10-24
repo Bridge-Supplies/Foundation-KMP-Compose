@@ -11,7 +11,7 @@ android-minSdk = "28"
 android-targetSdk = "36"
 android-compileSdk = "36"
 #packages
-agp = "8.13.2"
+agp = "9.4.1"
 kotlin = "2.4.21"
 kotlinx-datetime = "0.8.0"
 kotlinx-coroutines = "1.11.0"
@@ -69,9 +69,10 @@ ismai117-kscan = { module = "io.github.ismai117:KScan", version.ref = "kscan" } 
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gmazzo-buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }

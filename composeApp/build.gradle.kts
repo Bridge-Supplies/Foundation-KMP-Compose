@@ -1,12 +1,12 @@
 import com.github.jk1.license.render.JsonReportRenderer
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.compose.compiler)
@@ -15,6 +15,8 @@ plugins {
 }
 
 licenseReport {
+    // KMP has no plain runtimeClasspath; scan the Android and desktop runtime dependencies
+    configurations = arrayOf("androidRuntimeClasspath", "desktopRuntimeClasspath")
     renderers = arrayOf(
         JsonReportRenderer("licenses.json")
     )
@@ -32,12 +34,13 @@ tasks.register("prepareLicenseReport") {
     }
 }
 
-tasks.named("preBuild") {
+// The license JSON is a Compose resource, so generate it before Compose resources are prepared.
+tasks.matching { it.name.startsWith("prepareComposeResourcesTaskFor") }.configureEach {
     dependsOn("prepareLicenseReport")
 }
 
 // keystore.properties is optional: without it the build uses a dev-only encryption key
-// and skips the release signing config (see README > Publishing).
+// (see README > Publishing). Release signing lives in androidApp.
 fun getKeystoreProperties(): Properties? {
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     if (!keystorePropertiesFile.exists()) return null
@@ -52,50 +55,67 @@ buildConfig {
     if (keystoreProperties == null) {
         logger.warn("keystore.properties not found: using the dev-only encryption key; release signing is disabled.")
     }
-    
+
     packageName(libs.versions.app.packageName.get())
     buildConfigField("APP_VERSION", libs.versions.app.versionName.get())
     buildConfigField("APP_BUILD", libs.versions.app.versionCode.get())
     buildConfigField("ENCRYPTION_KEY", keystoreProperties?.getProperty("encryptionKey") ?: devEncryptionKey)
 }
 
+compose.resources {
+    // androidApp and desktopApp read shared strings/drawables (e.g. app_name) from this module
+    publicResClass = true
+}
+
 kotlin {
-    androidTarget()
+    android {
+        namespace = libs.versions.app.packageName.get() + ".composeapp"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        // Required for Compose Multiplatform resources on Android
+        androidResources { enable = true }
+
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
+    }
     jvm("desktop")
     tasks.register("testClasses") // Android Studio workaround: lets the IDE run KMP tests
-    
+
     sourceSets {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
-        
+
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
+            // api: these types appear in this module's public API, used by androidApp/desktopApp
+            api(libs.compose.runtime)
+            api(libs.compose.foundation)
+            api(libs.compose.material3)
             implementation(libs.compose.material.icons.extended)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
+            api(libs.compose.ui)
+            api(libs.compose.components.resources)
             implementation(libs.compose.components.ui.tooling.preview)
-            
+
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            api(libs.androidx.lifecycle.viewmodel)
+            api(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
             implementation(libs.navigation.compose)
-            
+
             api(libs.koin.core)
-            implementation(libs.koin.compose)
-            
+            api(libs.koin.compose)
+
             implementation(libs.soywiz.korlibs.crypto)
             implementation(libs.soywiz.korlibs.compression)
             implementation(libs.material.kolor)
             implementation(libs.g0dkar.qrcode.kotlin)
         }
-        
+
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)
@@ -107,21 +127,21 @@ kotlin {
             api(libs.moko.permissions.camera)
             api(libs.moko.permissions.compose)
         }
-        
+
         iosMain.dependencies {
             implementation(libs.ismai117.kscan)
             api(libs.moko.permissions)
             api(libs.moko.permissions.camera)
             api(libs.moko.permissions.compose)
         }
-        
-        val desktopMain by getting {
+
+        named("desktopMain") {
             dependencies {
-                implementation(compose.desktop.currentOs)
+                implementation(compose.desktop.common)
             }
         }
     }
-    
+
     listOf(
         iosArm64(), // iOS devices
 //        iosX64(), // MacOS Simulator (Intel)
@@ -135,117 +155,9 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
-}
-
-android {
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-    
-    signingConfigs {
-        getKeystoreProperties()?.let { keystoreProperties ->
-            create("release") {
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-            }
-        }
-    }
-    
-    namespace = libs.versions.app.packageName.get()
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    
-    defaultConfig {
-        namespace = libs.versions.app.packageName.get()
-        applicationId = libs.versions.app.packageName.get()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionName = libs.versions.app.versionName.get()
-        versionCode = libs.versions.app.versionCode.get().toInt()
-    }
-    
-    buildTypes {
-        getByName("release") {
-//            signingConfig = signingConfigs.getByName("release")
-            
-            resValue("string", "app_name", libs.versions.app.name.get())
-            
-            isMinifyEnabled = true
-            isDebuggable = false
-            
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-        
-        getByName("debug") {
-            signingConfig = signingConfigs.getByName("debug")
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-            
-            resValue("string", "app_name", libs.versions.app.name.get() + " (Debug)")
-            
-            isMinifyEnabled = false
-            isDebuggable = true
-        }
-    }
-    
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-}
-
-compose.desktop {
-    application {
-        mainClass = libs.versions.app.packageName.get() + "." + libs.versions.app.name.get()
-        
-        nativeDistributions {
-            targetFormats(
-                TargetFormat.Dmg, // TargetFormat.Pkg, // MacOS
-//                TargetFormat.Exe, TargetFormat.Msi, // Windows
-//                TargetFormat.Deb, TargetFormat.Rpm // Linux
-            )
-            
-            packageName = libs.versions.app.packageName.get()
-            packageVersion = libs.versions.app.versionName.get()
-            version = libs.versions.app.versionName.get()
-            description = libs.versions.app.description.get()
-            copyright = libs.versions.app.copyright.get()
-            vendor = libs.versions.app.vendor.get()
-            
-            macOS {
-                bundleID = libs.versions.app.packageName.get()
-                packageName = libs.versions.app.name.get()
-                packageVersion = libs.versions.app.versionName.get()
-                dockName = libs.versions.app.name.get()
-                iconFile.set(project.file("assets/foundation-icon-256.icns"))
-            }
-            
-            windows {
-                packageName = libs.versions.app.name.get()
-                packageVersion = libs.versions.app.versionName.get()
-                iconFile.set(project.file("assets/foundation-icon-256.ico"))
-            }
-            
-            linux {
-                packageName = libs.versions.app.name.get()
-                packageVersion = libs.versions.app.versionName.get()
-                iconFile.set(project.file("assets/foundation-icon-256.png"))
-            }
-        }
     }
 }
