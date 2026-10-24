@@ -9,6 +9,9 @@ import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material.icons.outlined.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import bridge.supplies.foundation.core.platform.browseWeb
+import bridge.supplies.foundation.ui.about.AboutConfig
+import bridge.supplies.foundation.ui.about.FoundationAboutScreen
 import bridge.supplies.foundation.ui.settings.FoundationSettingsScreen
 import bridge.supplies.foundation.ui.shell.FoundationTab
 import bridge.supplies.foundation.ui.shell.LocalSnackbarHostState
@@ -34,7 +37,6 @@ import ui.home.HomeInfoScreen
 import ui.home.HomeRowsScreen
 import ui.scanner.ScanCodeScreen
 import ui.scanner.ShareCodeScreen
-import ui.settings.SettingsAboutScreen
 
 // ROUTES
 
@@ -174,9 +176,11 @@ fun EntryProviderScope<NavKey>.appEntries(
     }
 
     entry<SettingsAbout>(metadata = screenMetadata(title = Res.string.screen_about_title)) {
-        SettingsAboutScreen(
-            viewModel = viewModel,
-            hapticFeedback = hapticFeedback
+        FoundationAboutScreen(
+            AboutConfig(
+                licensesJson = { Res.readBytes("files/json/licenses.json") },
+                onVersionClick = { browseWeb("https://www.youtube.com/shorts/lCJo8vhmIdc") }
+            )
         )
     }
 }

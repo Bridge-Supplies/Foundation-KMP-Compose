@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 
 /** Demo state. Foundation's settings live in FoundationViewModel. */
 class MainViewModel : ViewModel() {
+    
     private fun launch(action: suspend () -> Unit) {
         // define Default to address Desktop build issue of missing Main thread
         viewModelScope.launch(Dispatchers.Default) {
@@ -26,13 +27,6 @@ class MainViewModel : ViewModel() {
     var processedQrBitmap = _processedQrBitmap.asStateFlow()
         private set
     
-    
-    // FOUNDATION
-    
-    private val _licenses = MutableStateFlow(LicenseMap())
-    var licenses = _licenses.asStateFlow()
-        private set
-    
     // SESSION
     
     private val _sharedText = MutableStateFlow("")
@@ -44,25 +38,9 @@ class MainViewModel : ViewModel() {
     
     
     init {
-        launchFlows()
         startTimer()
     }
     
-    private fun launchFlows() {
-        launch {
-            _licenses.value = LicenseMap(
-                loadLicenseFile().licenses
-                    .sortedBy {
-                        it.moduleName
-                    }
-                    .groupBy {
-                        it.moduleLicenseUrl
-                            .replaceFirst(oldValue = "https://", newValue = "")
-                            .replaceFirst(oldValue = "http://", newValue = "")
-                    }
-            )
-        }
-    }
     
     // UTILITIES
     

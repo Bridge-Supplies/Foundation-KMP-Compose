@@ -1,6 +1,5 @@
 <resources>
     <string name="developer_name">Bridge Supplies</string>
-    <string name="tag_built_with_foundation">Built with Foundation</string>
     <!-- Version information overwritten by Gradle -->
     <string name="app_name">Foundation</string>
     <string name="app_version"></string>
@@ -11,8 +10,6 @@
     <string name="app_date_today">Today's date: %1$s</string>
     <string name="app_date_selected">Selected date: %1$s</string>
     <string name="app_days_between">Days between: %1$s</string>
-    <string name="app_about_build">Build</string>
-    <string name="app_about_version">Version</string>
     <string name="app_about_platform">Platform: %1$s</string>
 
     <string name="tab_home_title">Home</string>
@@ -47,9 +44,6 @@
     <string name="scanner_done">Done</string>
 
 
-    <string name="settings_about_app_title">Application</string>
-    <string name="settings_about_licenses_title">Licenses</string>
-    <string name="settings_about_licenses_unknown">Unknown</string>
 
     <string name="navigation_home_date">Datetime, BottomSheet, NavArgs</string>
     <string name="navigation_home_date_select">Select a date</string>
