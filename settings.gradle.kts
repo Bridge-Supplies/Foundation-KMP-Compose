@@ -15,6 +15,11 @@ pluginManagement {
     }
 }
 
+plugins {
+    // Auto-provisions the JDK requested by gradle/gradle-daemon-jvm.properties (and toolchains) on any machine
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 dependencyResolutionManagement {
     repositories {
         google {
