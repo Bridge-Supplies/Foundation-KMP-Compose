@@ -333,6 +333,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     # Run Android Maestro smoke flow
     if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
         "$ADB" install -r "$DEMO_APK" >> "$LOG" 2>&1
+        "$ADB" shell am force-stop bridge.supplies.foundation.debug >> "$LOG" 2>&1 || true
         run_maestro_step "e2e-smoke-android" "$MAESTRO" --platform android test -e APP_ID=bridge.supplies.foundation.debug "$REPO/.maestro/smoke.yaml"
     fi
 
@@ -354,6 +355,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
                     xcrun simctl boot "$BOOTED_SIM" 2>/dev/null || true
                 fi
                 xcrun simctl install "$BOOTED_SIM" "$IOS_APP_PATH" >> "$LOG" 2>&1
+                xcrun simctl terminate "$BOOTED_SIM" bridge.supplies.foundation.BridgeFoundation >> "$LOG" 2>&1 || true
                 run_maestro_step "e2e-smoke-ios" "$MAESTRO" --platform ios test -e APP_ID=bridge.supplies.foundation.BridgeFoundation "$REPO/.maestro/smoke.yaml"
             else
                 skip_step "e2e-smoke-ios" "iOS app build not available"
