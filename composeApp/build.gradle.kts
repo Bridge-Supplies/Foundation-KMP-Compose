@@ -83,7 +83,7 @@ kotlin {
             api(libs.koin.core)
             implementation(libs.koin.compose)
             
-            implementation(libs.soywiz.korlibs.krypto)
+            implementation(libs.soywiz.korlibs.crypto)
             implementation(libs.soywiz.korlibs.compression)
             implementation(libs.material.kolor)
             implementation(libs.g0dkar.qrcode.kotlin)

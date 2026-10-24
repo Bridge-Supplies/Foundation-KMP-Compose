@@ -2,7 +2,7 @@ package bridge.supplies.foundation
 
 import korlibs.crypto.AES
 import korlibs.crypto.Padding
-import korlibs.crypto.encoding.Hex
+import korlibs.encoding.Hex
 import korlibs.io.compression.compress
 import korlibs.io.compression.deflate.GZIP
 import korlibs.io.compression.uncompress
