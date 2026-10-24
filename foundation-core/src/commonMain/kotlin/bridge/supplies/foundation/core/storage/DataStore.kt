@@ -6,9 +6,9 @@ import androidx.datastore.preferences.core.Preferences
 import okio.Path.Companion.toPath
 
 /** File name of the shared preferences DataStore. Never change it for an existing app. */
-public const val dataStoreFileName = "settings.preferences_pb"
+public const val dataStoreFileName: String = "settings.preferences_pb"
 
-fun createDataStore(producePath: () -> String): DataStore<Preferences> =
+public fun createDataStore(producePath: () -> String): DataStore<Preferences> =
     PreferenceDataStoreFactory.createWithPath(
         produceFile = { producePath().toPath() }
     )

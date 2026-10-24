@@ -111,7 +111,7 @@ import bridge.supplies.foundation.ui.util.hideAndClearFocus
 // MODIFIERS
 
 @Composable
-fun Modifier.consumeClick() = this.clickable(
+public fun Modifier.consumeClick(): Modifier = this.clickable(
     interactionSource = remember { MutableInteractionSource() },
     indication = null
 ) { /* no-op */ }
@@ -120,7 +120,7 @@ fun Modifier.consumeClick() = this.clickable(
 // BASE COMPONENTS
 
 @Composable
-fun TitleText(
+public fun TitleText(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     textAlign: TextAlign = TextAlign.Start,
@@ -143,7 +143,7 @@ fun TitleText(
 }
 
 @Composable
-fun SubtitleText(
+public fun SubtitleText(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     textAlign: TextAlign = TextAlign.Start,
@@ -166,7 +166,7 @@ fun SubtitleText(
 }
 
 @Composable
-fun OptionDetailText(
+public fun OptionDetailText(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
@@ -198,7 +198,7 @@ fun OptionDetailText(
 }
 
 @Composable
-fun BodyText(
+public fun BodyText(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     textAlign: TextAlign = TextAlign.Start,
@@ -221,7 +221,7 @@ fun BodyText(
 }
 
 @Composable
-fun SmallText(
+public fun SmallText(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     textAlign: TextAlign = TextAlign.Start,
@@ -244,7 +244,7 @@ fun SmallText(
 }
 
 @Composable
-fun HintText(
+public fun HintText(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     textAlign: TextAlign = TextAlign.Start,
@@ -266,7 +266,7 @@ fun HintText(
 }
 
 @Composable
-fun TextInput(
+public fun TextInput(
     modifier: Modifier = Modifier,
     text: String,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.Sentences,
@@ -324,7 +324,7 @@ fun TextInput(
 }
 
 @Composable
-fun TextButton(
+public fun TextButton(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     outlined: Boolean = false,
@@ -359,7 +359,7 @@ fun TextButton(
 }
 
 @Composable
-fun FloatingButton(
+public fun FloatingButton(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
     onClick: () -> Unit
@@ -376,7 +376,7 @@ fun FloatingButton(
 }
 
 @Composable
-fun BoxScope.BottomButton(
+public fun BoxScope.BottomButton(
     modifier: Modifier = Modifier,
     text: String,
     paddingValues: PaddingValues = PaddingValues(0.dp),
@@ -400,7 +400,7 @@ fun BoxScope.BottomButton(
 }
 
 @Composable
-fun BoxScope.BottomButtons(
+public fun BoxScope.BottomButtons(
     modifier: Modifier = Modifier,
     text: String,
     paddingValues: PaddingValues = PaddingValues(0.dp),
@@ -428,7 +428,7 @@ fun BoxScope.BottomButtons(
 }
 
 @Composable
-fun SmallFab(
+public fun SmallFab(
     modifier: Modifier = Modifier,
     containerColor: Color = FloatingActionButtonDefaults.containerColor,
     icon: @Composable () -> Unit,
@@ -444,7 +444,7 @@ fun SmallFab(
 }
 
 @Composable
-fun ClickableIcon(
+public fun ClickableIcon(
     modifier: Modifier = Modifier,
     imageVector: ImageVector,
     contentDescription: String,
@@ -475,7 +475,7 @@ fun ClickableIcon(
 }
 
 @Composable
-fun ToggleableIcon(
+public fun ToggleableIcon(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     enabledVector: ImageVector,
@@ -499,7 +499,7 @@ fun ToggleableIcon(
 // COMPLEX COMPONENTS
 
 @Composable
-fun TitledCard(
+public fun TitledCard(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
@@ -591,7 +591,7 @@ fun TitledCard(
 }
 
 @Composable
-fun ExpandableTitledCard(
+public fun ExpandableTitledCard(
     modifier: Modifier = Modifier,
     title: String,
     showDivider: Boolean = false,
@@ -700,7 +700,7 @@ fun ExpandableTitledCard(
 }
 
 @Composable
-fun SettingsSwitch(
+public fun SettingsSwitch(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
@@ -742,7 +742,7 @@ fun SettingsSwitch(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> SettingsSelector(
+public fun <T> SettingsSelector(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
@@ -793,7 +793,7 @@ fun <T> SettingsSelector(
 }
 
 @Composable
-fun StickyHeader(
+public fun StickyHeader(
     modifier: Modifier = Modifier,
     titleText: String,
     subtitleText: String? = null,
@@ -843,7 +843,7 @@ fun StickyHeader(
 }
 
 @Composable
-fun HorizontalSeparator() {
+public fun HorizontalSeparator() {
     HorizontalDivider(
         color = MaterialTheme.colorScheme.outlineVariant,
         modifier = Modifier
@@ -852,7 +852,7 @@ fun HorizontalSeparator() {
 }
 
 @Composable
-fun VerticalSeparator() {
+public fun VerticalSeparator() {
     VerticalDivider(
         color = MaterialTheme.colorScheme.outlineVariant,
         modifier = Modifier
@@ -861,7 +861,7 @@ fun VerticalSeparator() {
 }
 
 @Composable
-fun HorizontalSpacer(
+public fun HorizontalSpacer(
     height: Dp
 ) {
     Spacer(
@@ -872,7 +872,7 @@ fun HorizontalSpacer(
 }
 
 @Composable
-fun VerticalSpacer(
+public fun VerticalSpacer(
     width: Dp
 ) {
     Spacer(
@@ -885,7 +885,7 @@ fun VerticalSpacer(
 
 // FUNCTIONS
 
-suspend fun showSnackBar(
+public suspend fun showSnackBar(
     message: String,
     actionLabel: String,
     snackbarHost: SnackbarHostState,
@@ -913,7 +913,7 @@ suspend fun showSnackBar(
 // Adapted for multiplatform from: https://dev.to/bmonjoie/jetpack-compose-reveal-effect-1fao
 
 @Composable
-fun CircularReveal(
+public fun CircularReveal(
     modifier: Modifier = Modifier,
     startDelayMs: Int,
     revealDurationMs: Int,
@@ -943,10 +943,10 @@ fun CircularReveal(
     }
 }
 
-fun Modifier.circularReveal(
+public fun Modifier.circularReveal(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
     offset: Offset? = null
-) = clip(CircularRevealShape(progress, offset))
+): Modifier = clip(CircularRevealShape(progress, offset))
 
 private class CircularRevealShape(
     @param:FloatRange(from = 0.0, to = 1.0) private val progress: Float,
@@ -981,7 +981,7 @@ private class CircularRevealShape(
 }
 
 @Composable
-fun <T> rememberInteractionSources(items: List<T>): Map<T, MutableInteractionSource> {
+public fun <T> rememberInteractionSources(items: List<T>): Map<T, MutableInteractionSource> {
     return remember {
         mutableMapOf<T, MutableInteractionSource>().apply {
             items.forEach { item ->
@@ -991,7 +991,7 @@ fun <T> rememberInteractionSources(items: List<T>): Map<T, MutableInteractionSou
     }
 }
 
-suspend fun attentionRipple(
+public suspend fun attentionRipple(
     interactionSource: MutableInteractionSource,
     duration: Long = 1000L
 ) {
@@ -1002,7 +1002,7 @@ suspend fun attentionRipple(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-object PastOrPresentSelectableDates : SelectableDates {
+public object PastOrPresentSelectableDates : SelectableDates {
     override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= getTodayUtcMs()
     override fun isSelectableYear(year: Int): Boolean = year <= getTodayDate().year
 }
@@ -1013,7 +1013,7 @@ object PastOrPresentSelectableDates : SelectableDates {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerCard(
+public fun DatePickerCard(
     modifier: Modifier = Modifier,
     datePickerState: DatePickerState,
     title: @Composable (selectedDateMs: Long?) -> String = { dateMs ->

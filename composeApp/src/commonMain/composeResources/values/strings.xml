@@ -32,16 +32,11 @@
 
     <string name="generate_qr_code_text">Text to share</string>
     <string name="generate_qr_code_encrypted_text">Encrypted text to share</string>
-    <string name="share_button_text">Share app</string>
     <string name="scanner_button_text">Scan code</string>
+    <string name="share_button_text">Share app</string>
     <string name="generate_button_text">Generate code</string>
     <string name="import_button_text">Import code</string>
     <string name="camera_flash_button_text">Toggle flash</string>
-    <string name="scanner_unsupported_text">This device does not support code scanning</string>
-    <string name="scanner_success_text">Message received</string>
-    <string name="scanner_error_text">Unable to scan code</string>
-    <string name="scanner_error_action">Try again</string>
-    <string name="scanner_done">Done</string>
 
 
 

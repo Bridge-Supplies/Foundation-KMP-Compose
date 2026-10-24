@@ -15,7 +15,7 @@ import org.koin.compose.currentKoinScope
 import kotlin.enums.EnumEntries
 
 @Composable
-inline fun <reified T : ViewModel> koinViewModel(): T {
+public inline fun <reified T : ViewModel> koinViewModel(): T {
     val scope = currentKoinScope()
     return viewModel {
         scope.get<T>()
@@ -24,19 +24,19 @@ inline fun <reified T : ViewModel> koinViewModel(): T {
 
 // val keyboardController = LocalSoftwareKeyboardController.current
 // val focusManager = LocalFocusManager.current
-fun SoftwareKeyboardController?.hideAndClearFocus(focusManager: FocusManager?) {
+public fun SoftwareKeyboardController?.hideAndClearFocus(focusManager: FocusManager?) {
     this?.hide()
     focusManager?.clearFocus()
 }
 
-expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap
+public expect fun bitmapFromBytes(bytes: ByteArray): ImageBitmap
 
-expect suspend fun setClipboardText(clipboard: Clipboard, text: String)
+public expect suspend fun setClipboardText(clipboard: Clipboard, text: String)
 
 // REMEMBERS
 
 @Composable
-fun <T : Enum<T>> rememberSaveableEnumMap(
+public fun <T : Enum<T>> rememberSaveableEnumMap(
     enumValues: EnumEntries<T>,
     initialValue: Boolean = false
 ): SnapshotStateMap<T, Boolean> {

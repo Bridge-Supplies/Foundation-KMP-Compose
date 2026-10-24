@@ -1,11 +1,11 @@
 import androidx.compose.ui.window.ComposeUIViewController
-import data.MainViewModel
-import ui.App
+import bridge.supplies.foundation.demo.data.MainViewModel
+import bridge.supplies.foundation.demo.ui.App
 import bridge.supplies.foundation.ui.util.koinViewModel
 
 fun MainViewController() = ComposeUIViewController(
     configure = {
-        config.KoinInitializer().init()
+        bridge.supplies.foundation.demo.config.KoinInitializer().init()
     }
 ) {
     val viewModel = koinViewModel<MainViewModel>()

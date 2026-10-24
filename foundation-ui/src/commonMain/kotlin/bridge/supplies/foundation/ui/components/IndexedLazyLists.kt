@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +23,7 @@ import androidx.compose.ui.unit.dp
 // IndexedLazyColumn: https://gist.github.com/DantheCodingGui/e660e987685b11d2e94af3e94d76797c
 
 @Composable
-fun IndexedLazyColumn(
+public fun IndexedLazyColumn(
     modifier: Modifier = Modifier,
     state: IndexedLazyListState = rememberIndexedLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -48,7 +49,7 @@ fun IndexedLazyColumn(
 }
 
 @Composable
-fun IndexedLazyRow(
+public fun IndexedLazyRow(
     modifier: Modifier = Modifier,
     state: IndexedLazyListState = rememberIndexedLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -74,17 +75,17 @@ fun IndexedLazyRow(
 }
 
 @Composable
-fun rememberIndexedLazyListState(
+public fun rememberIndexedLazyListState(
     listState: LazyListState = rememberLazyListState(),
 ): IndexedLazyListState {
     return remember { IndexedLazyListState(listState) }
 }
 
 @Stable
-class IndexedLazyListState internal constructor(
-    val listState: LazyListState,
+public class IndexedLazyListState internal constructor(
+    public val listState: LazyListState,
 ) {
-    val itemIndexMapping = mutableStateMapOf<Any, Int>()
+    public val itemIndexMapping: SnapshotStateMap<Any, Int> = mutableStateMapOf()
     
     internal fun linkKeyToIndex(key: Any, index: Int) {
         itemIndexMapping[key] = index
@@ -92,7 +93,7 @@ class IndexedLazyListState internal constructor(
 }
 
 @Stable
-class IndexedLazyListScope(
+public class IndexedLazyListScope(
     private val lazyListScope: LazyListScope,
     private val state: IndexedLazyListState,
 ) : LazyListScope {

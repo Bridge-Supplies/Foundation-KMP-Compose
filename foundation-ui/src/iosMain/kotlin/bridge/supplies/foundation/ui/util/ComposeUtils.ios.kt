@@ -7,11 +7,11 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import org.jetbrains.skia.Image
 
-actual fun bitmapFromBytes(bytes: ByteArray): ImageBitmap {
+public actual fun bitmapFromBytes(bytes: ByteArray): ImageBitmap {
     return Image.makeFromEncoded(bytes).toComposeImageBitmap()
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-actual suspend fun setClipboardText(clipboard: Clipboard, text: String) {
+public actual suspend fun setClipboardText(clipboard: Clipboard, text: String) {
     clipboard.setClipEntry(ClipEntry.withPlainText(text))
 }

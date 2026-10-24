@@ -16,7 +16,7 @@ compose.resources {
 }
 
 kotlin {
-    explicitApiWarning() // becomes explicitApi() (errors) once the public API settles
+    explicitApi()
     
     android {
         namespace = "bridge.supplies.foundation.ui"
@@ -57,6 +57,17 @@ kotlin {
         
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
+            implementation(libs.ismai117.kscan)
+            implementation(libs.moko.permissions)
+            implementation(libs.moko.permissions.camera)
+            implementation(libs.moko.permissions.compose)
+        }
+        
+        iosMain.dependencies {
+            implementation(libs.ismai117.kscan)
+            implementation(libs.moko.permissions)
+            implementation(libs.moko.permissions.camera)
+            implementation(libs.moko.permissions.compose)
         }
         
         commonTest.dependencies {

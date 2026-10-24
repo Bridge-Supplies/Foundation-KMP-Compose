@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import config.showSystemUI
-import data.MainViewModel
-import ui.App
+import bridge.supplies.foundation.demo.config.showSystemUI
+import bridge.supplies.foundation.demo.data.MainViewModel
+import bridge.supplies.foundation.demo.ui.App
 import bridge.supplies.foundation.ui.util.koinViewModel
 
 class MainActivity : ComponentActivity() {

@@ -1,13 +1,14 @@
 package bridge.supplies.foundation.ui.theme
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 
 // Customize to change text styles
-val Typography = Typography()
+public val Typography: Typography = Typography()
 
-val LightColorScheme = lightColorScheme(
+public val LightColorScheme: ColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
@@ -39,7 +40,7 @@ val LightColorScheme = lightColorScheme(
     scrim = md_theme_light_scrim,
 )
 
-val DarkColorScheme = darkColorScheme(
+public val DarkColorScheme: ColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = md_theme_dark_primaryContainer,

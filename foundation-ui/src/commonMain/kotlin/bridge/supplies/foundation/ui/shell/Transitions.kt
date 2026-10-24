@@ -11,21 +11,21 @@ import androidx.compose.runtime.Composable
 // Platform-specific navigation transitions and back handling
 
 @Composable
-expect fun BackHandler(
+public expect fun BackHandler(
     enabled: Boolean = true,
     onBack: () -> Unit = { }
 )
 
-expect val TRANSITION_ENTER_MS: Int
-expect val TRANSITION_EXIT_MS: Int
-expect val TRANSITION_EASING: Easing
-expect val TRANSITION_OFFSET_DIV: Int
+public expect val TRANSITION_ENTER_MS: Int
+public expect val TRANSITION_EXIT_MS: Int
+public expect val TRANSITION_EASING: Easing
+public expect val TRANSITION_OFFSET_DIV: Int
 
 // Platform-specific shell layout defaults (see ShellOptions)
 internal expect val RAIL_VERTICALLY_CENTERED: Boolean
 internal expect val CENTER_TOP_BAR_TITLE: Boolean
 
-fun TopLevelEnterTransition(): EnterTransition =
+public fun TopLevelEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(
             durationMillis = TRANSITION_ENTER_MS,
@@ -33,7 +33,7 @@ fun TopLevelEnterTransition(): EnterTransition =
         )
     )
 
-fun TopLevelExitTransition(): ExitTransition =
+public fun TopLevelExitTransition(): ExitTransition =
     fadeOut(
         animationSpec = tween(
             durationMillis = TRANSITION_EXIT_MS,
@@ -41,7 +41,7 @@ fun TopLevelExitTransition(): ExitTransition =
         )
     )
 
-expect fun ScreenEnterTransition(): EnterTransition
-expect fun ScreenExitTransition(): ExitTransition
-expect fun ScreenPopEnterTransition(): EnterTransition
-expect fun ScreenPopExitTransition(): ExitTransition
+public expect fun ScreenEnterTransition(): EnterTransition
+public expect fun ScreenExitTransition(): ExitTransition
+public expect fun ScreenPopEnterTransition(): EnterTransition
+public expect fun ScreenPopExitTransition(): ExitTransition

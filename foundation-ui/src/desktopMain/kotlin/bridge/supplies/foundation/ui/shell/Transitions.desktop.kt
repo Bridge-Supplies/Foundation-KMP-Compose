@@ -1,6 +1,7 @@
 package bridge.supplies.foundation.ui.shell
 
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
@@ -11,22 +12,22 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 
 @Composable
-actual fun BackHandler(
+public actual fun BackHandler(
     enabled: Boolean,
     onBack: () -> Unit
 ) {
     // no-op
 }
 
-actual val TRANSITION_ENTER_MS = 200
-actual val TRANSITION_EXIT_MS = 100
-actual val TRANSITION_EASING = FastOutLinearInEasing
-actual val TRANSITION_OFFSET_DIV = 10
+public actual val TRANSITION_ENTER_MS: Int = 200
+public actual val TRANSITION_EXIT_MS: Int = 100
+public actual val TRANSITION_EASING: Easing = FastOutLinearInEasing
+public actual val TRANSITION_OFFSET_DIV: Int = 10
 
 internal actual val RAIL_VERTICALLY_CENTERED = false
 internal actual val CENTER_TOP_BAR_TITLE = false
 
-actual fun ScreenEnterTransition(): EnterTransition =
+public actual fun ScreenEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     ) + scaleIn(
@@ -34,7 +35,7 @@ actual fun ScreenEnterTransition(): EnterTransition =
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     )
 
-actual fun ScreenExitTransition(): ExitTransition =
+public actual fun ScreenExitTransition(): ExitTransition =
     fadeOut(
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     ) + scaleOut(
@@ -42,7 +43,7 @@ actual fun ScreenExitTransition(): ExitTransition =
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     )
 
-actual fun ScreenPopEnterTransition(): EnterTransition =
+public actual fun ScreenPopEnterTransition(): EnterTransition =
     fadeIn(
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     ) + scaleIn(
@@ -50,7 +51,7 @@ actual fun ScreenPopEnterTransition(): EnterTransition =
         animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
     )
 
-actual fun ScreenPopExitTransition(): ExitTransition =
+public actual fun ScreenPopExitTransition(): ExitTransition =
     fadeOut(
         animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
     ) + scaleOut(
