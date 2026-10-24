@@ -59,6 +59,8 @@ buildConfig {
     }
 
     packageName(libs.versions.app.packageName.get())
+    buildConfigField("APP_NAME", libs.versions.app.name.get())
+    buildConfigField("PACKAGE_NAME", libs.versions.app.packageName.get())
     buildConfigField("APP_VERSION", libs.versions.app.versionName.get())
     buildConfigField("APP_BUILD", libs.versions.app.versionCode.get())
     buildConfigField("ENCRYPTION_KEY", keystoreProperties?.getProperty("encryptionKey") ?: devEncryptionKey)

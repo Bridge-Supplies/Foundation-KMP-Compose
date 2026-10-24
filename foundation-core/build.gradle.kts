@@ -32,6 +32,7 @@ kotlin {
             api(libs.kotlinx.serialization.json)
             api(libs.androidx.datastore)
             api(libs.androidx.datastore.preferences)
+            api(libs.koin.core)
             
             implementation(libs.soywiz.korlibs.crypto)
             implementation(libs.soywiz.korlibs.compression)

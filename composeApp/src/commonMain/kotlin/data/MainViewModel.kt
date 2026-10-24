@@ -55,47 +55,47 @@ class MainViewModel(
     var licenses = _licenses.asStateFlow()
         private set
     
-    private val _desktopResolutionX = MutableStateFlow(StoredValue.DESKTOP_RESOLUTION_X().default)
+    private val _desktopResolutionX = MutableStateFlow(SettingKeys.desktopResolutionX.default)
     var desktopResolutionX = _desktopResolutionX.asStateFlow()
         private set
     
-    private val _desktopResolutionY = MutableStateFlow(StoredValue.DESKTOP_RESOLUTION_Y().default)
+    private val _desktopResolutionY = MutableStateFlow(SettingKeys.desktopResolutionY.default)
     var desktopResolutionY = _desktopResolutionY.asStateFlow()
         private set
     
-    private val _useLandingTips = MutableStateFlow(StoredValue.LANDING_TIPS().default)
+    private val _useLandingTips = MutableStateFlow(SettingKeys.landingTips.default)
     var useLandingTips = _useLandingTips.asStateFlow()
         private set
     
-    private val _useFullscreenLandscape = MutableStateFlow(StoredValue.FULLSCREEN_LANDSCAPE().default)
+    private val _useFullscreenLandscape = MutableStateFlow(SettingKeys.fullscreenLandscape.default)
     var useFullscreenLandscape = _useFullscreenLandscape.asStateFlow()
         private set
     
-    private val _useExpressiveAnimation = MutableStateFlow(StoredValue.EXPRESSIVE_ANIMATION().default)
+    private val _useExpressiveAnimation = MutableStateFlow(SettingKeys.expressiveAnimation.default)
     var useExpressiveAnimation = _useExpressiveAnimation.asStateFlow()
         private set
     
-    private val _useColorTheme = MutableStateFlow(StoredValue.COLOR_THEME().default)
+    private val _useColorTheme = MutableStateFlow(SettingKeys.colorTheme.default)
     var useColorTheme = _useColorTheme.asStateFlow()
         private set
     
-    private val _usePalette = MutableStateFlow(StoredValue.PALETTE_STYLE().default)
+    private val _usePalette = MutableStateFlow(SettingKeys.paletteStyle.default)
     var usePalette = _usePalette.asStateFlow()
         private set
     
-    private val _useDarkMode = MutableStateFlow(StoredValue.DARK_MODE().default)
+    private val _useDarkMode = MutableStateFlow(SettingKeys.darkMode.default)
     var useDarkMode = _useDarkMode.asStateFlow()
         private set
     
-    private val _useVibration = MutableStateFlow(StoredValue.VIBRATION().default)
+    private val _useVibration = MutableStateFlow(SettingKeys.vibration.default)
     var useVibration = _useVibration.asStateFlow()
         private set
     
-    private val _useScrollHelpers = MutableStateFlow(StoredValue.SCROLL_HELPERS().default)
+    private val _useScrollHelpers = MutableStateFlow(SettingKeys.scrollHelpers.default)
     var useScrollHelpers = _useScrollHelpers.asStateFlow()
         private set
     
-    private val _useEncryptedShare = MutableStateFlow(StoredValue.ENCRYPTED_SHARE().default)
+    private val _useEncryptedShare = MutableStateFlow(SettingKeys.encryptedShare.default)
     var useEncryptedShare = _useEncryptedShare.asStateFlow()
         private set
     
