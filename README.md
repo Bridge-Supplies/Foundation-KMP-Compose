@@ -87,7 +87,7 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
     - `MainViewController.kt` initializes libraries (Koin) and displays shared `App` Composable
     - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
   - `/desktopMain` is for JVM-specific code.
-    - `Foundation.desktop.kt` contains the `main()` class to initialize libraries (Koin) and display shared `App` Composable
+    - `bridge/supplies/foundation/Foundation.desktop.kt` contains the `main()` class to initialize libraries (Koin) and display shared `App` Composable
      - `actual` implementations of `FoundationTheme`, `AppConfig`, `DataStore`, and UI
 * `/iosApp` contains the iOS Xcode project files.
   - `Config.xcconfig` declares iOS package and app name
@@ -128,7 +128,7 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
   - `app_name` to your app name
 * Update Android and Desktop Application classes
   - `Foundation.android.kt` to `YourAppName.android.kt`
-  - `Foundation.desktop.kt` to `YourAppName.desktop.kt`
+  - `Foundation.desktop.kt` to `YourAppName.desktop.kt` (keep it in your package directory, with a matching `package` line)
 * Update `AndroidManifest.xml`
   - <application `android:name`/> = the full package name + Application class name
     - ie `bridge.supplies.foundation.Foundation`
@@ -191,8 +191,8 @@ This is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kot
 - `iOS`
   - using `iosApp.xcodeproj` project file
 - `Desktop`
-  - using `desktopRun -DmainClass=Foundation --quiet` run options
-  - `DmainClass` should match `app-mainName` without the `.`
+  - runs `./gradlew :composeApp:run`
+  - the main class is `app-packageName` + `.` + `app-name` from `libs.versions.toml`, so the desktop entry class must use that package and name
 
 ### Publishing
 - Android
