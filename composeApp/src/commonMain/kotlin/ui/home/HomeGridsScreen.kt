@@ -16,7 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import config.isPortraitMode
+import bridge.supplies.foundation.ui.isPortrait
 import data.MainViewModel
 import bridge.supplies.foundation.ui.components.BodyText
 import bridge.supplies.foundation.ui.components.EdgeFadeLazyStaggeredVerticalGrid
@@ -29,7 +29,7 @@ fun HomeGridsScreen(
     viewModel: MainViewModel,
     hapticFeedback: () -> Unit
 ) {
-    val isPortraitMode = isPortraitMode()
+    val isPortraitMode = isPortrait()
     var isStaggered by rememberSaveable { mutableStateOf(false) }
     
     Column(

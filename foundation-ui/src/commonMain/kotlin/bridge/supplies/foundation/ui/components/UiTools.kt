@@ -703,7 +703,7 @@ fun ExpandableTitledCard(
 fun SettingsSwitch(
     modifier: Modifier = Modifier,
     title: String,
-    subtitle: String,
+    subtitle: String? = null,
     enabled: Boolean,
     onEnabled: (Boolean) -> Unit
 ) {
@@ -745,7 +745,7 @@ fun SettingsSwitch(
 fun <T> SettingsSelector(
     modifier: Modifier = Modifier,
     title: String,
-    subtitle: String,
+    subtitle: String? = null,
     optionList: List<T>,
     selectedOption: T,
     onSelectOption: (T) -> Unit,

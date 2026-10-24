@@ -51,6 +51,15 @@ kotlin {
             api(libs.koin.compose)
             
             implementation(libs.g0dkar.qrcode.kotlin)
+            implementation(libs.material.kolor)
+        }
+        
+        androidMain.dependencies {
+            implementation(libs.androidx.core.ktx)
+        }
+        
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
         
         named("desktopMain") {

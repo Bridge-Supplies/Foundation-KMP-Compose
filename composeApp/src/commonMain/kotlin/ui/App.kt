@@ -3,12 +3,12 @@ package ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalHapticFeedback
+import bridge.supplies.foundation.ui.rememberHapticFeedback
 import bridge.supplies.foundation.ui.shell.FoundationApp
 import bridge.supplies.foundation.ui.shell.Landing
-import config.FoundationTheme
 import data.MainViewModel
-import ui.landing.LandingScreen
+import foundation.composeapp.generated.resources.Res
+import foundation.composeapp.generated.resources.ic_launcher_foreground
 import ui.sheets.ActiveBottomSheet
 import ui.sheets.DatePickerBottomSheet
 import ui.sheets.ShareAppBottomSheet
@@ -19,41 +19,25 @@ fun App(
     onShowSystemUi: (Boolean) -> Unit = { },
     onCloseApplication: () -> Unit = { }
 ) {
-    FoundationTheme(
-        viewModel = viewModel
-    ) {
-        val useFullscreenLandscape by viewModel.useFullscreenLandscape.collectAsState()
+    val hapticFeedback = rememberHapticFeedback()
 
-        val haptics = LocalHapticFeedback.current
-        val hapticFeedback: () -> Unit = {
-            viewModel.hapticFeedback(haptics)
-        }
-
-        FoundationApp(
-            tabs = appTabs,
-            routes = appRoutes,
-            landing = Landing.Custom { onDone ->
-                LandingScreen(
-                    viewModel = viewModel,
-                    onLandingCompleted = { onDone() }
-                )
-            },
-            fullscreenLandscape = useFullscreenLandscape,
-            onShowSystemUi = onShowSystemUi,
-            onCloseApplication = onCloseApplication,
-            onHapticFeedback = hapticFeedback,
-            overlay = {
-                BottomSheets(
-                    viewModel = viewModel,
-                    hapticFeedback = hapticFeedback
-                )
-            }
-        ) {
-            appEntries(
+    FoundationApp(
+        tabs = appTabs,
+        routes = appRoutes,
+        landing = Landing.Default(icon = Res.drawable.ic_launcher_foreground),
+        onShowSystemUi = onShowSystemUi,
+        onCloseApplication = onCloseApplication,
+        overlay = {
+            BottomSheets(
                 viewModel = viewModel,
                 hapticFeedback = hapticFeedback
             )
         }
+    ) {
+        appEntries(
+            viewModel = viewModel,
+            hapticFeedback = hapticFeedback
+        )
     }
 }
 

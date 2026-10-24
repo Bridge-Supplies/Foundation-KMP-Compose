@@ -14,7 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import config.isPortraitMode
+import bridge.supplies.foundation.ui.foundationViewModel
+import bridge.supplies.foundation.ui.isPortrait
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_about_orientation
@@ -41,10 +42,10 @@ fun HomeInfoScreen(
     onNavigateRowsScreen: () -> Unit,
     onNavigateGridsScreen: () -> Unit
 ) {
-    val isPortraitMode = isPortraitMode()
+    val isPortraitMode = isPortrait()
     val listState = rememberScrollState()
     val orientationText = if (isPortraitMode) "Portrait" else "Landscape"
-    val text = stringResource(Res.string.app_about_platform, viewModel.platform.name) + "\n" +
+    val text = stringResource(Res.string.app_about_platform, foundationViewModel().platform.name) + "\n" +
         stringResource(Res.string.app_about_orientation, orientationText)
     
     EdgeFadeColumn(

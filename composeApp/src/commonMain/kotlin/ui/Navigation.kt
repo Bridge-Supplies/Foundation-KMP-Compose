@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material.icons.outlined.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import bridge.supplies.foundation.ui.settings.FoundationSettingsScreen
 import bridge.supplies.foundation.ui.shell.FoundationTab
 import bridge.supplies.foundation.ui.shell.LocalSnackbarHostState
 import bridge.supplies.foundation.ui.shell.LocalNavigator
@@ -34,7 +35,6 @@ import ui.home.HomeRowsScreen
 import ui.scanner.ScanCodeScreen
 import ui.scanner.ShareCodeScreen
 import ui.settings.SettingsAboutScreen
-import ui.settings.SettingsOptionsScreen
 
 // ROUTES
 
@@ -168,9 +168,7 @@ fun EntryProviderScope<NavKey>.appEntries(
     // SETTINGS
     entry<SettingsOptions> {
         val navigator = LocalNavigator.current
-        SettingsOptionsScreen(
-            viewModel = viewModel,
-            hapticFeedback = hapticFeedback,
+        FoundationSettingsScreen(
             onNavigateToAbout = { navigator.navigate(SettingsAbout) }
         )
     }

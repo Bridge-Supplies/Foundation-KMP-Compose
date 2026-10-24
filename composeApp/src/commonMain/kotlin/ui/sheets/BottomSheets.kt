@@ -27,7 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import config.isPortraitMode
+import bridge.supplies.foundation.ui.foundationViewModel
+import bridge.supplies.foundation.ui.isPortrait
 import data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.navigation_close
@@ -79,7 +80,7 @@ fun SimpleBottomSheet(
     }
     
     // workaround for bottom sheets not adapting to orientation changes
-    if (isPortraitMode()) {
+    if (isPortrait()) {
         bottomSheet()
     } else {
         bottomSheet()
@@ -127,7 +128,7 @@ fun ShareAppBottomSheet(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
-    val shareText = viewModel.platform.shareUrl
+    val shareText = foundationViewModel().config.shareUrl.orEmpty()
     
     val closeSheet: () -> Unit = {
         coroutineScope.hideSheet(sheetState, viewModel)
@@ -152,7 +153,7 @@ fun ShareAppBottomSheet(
                 CodeDisplay(
                     modifier = Modifier
                         .wrapContentWidth()
-                        .height(if (isPortraitMode()) 256.dp else 200.dp),
+                        .height(if (isPortrait()) 256.dp else 200.dp),
                     text = shareText,
                     color = MaterialTheme.colorScheme.primary,
                     backgroundColor = MaterialTheme.colorScheme.onPrimary,

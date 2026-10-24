@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import config.Feature
-import config.isPortraitMode
+import bridge.supplies.foundation.core.platform.PlatformFeature
+import bridge.supplies.foundation.ui.foundationViewModel
+import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
+import bridge.supplies.foundation.ui.isPortrait
 import data.MainViewModel
 import bridge.supplies.foundation.core.crypto.QrCodec
 import data.SharedData
@@ -58,10 +60,10 @@ fun ShareCodeScreen(
     hapticFeedback: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
-    val isPortraitMode = isPortraitMode()
+    val isPortraitMode = isPortrait()
     val sharedText by viewModel.sharedText.collectAsState()
-    val useEncryptedShare by viewModel.useEncryptedShare.collectAsState()
-    val qrProcessedText by viewModel.processedQrText.collectAsState()
+    val foundation = foundationViewModel()
+    val useEncryptedShare by foundation.setting(FoundationSettingKeys.encryptedShare).collectAsState()
     val qrBitmap by viewModel.processedQrBitmap.collectAsState()
     
     val qrCodec = koinInject<QrCodec>()
@@ -78,14 +80,12 @@ fun ShareCodeScreen(
         delay(QR_GENERATION_DEBOUNCE_MS)
         withContext(Dispatchers.Default) {
             val newProcessedText = qrCodec.encode(SharedData(sharedText), SharedData.serializer(), useEncryptedShare)
-            if (newProcessedText != qrProcessedText) {
-                val generatedQrBitmap = generateQrCode(
-                    text = newProcessedText,
-                    colorRgb = color.toArgb(),
-                    backgroundColorRgb = backgroundColor.toArgb()
-                )
-                viewModel.setQr(newProcessedText, generatedQrBitmap)
-            }
+            val generatedQrBitmap = generateQrCode(
+                text = newProcessedText,
+                colorRgb = color.toArgb(),
+                backgroundColorRgb = backgroundColor.toArgb()
+            )
+            viewModel.setQr(newProcessedText, generatedQrBitmap)
         }
     }
     
@@ -125,7 +125,7 @@ fun ShareCodeScreen(
             CodeScannerInfo(
                 sharedText = sharedText,
                 useEncryptedShare = useEncryptedShare,
-                supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
+                supportsScanning = foundation.supports(PlatformFeature.CODE_SCANNING),
                 onUpdateSharedText = onUpdateSharedText,
                 onClickScanner = onClickScanner
             )
@@ -143,7 +143,7 @@ fun ShareCodeScreen(
                 modifier = Modifier.weight(1f),
                 sharedText = sharedText,
                 useEncryptedShare = useEncryptedShare,
-                supportsScanning = viewModel.supportsFeature(Feature.CODE_SCANNING),
+                supportsScanning = foundation.supports(PlatformFeature.CODE_SCANNING),
                 onUpdateSharedText = onUpdateSharedText,
                 onClickScanner = onClickScanner
             )

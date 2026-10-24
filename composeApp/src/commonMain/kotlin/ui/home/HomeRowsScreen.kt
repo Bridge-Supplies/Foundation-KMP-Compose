@@ -29,6 +29,9 @@ import bridge.supplies.foundation.ui.components.BodyText
 import bridge.supplies.foundation.ui.components.EdgeFadeIndexedLazyRow
 import bridge.supplies.foundation.ui.components.EdgeFadeRow
 import bridge.supplies.foundation.ui.components.SettingsSwitch
+import bridge.supplies.foundation.ui.foundationViewModel
+import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
+import bridge.supplies.foundation.ui.settings.SettingSwitch
 import bridge.supplies.foundation.ui.components.TitledCard
 import bridge.supplies.foundation.ui.components.rememberIndexedLazyListState
 
@@ -37,7 +40,7 @@ fun HomeRowsScreen(
     viewModel: MainViewModel,
     hapticFeedback: () -> Unit
 ) {
-    val useScrollHelpers by viewModel.useScrollHelpers.collectAsState()
+    val useScrollHelpers by foundationViewModel().setting(FoundationSettingKeys.scrollHelpers).collectAsState()
     var isLazy by rememberSaveable { mutableStateOf(false) }
     
     val onScrollForward = { ->
@@ -59,15 +62,12 @@ fun HomeRowsScreen(
             hapticFeedback()
         }
         
-        SettingsSwitch(
+        SettingSwitch(
             modifier = Modifier.padding(horizontal = 8.dp),
-            title = stringResource(Res.string.app_settings_scroll_helpers_title),
-            subtitle = stringResource(Res.string.app_settings_scroll_helpers_subtitle),
-            enabled = useScrollHelpers
-        ) {
-            viewModel.useScrollHelpers(it)
-            hapticFeedback()
-        }
+            key = FoundationSettingKeys.scrollHelpers,
+            title = Res.string.app_settings_scroll_helpers_title,
+            subtitle = Res.string.app_settings_scroll_helpers_subtitle
+        )
         
         Crossfade(
             modifier = Modifier

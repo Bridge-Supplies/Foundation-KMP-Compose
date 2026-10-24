@@ -39,6 +39,7 @@ import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.settings_about_licenses_unknown
 import foundation.composeapp.generated.resources.tag_built_with_foundation
 import org.jetbrains.compose.resources.stringResource
+import bridge.supplies.foundation.ui.foundationViewModel
 import bridge.supplies.foundation.core.platform.browseWeb
 import bridge.supplies.foundation.ui.components.BottomButton
 import bridge.supplies.foundation.ui.components.ClickableIcon
@@ -94,7 +95,7 @@ fun SettingsAboutScreen(
                                 horizontal = 16.dp
                             ),
                         title = stringResource(Res.string.app_about_version),
-                        subtitle = viewModel.platform.version,
+                        subtitle = foundationViewModel().config.version,
                     )
                     
                     OptionDetailText(
@@ -104,7 +105,7 @@ fun SettingsAboutScreen(
                                 horizontal = 16.dp
                             ),
                         title = stringResource(Res.string.app_about_build),
-                        subtitle = viewModel.platform.build,
+                        subtitle = foundationViewModel().config.build,
                     )
                     
                     Spacer(Modifier.height(8.dp))

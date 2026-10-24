@@ -1,9 +1,9 @@
-package bridge.supplies.foundation
+package bridge.supplies.foundation.ui
 
-import config.ColorTheme
-import config.DarkMode
-import config.Palette
-import data.SettingKeys
+import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
+import bridge.supplies.foundation.ui.theme.ColorTheme
+import bridge.supplies.foundation.ui.theme.DarkMode
+import bridge.supplies.foundation.ui.theme.Palette
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -17,17 +17,17 @@ class StoredKeyStabilityTests {
     @Test
     fun settingKeyNamesAreStable() {
         val actual = listOf(
-            SettingKeys.desktopResolutionX.name,
-            SettingKeys.desktopResolutionY.name,
-            SettingKeys.landingTips.name,
-            SettingKeys.fullscreenLandscape.name,
-            SettingKeys.expressiveAnimation.name,
-            SettingKeys.colorTheme.name,
-            SettingKeys.paletteStyle.name,
-            SettingKeys.darkMode.name,
-            SettingKeys.vibration.name,
-            SettingKeys.scrollHelpers.name,
-            SettingKeys.encryptedShare.name,
+            FoundationSettingKeys.desktopResolutionX.name,
+            FoundationSettingKeys.desktopResolutionY.name,
+            FoundationSettingKeys.landingTips.name,
+            FoundationSettingKeys.fullscreenLandscape.name,
+            FoundationSettingKeys.expressiveAnimation.name,
+            FoundationSettingKeys.colorTheme.name,
+            FoundationSettingKeys.paletteStyle.name,
+            FoundationSettingKeys.darkMode.name,
+            FoundationSettingKeys.vibration.name,
+            FoundationSettingKeys.scrollHelpers.name,
+            FoundationSettingKeys.encryptedShare.name,
         )
         val expected = listOf(
             "Settings_desktop_resolution_x",
