@@ -47,4 +47,7 @@
     <string name="theme_settings_palette_bold">Bold</string>
     <string name="navigation_settings_about">About app</string>
     <string name="action_settings">System settings</string>
+    <string name="share_sheet_copy_text">Copy to clipboard</string>
+    <string name="navigation_close">Close</string>
+    <string name="navigation_confirm">Confirm</string>
 </resources>

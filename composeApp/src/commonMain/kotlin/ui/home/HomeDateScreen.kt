@@ -1,5 +1,8 @@
 package ui.home
 
+import bridge.supplies.foundation.ui.components.PastOrPresentSelectableDates
+import bridge.supplies.foundation.ui.sheets.DateSheet
+import bridge.supplies.foundation.ui.sheets.sheetController
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +47,7 @@ fun HomeDateScreen(
     hapticFeedback: () -> Unit,
     initialSelectedDateMs: Long = getTodayUtcMs()
 ) {
+    val sheets = sheetController()
     val timer by viewModel.timer.collectAsState()
     val now = getTodayDate()
     val todaysDate by remember { mutableStateOf(getDateDisplay(now)) }
@@ -89,11 +93,14 @@ fun HomeDateScreen(
                 .padding(top = 8.dp),
             text = stringResource(Res.string.navigation_home_date_select)
         ) {
-            viewModel.showDatePickerSheet(
-                selectedDate = initialSelectedDateMs,
-                onDateSelected = {
-                    selectedDate = it
-                }
+            sheets.show(
+                DateSheet(
+                    initialDateMs = initialSelectedDateMs,
+                    selectableDates = PastOrPresentSelectableDates,
+                    onSelected = {
+                        selectedDate = it
+                    }
+                )
             )
             hapticFeedback()
         }

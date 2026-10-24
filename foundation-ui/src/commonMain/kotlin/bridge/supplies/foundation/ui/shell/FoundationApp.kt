@@ -60,6 +60,8 @@ import bridge.supplies.foundation.ui.foundationViewModel
 import bridge.supplies.foundation.ui.isPortrait
 import bridge.supplies.foundation.ui.rememberHapticFeedback
 import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
+import bridge.supplies.foundation.ui.sheets.SheetContent
+import bridge.supplies.foundation.ui.sheets.SheetHost
 import bridge.supplies.foundation.ui.theme.FoundationTheme
 import bridge.supplies.foundation.ui.theme.ThemeConfig
 import bridge.supplies.foundation.ui.resources.Res
@@ -102,7 +104,7 @@ public val LocalSnackbarHostState: ProvidableCompositionLocal<SnackbarHostState>
  * @param routes serializers for every route used in [entries]
  * @param onShowSystemUi called with whether the system bars should show
  * @param onCloseApplication called on back from the start tab's root
- * @param overlay drawn above the screens, e.g. bottom sheets
+ * @param sheets content for the app's own [SheetRequest][bridge.supplies.foundation.core.sheets.SheetRequest]s; Foundation draws the sheet
  * @param entries the app's screens: `entry<MyRoute>(metadata = screenMetadata(…)) { route -> … }`
  */
 @Composable
@@ -114,11 +116,11 @@ public fun FoundationApp(
     shell: ShellOptions = ShellOptions(),
     onShowSystemUi: (Boolean) -> Unit = { },
     onCloseApplication: () -> Unit = { },
-    overlay: @Composable () -> Unit = { },
+    sheets: SheetContent = { },
     entries: EntryProviderScope<NavKey>.() -> Unit,
 ) {
     FoundationTheme(theme) {
-        FoundationShell(tabs, routes, landing, shell, onShowSystemUi, onCloseApplication, overlay, entries)
+        FoundationShell(tabs, routes, landing, shell, onShowSystemUi, onCloseApplication, sheets, entries)
     }
 }
 
@@ -130,7 +132,7 @@ private fun FoundationShell(
     shell: ShellOptions,
     onShowSystemUi: (Boolean) -> Unit,
     onCloseApplication: () -> Unit,
-    overlay: @Composable () -> Unit,
+    sheets: SheetContent,
     entries: EntryProviderScope<NavKey>.() -> Unit,
 ) {
     val viewModel = foundationViewModel()
@@ -270,7 +272,7 @@ private fun FoundationShell(
                     }
                 }
 
-                overlay()
+                SheetHost(sheets)
             }
         }
     }

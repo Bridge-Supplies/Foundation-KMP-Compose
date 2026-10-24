@@ -1,5 +1,8 @@
 package ui.home
 
+import bridge.supplies.foundation.ui.components.PastOrPresentSelectableDates
+import bridge.supplies.foundation.ui.sheets.DateSheet
+import bridge.supplies.foundation.ui.sheets.sheetController
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
@@ -42,6 +45,7 @@ fun HomeInfoScreen(
     onNavigateRowsScreen: () -> Unit,
     onNavigateGridsScreen: () -> Unit
 ) {
+    val sheets = sheetController()
     val isPortraitMode = isPortrait()
     val listState = rememberScrollState()
     val orientationText = if (isPortraitMode) "Portrait" else "Landscape"
@@ -82,11 +86,14 @@ fun HomeInfoScreen(
                 .padding(horizontal = 16.dp),
             text = stringResource(Res.string.navigation_home_date)
         ) {
-            viewModel.showDatePickerSheet(
-                selectedDate = getTodayUtcMs(),
-                onDateSelected = { selectedDate ->
-                    onNavigateDateScreen(selectedDate)
-                }
+            sheets.show(
+                DateSheet(
+                    initialDateMs = getTodayUtcMs(),
+                    selectableDates = PastOrPresentSelectableDates,
+                    onSelected = { selectedDate ->
+                        onNavigateDateScreen(selectedDate)
+                    }
+                )
             )
             hapticFeedback()
         }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ui.sheets.ActiveBottomSheet
 
 /** Demo state. Foundation's settings live in FoundationViewModel. */
 class MainViewModel : ViewModel() {
@@ -30,10 +29,6 @@ class MainViewModel : ViewModel() {
     
     // FOUNDATION
     
-    private val _currentBottomSheet: MutableStateFlow<ActiveBottomSheet> = MutableStateFlow(ActiveBottomSheet.None)
-    var currentBottomSheet = _currentBottomSheet.asStateFlow()
-        private set
-
     private val _licenses = MutableStateFlow(LicenseMap())
     var licenses = _licenses.asStateFlow()
         private set
@@ -95,32 +90,5 @@ class MainViewModel : ViewModel() {
     fun clearQr() {
         _processedQrText.value = null
         _processedQrBitmap.value = null
-    }
-    
-    
-    // BOTTOM SHEETS
-    
-    private fun setBottomSheet(sheet: ActiveBottomSheet) {
-        _currentBottomSheet.value = sheet
-    }
-    
-    fun hideBottomSheet() {
-        _currentBottomSheet.value = ActiveBottomSheet.None
-    }
-    
-    fun showDatePickerSheet(
-        selectedDate: Long,
-        onDateSelected: (Long) -> Unit
-    ) {
-        setBottomSheet(
-            sheet = ActiveBottomSheet.DatePicker(
-                selectedDate = selectedDate,
-                onDateSelected = onDateSelected
-            )
-        )
-    }
-    
-    fun showShareSheet() {
-        setBottomSheet(ActiveBottomSheet.ShareApp)
     }
 }

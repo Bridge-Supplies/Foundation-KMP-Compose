@@ -36,7 +36,6 @@
     <string name="generate_qr_code_text">Text to share</string>
     <string name="generate_qr_code_encrypted_text">Encrypted text to share</string>
     <string name="share_button_text">Share app</string>
-    <string name="share_sheet_copy_text">Copy to clipboard</string>
     <string name="scanner_button_text">Scan code</string>
     <string name="generate_button_text">Generate code</string>
     <string name="import_button_text">Import code</string>
@@ -62,8 +61,6 @@
     <string name="app_settings_scroll_helpers_subtitle">Enable buttons to scroll horizontal content</string>
     <string name="navigation_home_staggered_toggle">Staggered grid</string>
     <string name="navigation_back">Back</string>
-    <string name="navigation_close">Close</string>
-    <string name="navigation_confirm">Confirm</string>
     <string name="navigation_cancel">Cancel</string>
 
     <string name="action_share">Share app</string>

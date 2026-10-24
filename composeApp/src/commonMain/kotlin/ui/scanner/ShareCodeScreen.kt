@@ -1,5 +1,7 @@
 package ui.scanner
 
+import bridge.supplies.foundation.ui.sheets.ShareAppSheet
+import bridge.supplies.foundation.ui.sheets.sheetController
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,6 +62,7 @@ fun ShareCodeScreen(
     hapticFeedback: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
+    val sheets = sheetController()
     val isPortraitMode = isPortrait()
     val sharedText by viewModel.sharedText.collectAsState()
     val foundation = foundationViewModel()
@@ -102,7 +105,7 @@ fun ShareCodeScreen(
         listOf(
             TopBarAction(Icons.Default.Share, Res.string.action_share) {
                 hapticFeedback()
-                viewModel.showShareSheet()
+                sheets.show(ShareAppSheet)
             }
         )
     )
