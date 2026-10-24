@@ -86,7 +86,7 @@ actual fun CodeScanner(
                 codeTypes = listOf(
                     BarcodeFormat.FORMAT_QR_CODE,
                 ),
-                showUi = false
+                scannerUiOptions = null
             ) { result ->
                 when (result) {
                     is BarcodeResult.OnSuccess -> {

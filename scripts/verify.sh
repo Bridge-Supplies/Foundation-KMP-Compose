@@ -208,7 +208,13 @@ if [ "$OVERALL" -eq 0 ]; then
 fi
 if [ "$OVERALL" -eq 0 ]; then
     if [ "$IOS_CHANGED" -eq 1 ]; then
-        run_gradle_step "ios-tests" ":composeApp:iosSimulatorArm64Test"
+        if xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
+            run_gradle_step "ios-tests" ":composeApp:iosSimulatorArm64Test"
+        else
+            # No simulator runtime installed: still compile + link the test binary so code breakage is caught.
+            echo "no iOS simulator runtime installed: linking iOS tests without running them"
+            run_gradle_step "ios-link (no simulator)" ":composeApp:linkDebugTestIosSimulatorArm64"
+        fi
     else
         echo "skipped iOS (no iOS-related changes)"
         skip_step "ios-tests" "no iOS-related changes"
