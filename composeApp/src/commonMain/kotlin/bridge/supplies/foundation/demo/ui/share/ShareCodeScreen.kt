@@ -1,4 +1,4 @@
-package ui.scanner
+package bridge.supplies.foundation.demo.ui.share
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,8 +29,8 @@ import bridge.supplies.foundation.ui.sheets.ShareAppSheet
 import bridge.supplies.foundation.ui.sheets.sheetController
 import bridge.supplies.foundation.ui.shell.TopBarAction
 import bridge.supplies.foundation.ui.shell.TopBarActions
-import data.MainViewModel
-import data.SharedData
+import bridge.supplies.foundation.demo.data.MainViewModel
+import bridge.supplies.foundation.demo.data.SharedData
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.action_share
 import foundation.composeapp.generated.resources.generate_qr_code_encrypted_text

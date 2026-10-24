@@ -1,10 +1,10 @@
-package ui
+package bridge.supplies.foundation.demo.ui
 
 import androidx.compose.runtime.Composable
 import bridge.supplies.foundation.ui.rememberHapticFeedback
 import bridge.supplies.foundation.ui.shell.FoundationApp
 import bridge.supplies.foundation.ui.shell.Landing
-import data.MainViewModel
+import bridge.supplies.foundation.demo.data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.ic_launcher_foreground
 

@@ -1,7 +1,8 @@
-package bridge.supplies.foundation
+package bridge.supplies.foundation.demo
 
+import bridge.supplies.foundation.BuildConfig
 import bridge.supplies.foundation.core.crypto.FoundationQrCodec
-import data.SharedData
+import bridge.supplies.foundation.demo.data.SharedData
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

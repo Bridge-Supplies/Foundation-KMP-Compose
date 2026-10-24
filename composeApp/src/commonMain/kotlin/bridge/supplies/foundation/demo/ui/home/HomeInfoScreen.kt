@@ -1,4 +1,4 @@
-package ui.home
+package bridge.supplies.foundation.demo.ui.home
 
 import bridge.supplies.foundation.ui.components.PastOrPresentSelectableDates
 import bridge.supplies.foundation.ui.sheets.DateSheet
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.ui.foundationViewModel
 import bridge.supplies.foundation.ui.isPortrait
-import data.MainViewModel
+import bridge.supplies.foundation.demo.data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_about_orientation
 import foundation.composeapp.generated.resources.app_about_platform

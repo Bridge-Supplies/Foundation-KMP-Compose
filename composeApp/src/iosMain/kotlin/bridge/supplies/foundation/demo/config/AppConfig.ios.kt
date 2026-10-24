@@ -1,6 +1,6 @@
-package config
+package bridge.supplies.foundation.demo.config
 
-import data.MainViewModel
+import bridge.supplies.foundation.demo.data.MainViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module

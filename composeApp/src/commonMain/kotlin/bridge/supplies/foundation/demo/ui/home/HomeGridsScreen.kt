@@ -1,4 +1,4 @@
-package ui.home
+package bridge.supplies.foundation.demo.ui.home
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -17,7 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.ui.isPortrait
-import data.MainViewModel
+import bridge.supplies.foundation.demo.data.MainViewModel
 import bridge.supplies.foundation.ui.components.BodyText
 import bridge.supplies.foundation.ui.components.EdgeFadeLazyStaggeredVerticalGrid
 import bridge.supplies.foundation.ui.components.EdgeFadeLazyVerticalGrid

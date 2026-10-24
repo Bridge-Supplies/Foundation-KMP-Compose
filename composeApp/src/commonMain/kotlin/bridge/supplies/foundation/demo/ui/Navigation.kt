@@ -1,4 +1,4 @@
-package ui
+package bridge.supplies.foundation.demo.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -18,8 +18,8 @@ import bridge.supplies.foundation.ui.shell.FoundationTab
 import bridge.supplies.foundation.ui.shell.LocalNavigator
 import bridge.supplies.foundation.ui.shell.RouteRegistry
 import bridge.supplies.foundation.ui.shell.screenMetadata
-import data.MainViewModel
-import data.SharedData
+import bridge.supplies.foundation.demo.data.MainViewModel
+import bridge.supplies.foundation.demo.data.SharedData
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.screen_about_title
 import foundation.composeapp.generated.resources.screen_home_columns_title
@@ -31,12 +31,12 @@ import foundation.composeapp.generated.resources.tab_home_title
 import foundation.composeapp.generated.resources.tab_settings_title
 import foundation.composeapp.generated.resources.tab_share_title
 import kotlinx.serialization.Serializable
-import ui.home.HomeColumnsScreen
-import ui.home.HomeDateScreen
-import ui.home.HomeGridsScreen
-import ui.home.HomeInfoScreen
-import ui.home.HomeRowsScreen
-import ui.scanner.ShareCodeScreen
+import bridge.supplies.foundation.demo.ui.home.HomeColumnsScreen
+import bridge.supplies.foundation.demo.ui.home.HomeDateScreen
+import bridge.supplies.foundation.demo.ui.home.HomeGridsScreen
+import bridge.supplies.foundation.demo.ui.home.HomeInfoScreen
+import bridge.supplies.foundation.demo.ui.home.HomeRowsScreen
+import bridge.supplies.foundation.demo.ui.share.ShareCodeScreen
 
 // ROUTES
 

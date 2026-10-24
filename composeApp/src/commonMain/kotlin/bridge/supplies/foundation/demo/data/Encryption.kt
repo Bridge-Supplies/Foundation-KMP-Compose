@@ -1,4 +1,4 @@
-package data
+package bridge.supplies.foundation.demo.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -1,4 +1,4 @@
-package config
+package bridge.supplies.foundation.demo.config
 
 import bridge.supplies.foundation.core.platform.FoundationAndroid
 import android.content.Context
@@ -6,7 +6,7 @@ import android.os.Build
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import data.MainViewModel
+import bridge.supplies.foundation.demo.data.MainViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin

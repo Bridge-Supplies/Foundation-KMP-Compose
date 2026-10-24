@@ -1,4 +1,4 @@
-package config
+package bridge.supplies.foundation.demo.config
 
 import bridge.supplies.foundation.BuildConfig
 import bridge.supplies.foundation.core.config.FoundationConfig

@@ -1,4 +1,4 @@
-package ui.home
+package bridge.supplies.foundation.demo.ui.home
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -20,7 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import data.MainViewModel
+import bridge.supplies.foundation.demo.data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_settings_scroll_helpers_subtitle
 import foundation.composeapp.generated.resources.app_settings_scroll_helpers_title

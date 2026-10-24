@@ -10,20 +10,20 @@ import androidx.compose.ui.window.rememberWindowState
 import bridge.supplies.foundation.core.settings.FoundationSettings
 import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
 import bridge.supplies.foundation.ui.util.koinViewModel
-import data.MainViewModel
+import bridge.supplies.foundation.demo.data.MainViewModel
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.app_name
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.context.GlobalContext
-import ui.App
+import bridge.supplies.foundation.demo.ui.App
 import java.awt.Dimension
 
 class Foundation {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            config.KoinInitializer().init()
+            bridge.supplies.foundation.demo.config.KoinInitializer().init()
 
             // Read the stored window size before showing the window, so the default size can't overwrite it
             val settings = GlobalContext.get().get<FoundationSettings>()

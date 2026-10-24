@@ -1,4 +1,4 @@
-package data
+package bridge.supplies.foundation.demo.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
