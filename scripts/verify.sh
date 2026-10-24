@@ -10,8 +10,8 @@ set -u
 
 TIER="${1:-}"
 case "$TIER" in
-    quick) ;;
-    ui|e2e)
+    quick|ui) ;;
+    e2e)
         echo "not wired yet (FND-08)"
         exit 2
         ;;
@@ -193,6 +193,34 @@ skip_step() { # name reason
     record "$1 ($2)" SKIP 0
 }
 
+run_consumer_test_step() {
+    local name="consumer-test"
+    local start end rc
+    local cmd="$REPO/scripts/consumer-test.sh"
+    if [ ! -f "$cmd" ]; then
+        skip_step "$name" "no consumer-test.sh"
+        return 0
+    fi
+    echo ">> $name: scripts/consumer-test.sh"
+    echo "=== $name: scripts/consumer-test.sh ===" >> "$LOG"
+    start="$(date +%s)"
+    if [ "$IOS_CHANGED" -eq 1 ]; then
+        "$cmd" >> "$LOG" 2>&1
+    else
+        "$cmd" --no-ios >> "$LOG" 2>&1
+    fi
+    rc=$?
+    end="$(date +%s)"
+    if [ "$rc" -eq 0 ]; then
+        record "$name" PASS $((end - start))
+    else
+        record "$name" FAIL $((end - start))
+        OVERALL=1
+        FAILED_STEP="$name"
+    fi
+    return "$rc"
+}
+
 RUN_START="$(date +%s)"
 
 run_gradle_step "android-debug" "$ANDROID_TASK"
@@ -218,6 +246,16 @@ if [ "$OVERALL" -eq 0 ]; then
     else
         echo "skipped iOS (no iOS-related changes)"
         skip_step "ios-tests" "no iOS-related changes"
+    fi
+fi
+
+# --- UI tier (FND-08) --------------------------------------------------------
+if [ "$OVERALL" -eq 0 ] && [ "$TIER" != "quick" ]; then
+    if has_module foundation-ui; then
+        run_gradle_step "ui-tests" ":foundation-ui:desktopTest"
+    fi
+    if [ "$OVERALL" -eq 0 ]; then
+        run_consumer_test_step
     fi
 fi
 
