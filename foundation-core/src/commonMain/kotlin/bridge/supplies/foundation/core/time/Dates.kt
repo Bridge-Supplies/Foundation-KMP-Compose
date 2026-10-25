@@ -39,15 +39,21 @@ public fun getTodayUtcMs(): Long {
     return today.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
 }
 
+/** Day number since a birthday stored as UTC midnight: the birthday itself is day 1. */
 public fun getDaysSinceBirth(birthdayTimeMs: Long): Int {
     val today = getTodayUtcMs()
     val daysSinceBirth = daysBetween(today, birthdayTimeMs) + 1
     return daysSinceBirth
 }
 
+/**
+ * Whole days between two timestamps, in either order. Dates are stored as UTC midnight
+ * ([getTodayUtcMs], date pickers), so days are counted in UTC: counting in the device's
+ * time zone came out one day short across daylight-saving changes.
+ */
 @OptIn(ExperimentalTime::class)
 public fun daysBetween(startMs: Long, endMs: Long): Int {
     val startInstant = Instant.fromEpochMilliseconds(min(startMs, endMs))
     val endInstant = Instant.fromEpochMilliseconds(max(startMs, endMs))
-    return startInstant.daysUntil(endInstant, timeZone = TimeZone.currentSystemDefault())
+    return startInstant.daysUntil(endInstant, timeZone = TimeZone.UTC)
 }
