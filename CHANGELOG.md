@@ -2,6 +2,11 @@
 
 All notable changes to Foundation are documented in this file.
 
+## 2.0.1
+
+### Fixed
+- **Day counts across daylight-saving changes:** `daysBetween` (and `getDaysSinceBirth`, which uses it) counted days in the device's time zone, although dates are stored as UTC midnight. In zones with daylight-saving time, spans crossing a clock change came out one day short (for example, a summer birthday viewed in winter). Days are now counted in UTC, which is exact for UTC-midnight dates. Apps that show day numbers will show the corrected value.
+
 ## 2.0.0
 
 Foundation 2.0.0 extracts the reusable infrastructure into the `:foundation-core` and `:foundation-ui` multiplatform library modules for consumption via Git submodules and Gradle composite builds, upgrades the toolchain to AGP 9 and Navigation 3, and replaces template file edits with declarative extension points while preserving 100% backward compatibility with persisted 1.x DataStore preferences and legacy v1 QR codes.
