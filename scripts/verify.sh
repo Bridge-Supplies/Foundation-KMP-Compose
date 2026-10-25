@@ -3,7 +3,7 @@
 #   quick: compile Android debug (+ desktop if present) + JVM/common unit tests,
 #          plus iosSimulatorArm64Test when iOS-related files changed.
 #   ui/e2e: not wired yet.
-# Env: VERIFY_BASE = git base for the iOS-change check (default release/v2.0.0).
+# Env: VERIFY_BASE = git base for the iOS-change check (default main, the last release).
 # Compatible with macOS bash 3.2.
 
 set -u
@@ -139,7 +139,7 @@ fi
 
 # --- iOS change detection ----------------------------------------------------
 
-BASE="${VERIFY_BASE:-release/v2.0.0}"
+BASE="${VERIFY_BASE:-main}"
 IOS_CHANGED=0
 CHANGED="$( { git diff --name-only "$BASE"...HEAD 2>/dev/null; git diff --name-only HEAD 2>/dev/null; } | sort -u)"
 # iOS sources and Gradle build config (the memory caps in gradle.properties don't count).
