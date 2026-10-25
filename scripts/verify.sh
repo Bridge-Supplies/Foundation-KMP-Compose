@@ -276,6 +276,14 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" != "quick" ]; then
 fi
 
 # --- E2E tier -------------------------------------------------------
+# App identity for the e2e flows. Apps that copy this script change only this block.
+E2E_ANDROID_APP_ID="bridge.supplies.foundation.debug"
+E2E_IOS_APP_ID="bridge.supplies.foundation.BridgeFoundation"
+E2E_IOS_APP_NAME="Foundation_.app"
+E2E_BASELINE_NAME="foundation"
+E2E_SEED_FLOW="$REPO/.maestro/seed-settings.yaml"
+E2E_ASSERT_FLOW="$REPO/.maestro/assert-settings.yaml"
+
 if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     acquire_emulator_lock || exit 1
 
@@ -334,20 +342,22 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     # Run Android Maestro smoke flow
     if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
         "$ADB" install -r "$DEMO_APK" >> "$LOG" 2>&1
-        "$ADB" shell am force-stop bridge.supplies.foundation.debug >> "$LOG" 2>&1 || true
-        run_maestro_step "e2e-smoke-android" "$MAESTRO" --platform android test -e APP_ID=bridge.supplies.foundation.debug "$REPO/.maestro/smoke.yaml"
+        "$ADB" shell am force-stop "$E2E_ANDROID_APP_ID" >> "$LOG" 2>&1 || true
+        run_maestro_step "e2e-smoke-android" "$MAESTRO" --platform android test -e APP_ID="$E2E_ANDROID_APP_ID" "$REPO/.maestro/smoke.yaml"
     fi
 
     # Run iOS Maestro smoke flow if simulator runtime exists
     if [ "$OVERALL" -eq 0 ]; then
         if xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
-            IOS_APP_PATH="$REPO/build/ios-derived/Build/Products/Debug-iphonesimulator/Foundation_.app"
-            if [ ! -d "$IOS_APP_PATH" ] && [ -f "$REPO/iosApp/iosApp.xcodeproj/project.pbxproj" ]; then
+            IOS_APP_PATH="$REPO/build/ios-derived/Build/Products/Debug-iphonesimulator/$E2E_IOS_APP_NAME"
+            if [ -f "$REPO/iosApp/iosApp.xcodeproj/project.pbxproj" ]; then
+                # Always rebuild (incremental) so the flow never runs against a stale app.
+                # Simulator builds are arm64-only: the KMP framework has no x86_64 simulator slice.
                 echo ">> Building iOS app for simulator..."
                 xcodebuild -project "$REPO/iosApp/iosApp.xcodeproj" -scheme iOS \
                     -destination "generic/platform=iOS Simulator" \
                     -derivedDataPath "$REPO/build/ios-derived" \
-                    CODE_SIGNING_ALLOWED=NO build >> "$LOG" 2>&1
+                    ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build >> "$LOG" 2>&1
             fi
             if [ -d "$IOS_APP_PATH" ]; then
                 BOOTED_SIM="$(xcrun simctl list devices 2>/dev/null | grep -E "iPhone.*\(Booted\)" | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/' | head -n 1)"
@@ -356,8 +366,8 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
                     xcrun simctl boot "$BOOTED_SIM" 2>/dev/null || true
                 fi
                 xcrun simctl install "$BOOTED_SIM" "$IOS_APP_PATH" >> "$LOG" 2>&1
-                xcrun simctl terminate "$BOOTED_SIM" bridge.supplies.foundation.BridgeFoundation >> "$LOG" 2>&1 || true
-                run_maestro_step "e2e-smoke-ios" "$MAESTRO" --platform ios test -e APP_ID=bridge.supplies.foundation.BridgeFoundation "$REPO/.maestro/smoke.yaml"
+                xcrun simctl terminate "$BOOTED_SIM" "$E2E_IOS_APP_ID" >> "$LOG" 2>&1 || true
+                run_maestro_step "e2e-smoke-ios" "$MAESTRO" --platform ios test -e APP_ID="$E2E_IOS_APP_ID" "$REPO/.maestro/smoke.yaml"
             else
                 skip_step "e2e-smoke-ios" "iOS app build not available"
             fi
@@ -369,7 +379,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     # Run over-install harness if baseline exists
     if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
         BASELINES_DIR=""
-        for b in ${E2E_BASELINES_DIR:+"$E2E_BASELINES_DIR"} "$REPO/baselines/foundation" "$REPO/../baselines/foundation" "$REPO/../../baselines/foundation"; do
+        for b in ${E2E_BASELINES_DIR:+"$E2E_BASELINES_DIR"} "$REPO/baselines/$E2E_BASELINE_NAME" "$REPO/../baselines/$E2E_BASELINE_NAME" "$REPO/../../baselines/$E2E_BASELINE_NAME"; do
             if [ -d "$b" ]; then
                 BASELINES_DIR="$b"
                 break
@@ -380,7 +390,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
             BASELINE_APK="$(find "$BASELINES_DIR" -name "*.apk" 2>/dev/null | sort -V | tail -n 1)"
         fi
         if [ -n "$BASELINE_APK" ] && [ -f "$BASELINE_APK" ]; then
-            run_maestro_step "e2e-over-install" "$REPO/scripts/e2e/over-install.sh" "$BASELINE_APK" "$DEMO_APK" "$REPO/.maestro/seed-settings.yaml" "$REPO/.maestro/assert-settings.yaml"
+            run_maestro_step "e2e-over-install" "$REPO/scripts/e2e/over-install.sh" "$BASELINE_APK" "$DEMO_APK" "$E2E_SEED_FLOW" "$E2E_ASSERT_FLOW"
         else
             skip_step "e2e-over-install" "no baseline APK found"
         fi

@@ -3,7 +3,8 @@ appId: ${APP_ID}
 - launchApp
 - extendedWaitUntil:
     visible: "Home"
-    timeout: 10000
+    timeout: 30000 # the first launch after an install is slow
+- waitForAnimationToEnd # the landing screen animates into the tabs; a tap during that misses
 - assertVisible: ".*(Platform|Orientation).*"
 
 # Open Date screen via DateSheet, then back
