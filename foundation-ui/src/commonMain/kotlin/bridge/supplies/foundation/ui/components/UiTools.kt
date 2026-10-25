@@ -72,6 +72,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -280,12 +281,21 @@ public fun TextInput(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     
-    var noteText by remember(text) {
+    // The field owns its text while focused: callers often store each change asynchronously,
+    // and a stored value that arrives late must not overwrite newer keystrokes.
+    var noteText by remember {
         mutableStateOf(text)
     }
-    
+    var isFocused by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(text) {
+        if (!isFocused) noteText = text
+    }
+
     LaunchedEffect(noteText) {
-        onValueChange(noteText)
+        if (noteText != text) onValueChange(noteText)
     }
     
     val supportingText: @Composable (() -> Unit)? =
@@ -296,7 +306,8 @@ public fun TextInput(
     OutlinedTextField(
         modifier = modifier
             .wrapContentHeight()
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .onFocusChanged { isFocused = it.isFocused },
         value = noteText,
         onValueChange = {
             noteText = if (maxTextLength != null) it.take(maxTextLength) else it

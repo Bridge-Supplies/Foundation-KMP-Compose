@@ -6,6 +6,7 @@ All notable changes to Foundation are documented in this file.
 
 ### Fixed
 - **Day counts across daylight-saving changes:** `daysBetween` (and `getDaysSinceBirth`, which uses it) counted days in the device's time zone, although dates are stored as UTC midnight. In zones with daylight-saving time, spans crossing a clock change came out one day short (for example, a summer birthday viewed in winter). Days are now counted in UTC, which is exact for UTC-midnight dates. Apps that show day numbers will show the corrected value.
+- **Lost keystrokes in `TextInput`:** the field reset its text whenever the caller's `text` changed. Callers that store each change asynchronously could hand back an older value mid-typing, and the next keystroke landed on that older text, dropping letters for fast typists. The field now keeps its own text while focused and takes outside changes only when it isn't being edited. It also no longer calls `onValueChange` with a value equal to `text` (including on first composition).
 
 ## 2.0.0
 
