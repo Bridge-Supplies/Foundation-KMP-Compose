@@ -1,6 +1,6 @@
 # Foundation (KMP-Compose Library & Template)
 ## Presented by [Bridge Supplies](https://bridge.supplies)
-### Latest version: 2.0.1 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
+### Latest version: 2.1.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
 
 Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) and [Compose Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) library and starter template targeting Android, iOS, and Desktop JVM (macOS, Windows, Linux). It provides a shared app shell, theming, persistence, offline QR sharing, and common UI components so apps can focus on their own features without duplicating infrastructure.
 
@@ -413,7 +413,7 @@ val showHints by foundation.setting(showHintsKey).collectAsState()
 foundation.set(showHintsKey, false)
 ```
 
-Build your settings screen with `FoundationSettingsScreen`. It renders Foundation's built-in Theming and System cards (configurable via `BuiltInSettings`) followed by your app's custom sections:
+Build your settings screen with `FoundationSettingsScreen`. It renders Foundation's built-in Theming and System cards (configurable via `BuiltInSettings`) followed by your app's custom sections (see the note on motion below):
 
 ```kotlin
 entry<SettingsOptions> {
@@ -444,6 +444,8 @@ entry<SettingsOptions> {
     }
 }
 ```
+
+**Motion (Material 3 Expressive):** apps use expressive motion by default and Settings shows no switch for it. To fix it off, pass `ThemeConfig(expressiveAnimation = ExpressiveAnimation.OFF)`; to let users choose, pass `ExpressiveAnimation.USER_CHOICE`, which adds the "Use Expressive animation" switch to the built-in System card.
 
 ### 5. Bottom sheets (`SheetController`, `DateSheet`, `ShareAppSheet`, custom `SheetContent`)
 
@@ -562,8 +564,8 @@ Each release is a tag `vX.Y.Z` on `main`. `main` gets one squashed commit per ve
 
 1. Bump the submodule to the target release tag:
    ```bash
-   cd foundation && git fetch --tags && git checkout v2.0.1 && cd ..
-   git add foundation && git commit -m "Bump Foundation to v2.0.1"
+   cd foundation && git fetch --tags && git checkout v2.1.0 && cd ..
+   git add foundation && git commit -m "Bump Foundation to v2.1.0"
    ```
 2. Read [`CHANGELOG.md`](CHANGELOG.md) for any breaking changes or migration steps.
 3. Run your app's verification script (`scripts/verify.sh quick`) and test on your target platforms.

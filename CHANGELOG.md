@@ -2,14 +2,18 @@
 
 All notable changes to Foundation are documented in this file.
 
-## 2.0.1
+## 2.1.0
+
+### Added
+- **Expressive animation mode:** `ThemeConfig.expressiveAnimation` is `ExpressiveAnimation.ON` (default), `OFF` or `USER_CHOICE`. `ON` and `OFF` fix the motion scheme; `USER_CHOICE` shows the "Use Expressive animation" switch in Settings and follows the user's choice (on until they turn it off).
+
+### Changed
+- **The expressive-animation switch is hidden by default.** In 2.0.0 Settings always showed it. Apps now get expressive motion with no switch unless they pass `ThemeConfig(expressiveAnimation = ExpressiveAnimation.USER_CHOICE)` (the demo app does). `BuiltInSettings.expressiveAnimation` still hides the switch in `USER_CHOICE` mode.
+- **End-to-end test harness:** `scripts/verify.sh e2e` keeps the app's identity (Android and iOS app ids, iOS `.app` name, baseline folder, seed and assert flows) in one `E2E_*` block, so apps that copy the script change only that block. The iOS app is always rebuilt (incremental, `ARCHS=arm64`) so the smoke flow never runs a stale build. The Maestro flows wait longer for the first screen after an install, and `scripts/e2e/README.md` lists Maestro tips for Compose apps.
 
 ### Fixed
 - **Day counts across daylight-saving changes:** `daysBetween` (and `getDaysSinceBirth`, which uses it) counted days in the device's time zone, although dates are stored as UTC midnight. In zones with daylight-saving time, spans crossing a clock change came out one day short (for example, a summer birthday viewed in winter). Days are now counted in UTC, which is exact for UTC-midnight dates. Apps that show day numbers will show the corrected value.
 - **Lost keystrokes in `TextInput`:** the field reset its text whenever the caller's `text` changed. Callers that store each change asynchronously could hand back an older value mid-typing, and the next keystroke landed on that older text, dropping letters for fast typists. The field now keeps its own text while focused and takes outside changes only when it isn't being edited. It also no longer calls `onValueChange` with a value equal to `text` (including on first composition).
-
-### Changed
-- **End-to-end test harness:** `scripts/verify.sh e2e` keeps the app's identity (Android and iOS app ids, iOS `.app` name, baseline folder, seed and assert flows) in one `E2E_*` block, so apps that copy the script change only that block. The iOS app is always rebuilt (incremental, `ARCHS=arm64`) so the smoke flow never runs a stale build. The Maestro flows wait longer for the first screen after an install, and `scripts/e2e/README.md` lists Maestro tips for Compose apps.
 
 ## 2.0.0
 
