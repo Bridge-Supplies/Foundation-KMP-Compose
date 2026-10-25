@@ -74,11 +74,16 @@ import bridge.supplies.foundation.ui.shell.TopBarAction
 import bridge.supplies.foundation.ui.shell.TopBarActions
 import bridge.supplies.foundation.ui.theme.ColorTheme
 import bridge.supplies.foundation.ui.theme.DarkMode
+import bridge.supplies.foundation.ui.theme.ExpressiveAnimation
+import bridge.supplies.foundation.ui.theme.LocalExpressiveAnimation
 import bridge.supplies.foundation.ui.theme.Palette
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** Which of Foundation's built-in settings to show. Items the platform or [FeatureFlags] don't support are hidden anyway. */
+/**
+ * Which of Foundation's built-in settings to show. Items the platform or [FeatureFlags] don't support are hidden anyway,
+ * and the expressive-animation toggle only appears when `ThemeConfig.expressiveAnimation` is `USER_CHOICE`.
+ */
 public data class BuiltInSettings(
     val theme: Boolean = true,
     val encryptedSharing: Boolean = true,
@@ -249,7 +254,8 @@ private fun SystemSettings(
             )
         }
 
-        if (builtIns.expressiveAnimation) {
+        // Only when the theme leaves the choice to the user (ThemeConfig.expressiveAnimation = USER_CHOICE)
+        if (builtIns.expressiveAnimation && LocalExpressiveAnimation.current == ExpressiveAnimation.USER_CHOICE) {
             SettingSwitch(
                 key = FoundationSettingKeys.expressiveAnimation,
                 title = Res.string.app_settings_expressive_animation_title,

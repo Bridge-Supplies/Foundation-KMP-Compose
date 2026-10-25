@@ -7,7 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -24,6 +26,9 @@ import bridge.supplies.foundation.ui.settings.FoundationSettingsScreen
 import bridge.supplies.foundation.ui.shell.LocalRoute
 import bridge.supplies.foundation.ui.shell.LocalTopBarActionHost
 import bridge.supplies.foundation.ui.shell.TopBarActionHost
+import bridge.supplies.foundation.ui.theme.ExpressiveAnimation
+import bridge.supplies.foundation.ui.theme.FoundationTheme
+import bridge.supplies.foundation.ui.theme.ThemeConfig
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -109,6 +114,30 @@ class SettingsScreenUiTests {
 
         runBlocking {
             assertTrue(settings.get(customSwitchKey))
+        }
+    }
+
+    @Test
+    fun expressiveAnimationToggleShowsOnlyForUserChoice() {
+        for (mode in ExpressiveAnimation.entries) {
+            runComposeUiTest {
+                setContent {
+                    val actionHost = remember { TopBarActionHost() }
+                    CompositionLocalProvider(
+                        LocalRoute provides DummySettingsRoute,
+                        LocalTopBarActionHost provides actionHost,
+                        LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200))
+                    ) {
+                        FoundationTheme(ThemeConfig(expressiveAnimation = mode)) {
+                            Box(Modifier.size(400.dp, 2000.dp)) {
+                                FoundationSettingsScreen(builtIns = BuiltInSettings(expressiveAnimation = true))
+                            }
+                        }
+                    }
+                }
+                val expected = if (mode == ExpressiveAnimation.USER_CHOICE) 1 else 0
+                onAllNodesWithText("Use Expressive animation").assertCountEquals(expected)
+            }
         }
     }
 }

@@ -27,8 +27,10 @@ import bridge.supplies.foundation.ui.shell.TopBarActionHost
 import bridge.supplies.foundation.ui.shell.screenMetadata
 import bridge.supplies.foundation.ui.theme.ColorTheme
 import bridge.supplies.foundation.ui.theme.DarkMode
+import bridge.supplies.foundation.ui.theme.ExpressiveAnimation
 import bridge.supplies.foundation.ui.theme.FoundationTheme
 import bridge.supplies.foundation.ui.theme.Palette
+import bridge.supplies.foundation.ui.theme.ThemeConfig
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
@@ -86,7 +88,7 @@ class ScreenshotGoldensTest {
             LocalRoute provides DummySettingsScreenshotRoute,
             LocalTopBarActionHost provides actionHost
         ) {
-            FoundationTheme {
+            FoundationTheme(ThemeConfig(expressiveAnimation = ExpressiveAnimation.USER_CHOICE)) {
                 FoundationSettingsScreen(
                     builtIns = BuiltInSettings(
                         theme = true,
