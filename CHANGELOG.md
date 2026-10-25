@@ -8,6 +8,9 @@ All notable changes to Foundation are documented in this file.
 - **Day counts across daylight-saving changes:** `daysBetween` (and `getDaysSinceBirth`, which uses it) counted days in the device's time zone, although dates are stored as UTC midnight. In zones with daylight-saving time, spans crossing a clock change came out one day short (for example, a summer birthday viewed in winter). Days are now counted in UTC, which is exact for UTC-midnight dates. Apps that show day numbers will show the corrected value.
 - **Lost keystrokes in `TextInput`:** the field reset its text whenever the caller's `text` changed. Callers that store each change asynchronously could hand back an older value mid-typing, and the next keystroke landed on that older text, dropping letters for fast typists. The field now keeps its own text while focused and takes outside changes only when it isn't being edited. It also no longer calls `onValueChange` with a value equal to `text` (including on first composition).
 
+### Changed
+- **End-to-end test harness:** `scripts/verify.sh e2e` keeps the app's identity (Android and iOS app ids, iOS `.app` name, baseline folder, seed and assert flows) in one `E2E_*` block, so apps that copy the script change only that block. The iOS app is always rebuilt (incremental, `ARCHS=arm64`) so the smoke flow never runs a stale build. The Maestro flows wait longer for the first screen after an install, and `scripts/e2e/README.md` lists Maestro tips for Compose apps.
+
 ## 2.0.0
 
 Foundation 2.0.0 extracts the reusable infrastructure into the `:foundation-core` and `:foundation-ui` multiplatform library modules for consumption via Git submodules and Gradle composite builds, upgrades the toolchain to AGP 9 and Navigation 3, and replaces template file edits with declarative extension points while preserving 100% backward compatibility with persisted 1.x DataStore preferences and legacy v1 QR codes.
