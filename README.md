@@ -549,6 +549,13 @@ val encoded: String = qrCodec.encode(payload, SharedData.serializer(), encrypt =
 val decoded: Result<SharedData> = qrCodec.decode(encoded, SharedData.serializer())
 ```
 
+Apps with their own compact binary format (for example a game turn packed into ~150 bytes) can skip JSON: `encodeBytes` uses the same encryption and writes Base45 text with only QR alphanumeric characters, which makes a noticeably smaller QR code (150 bytes: QR version 8 instead of 12). Show it with `CodeDisplay` and read it with `QrCodeScanner`, which both work with plain text:
+
+```kotlin
+val text: String = qrCodec.encodeBytes(bytes, encrypt = true)
+val back: Result<ByteArray> = qrCodec.decodeBytes(text) // fails for other payloads or another key
+```
+
 ### 8. Platform services and UI helpers
 
 - `openUrl(url, inApp = false)` — opens a URL in the external browser, or inside the app when `inApp = true` (Custom Tabs on Android, `SFSafariViewController` on iOS; Desktop always uses the system browser).
