@@ -7,6 +7,8 @@ All notable changes to Foundation are documented in this file.
 ### Added
 - **Expressive animation mode:** `ThemeConfig.expressiveAnimation` is `ExpressiveAnimation.ON` (default), `OFF` or `USER_CHOICE`. `ON` and `OFF` fix the motion scheme; `USER_CHOICE` shows the "Use Expressive animation" switch in Settings and follows the user's choice (on until they turn it off).
 
+- **QR codes for binary data:** `QrCodec.encodeBytes(bytes, encrypt)` / `decodeBytes(text)` share an app's own compact byte format with the same encryption as `encode`. The text is Base45 (QR alphanumeric characters only), so QR codes come out smaller than with `encode`'s JSON (150 bytes: version 8 instead of 12). Show it with `CodeDisplay` and scan it with `QrCodeScanner`. `QrCodec` has two new members: custom implementations of the interface must add them.
+
 ### Changed
 - **The expressive-animation switch is hidden by default.** In 2.0.0 Settings always showed it. Apps now get expressive motion with no switch unless they pass `ThemeConfig(expressiveAnimation = ExpressiveAnimation.USER_CHOICE)` (the demo app does). `BuiltInSettings.expressiveAnimation` still hides the switch in `USER_CHOICE` mode.
 - **End-to-end test harness:** `scripts/verify.sh e2e` keeps the app's identity (Android and iOS app ids, iOS `.app` name, baseline folder, seed and assert flows) in one `E2E_*` block, so apps that copy the script change only that block. The iOS app is always rebuilt (incremental, `ARCHS=arm64`) so the smoke flow never runs a stale build. The Maestro flows wait longer for the first screen after an install, and `scripts/e2e/README.md` lists Maestro tips for Compose apps.

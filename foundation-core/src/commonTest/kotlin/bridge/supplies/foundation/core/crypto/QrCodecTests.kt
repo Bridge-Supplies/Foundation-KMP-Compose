@@ -3,6 +3,7 @@ package bridge.supplies.foundation.core.crypto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
@@ -47,5 +48,44 @@ class QrCodecTests {
         assertTrue(FoundationQrCodec("SomeOtherKey0016").decode(encoded, Message.serializer()).isFailure)
         assertTrue(codec.decode("not a payload", Message.serializer()).isFailure)
         assertTrue(codec.decode("BS2Eabc", Message.serializer()).isFailure)
+    }
+    
+    @Test
+    fun bytesRoundTripEncryptedAndPlain() {
+        val bytes = ByteArray(150) { (it * 37 + 11).toByte() }
+        val encrypted = codec.encodeBytes(bytes)
+        val plain = codec.encodeBytes(bytes, encrypt = false)
+        assertTrue(encrypted.startsWith("BS2BE"))
+        assertTrue(plain.startsWith("BS2BP"))
+        assertContentEquals(bytes, codec.decodeBytes(encrypted).getOrThrow())
+        assertContentEquals(bytes, codec.decodeBytes(plain).getOrThrow())
+        assertContentEquals(ByteArray(0), codec.decodeBytes(codec.encodeBytes(ByteArray(0))).getOrThrow())
+        assertNotEquals(encrypted, codec.encodeBytes(bytes)) // random IV
+    }
+    
+    @Test
+    fun bytesTextIsQrAlphanumeric() {
+        val alphanumeric = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:"
+        val text = codec.encodeBytes(ByteArray(151) { it.toByte() })
+        assertTrue(text.all { it in alphanumeric }, text)
+    }
+    
+    @Test
+    fun bytesAndJsonPayloadsDontCrossDecode() {
+        val bytesText = codec.encodeBytes(byteArrayOf(1, 2, 3))
+        val jsonText = codec.encode(Message("json"), Message.serializer())
+        assertTrue(codec.decode(bytesText, Message.serializer()).isFailure)
+        assertTrue(codec.decodeBytes(jsonText).isFailure)
+        assertTrue(FoundationQrCodec("SomeOtherKey0016").decodeBytes(bytesText).isFailure)
+        assertTrue(codec.decodeBytes("BS2BE").isFailure)
+        assertTrue(codec.decodeBytes("BS2BPabc").isFailure) // lowercase isn't Base45
+    }
+    
+    @Test
+    fun base45MatchesRfc9285Examples() {
+        assertEquals("BB8", Base45.encode("AB".encodeToByteArray()))
+        assertEquals("%69 VD92EX0", Base45.encode("Hello!!".encodeToByteArray()))
+        assertEquals("UJCLQE7W581", Base45.encode("base-45".encodeToByteArray()))
+        assertEquals("ietf!", Base45.decode("QED8WEX0").decodeToString())
     }
 }
