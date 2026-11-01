@@ -1,22 +1,20 @@
 package bridge.supplies.foundation.core.time
 
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 // DATE/TIME
 
-public fun getDateDisplay(
-    date: LocalDate
-): String {
+public fun getDateDisplay(date: LocalDate): String {
     val month = date.month.name.lowercase().replaceFirstChar { it.uppercase() }
     val day = date.day
     val year = date.year
@@ -48,8 +46,8 @@ public fun getDaysSinceBirth(birthdayTimeMs: Long): Int {
 
 /**
  * Whole days between two timestamps, in either order. Dates are stored as UTC midnight
- * ([getTodayUtcMs], date pickers), so days are counted in UTC: counting in the device's
- * time zone came out one day short across daylight-saving changes.
+ * ([getTodayUtcMs], date pickers), so days are counted in UTC: counting in the device's time zone
+ * came out one day short across daylight-saving changes.
  */
 @OptIn(ExperimentalTime::class)
 public fun daysBetween(startMs: Long, endMs: Long): Int {

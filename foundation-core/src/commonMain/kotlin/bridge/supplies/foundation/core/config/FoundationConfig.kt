@@ -1,12 +1,15 @@
 package bridge.supplies.foundation.core.config
 
 /**
- * Identity and options of the app built on Foundation. The app creates one and passes it to Foundation at startup.
+ * Identity and options of the app built on Foundation. The app creates one and passes it to
+ * Foundation at startup.
  */
 public data class FoundationConfig(
     /** Display name, e.g. "Adepticadian". */
     public val appName: String,
-    /** Application/bundle identifier, e.g. "hd.josh.biorhythms". Also names the desktop data folder. */
+    /**
+     * Application/bundle identifier, e.g. "hd.josh.biorhythms". Also names the desktop data folder.
+     */
     public val packageName: String,
     /** Version name, e.g. "2.2.0". */
     public val version: String,
@@ -24,7 +27,10 @@ public data class FoundationConfig(
 public data class StorageConfig(
     /** Never change this for an existing app: users' saved settings live in this file. */
     public val fileName: String = DEFAULT_SETTINGS_FILE_NAME,
-    /** iOS: directory to store the file in (e.g. an App Group container for widgets). Default: Documents. */
+    /**
+     * iOS: directory to store the file in (e.g. an App Group container for widgets). Default:
+     * Documents.
+     */
     public val iosDirectory: (() -> String)? = null,
     /** Desktop: directory to store the file in. Default: the per-user app data folder. */
     public val desktopDirectory: (() -> String)? = null,

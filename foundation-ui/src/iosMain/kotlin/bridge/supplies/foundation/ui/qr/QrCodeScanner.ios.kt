@@ -13,6 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import bridge.supplies.foundation.ui.components.FloatingButton
+import bridge.supplies.foundation.ui.resources.Res
+import bridge.supplies.foundation.ui.resources.scanner_allow_camera
+import bridge.supplies.foundation.ui.resources.scanner_request_camera
 import dev.icerock.moko.permissions.DeniedAlwaysException
 import dev.icerock.moko.permissions.DeniedException
 import dev.icerock.moko.permissions.Permission
@@ -23,32 +27,27 @@ import dev.icerock.moko.permissions.camera.CAMERA
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.ncgroup.kscan.BarcodeFormat
 import org.ncgroup.kscan.BarcodeResult
 import org.ncgroup.kscan.ScannerView
-import bridge.supplies.foundation.ui.components.FloatingButton
-import bridge.supplies.foundation.ui.resources.Res
-import bridge.supplies.foundation.ui.resources.scanner_allow_camera
-import bridge.supplies.foundation.ui.resources.scanner_request_camera
-import org.jetbrains.compose.resources.stringResource
 
-internal class CameraPermissionViewModel(
-    private val controller: PermissionsController
-) : ViewModel() {
-    
+internal class CameraPermissionViewModel(private val controller: PermissionsController) :
+    ViewModel() {
+
     var state by mutableStateOf(PermissionState.NotDetermined)
         private set
-    
+
     init {
         checkPermissionState()
     }
-    
+
     fun checkPermissionState() {
         viewModelScope.launch {
             state = controller.getPermissionState(Permission.CAMERA)
         }
     }
-    
+
     fun provideOrRequestCameraPermission() {
         viewModelScope.launch {
             try {
@@ -70,67 +69,59 @@ public actual fun QrCodeScanner(
     modifier: Modifier,
     onSuccess: (String) -> Unit,
     onFailure: (String) -> Unit,
-    onDenied: () -> Unit
+    onDenied: () -> Unit,
 ) {
     val factory = rememberPermissionsControllerFactory()
-    val controller = remember(factory) {
-        factory.createPermissionsController()
-    }
-    
+    val controller =
+        remember(factory) {
+            factory.createPermissionsController()
+        }
+
     BindEffect(controller)
-    
+
     val viewModel = viewModel {
         CameraPermissionViewModel(controller)
     }
-    
+
     when (viewModel.state) {
         PermissionState.Granted -> {
             ScannerView(
                 modifier = modifier,
-                codeTypes = listOf(
-                    BarcodeFormat.FORMAT_QR_CODE,
-                )
+                codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE),
             ) { result ->
                 when (result) {
                     is BarcodeResult.OnSuccess -> {
                         onSuccess(result.barcode.data)
                     }
-                    
+
                     is BarcodeResult.OnFailed -> {
                         onFailure(result.exception.message ?: "")
                     }
-
                 }
             }
         }
-        
+
         PermissionState.DeniedAlways -> {
-            Box(
-                modifier = modifier
-                    .fillMaxSize(),
-            ) {
+            Box(modifier = modifier.fillMaxSize()) {
                 FloatingButton(
                     modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(Res.string.scanner_allow_camera)
+                    text = stringResource(Res.string.scanner_allow_camera),
                 ) {
                     controller.openAppSettings()
                     onDenied()
                 }
             }
         }
-        
+
         else -> {
             LaunchedEffect(Unit) {
                 viewModel.provideOrRequestCameraPermission()
             }
-            
-            Box(
-                modifier = modifier
-                    .fillMaxSize(),
-            ) {
+
+            Box(modifier = modifier.fillMaxSize()) {
                 FloatingButton(
                     modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(Res.string.scanner_request_camera)
+                    text = stringResource(Res.string.scanner_request_camera),
                 ) {
                     viewModel.provideOrRequestCameraPermission()
                 }

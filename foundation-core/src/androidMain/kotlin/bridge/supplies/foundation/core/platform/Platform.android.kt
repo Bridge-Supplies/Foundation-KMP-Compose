@@ -14,5 +14,7 @@ private object AndroidPlatform : FoundationPlatform {
     }
     override val features: Set<PlatformFeature>
         // The QR scanner only opens the back camera, so a front camera or webcam doesn't count
-        get() = if (FoundationAndroid.hasBackCamera) baseFeatures + PlatformFeature.CODE_SCANNING else baseFeatures
+        get() =
+            if (FoundationAndroid.hasBackCamera) baseFeatures + PlatformFeature.CODE_SCANNING
+            else baseFeatures
 }

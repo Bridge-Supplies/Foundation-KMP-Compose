@@ -10,31 +10,29 @@ import kotlinx.coroutines.launch
 
 /** Demo state. Foundation's settings live in FoundationViewModel. */
 class MainViewModel : ViewModel() {
-    
+
     private fun launch(action: suspend () -> Unit) {
         // define Default to address Desktop build issue of missing Main thread
         viewModelScope.launch(Dispatchers.Default) {
             action()
         }
     }
-    
+
     // SESSION
-    
+
     private val _sharedText = MutableStateFlow("")
     var sharedText = _sharedText.asStateFlow()
         private set
-    
+
     private val _timer = MutableStateFlow(0)
     val timer = _timer.asStateFlow()
-    
-    
+
     init {
         startTimer()
     }
-    
-    
+
     // UTILITIES
-    
+
     private fun startTimer() {
         launch {
             while (true) {
@@ -43,7 +41,7 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-    
+
     fun setSharedText(text: String) {
         _sharedText.value = text
     }

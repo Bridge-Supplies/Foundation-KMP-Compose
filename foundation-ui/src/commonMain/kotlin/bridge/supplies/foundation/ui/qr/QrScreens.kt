@@ -51,20 +51,20 @@ import org.koin.compose.koinInject
 private const val QR_GENERATION_DEBOUNCE_MS = 300L
 
 /**
- * Camera QR scanner with the camera permission flow (Android/iOS; nothing on desktop).
- * Reports raw scanned text; [ScanQrScreen] decodes it for you.
+ * Camera QR scanner with the camera permission flow (Android/iOS; nothing on desktop). Reports raw
+ * scanned text; [ScanQrScreen] decodes it for you.
  */
 @Composable
 public expect fun QrCodeScanner(
     modifier: Modifier = Modifier,
     onSuccess: (String) -> Unit,
     onFailure: (String) -> Unit,
-    onDenied: () -> Unit
+    onDenied: () -> Unit,
 )
 
 /**
- * Full-screen scanner for QR codes made with [QrCodec] (v2, and legacy v1). Calls [onScanned] once with the first
- * code that decodes as [serializer]; anything else shows a "try again" snackbar.
+ * Full-screen scanner for QR codes made with [QrCodec] (v2, and legacy v1). Calls [onScanned] once
+ * with the first code that decodes as [serializer]; anything else shows a "try again" snackbar.
  */
 @Composable
 public fun <T> ScanQrScreen(
@@ -85,30 +85,23 @@ public fun <T> ScanQrScreen(
                 message = getString(Res.string.scanner_error_text),
                 actionLabel = getString(Res.string.scanner_error_action),
                 snackbarHost = snackbarHost,
-                hapticFeedback = hapticFeedback
+                hapticFeedback = hapticFeedback,
             )
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         CircularReveal(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clipToBounds()
-                .clip(shape = RoundedCornerShape(size = 12.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .weight(1f)
+                    .clipToBounds()
+                    .clip(shape = RoundedCornerShape(size = 12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             startDelayMs = 500,
-            revealDurationMs = 800
+            revealDurationMs = 800,
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 QrCodeScanner(
                     onSuccess = { scanned ->
                         if (!successfulScan) {
@@ -123,7 +116,7 @@ public fun <T> ScanQrScreen(
                         }
                     },
                     onFailure = { onScanFailure() },
-                    onDenied = onPermissionDenied
+                    onDenied = onPermissionDenied,
                 )
             }
         }
@@ -131,9 +124,10 @@ public fun <T> ScanQrScreen(
 }
 
 /**
- * A QR code for [value], encoded with [QrCodec] (encrypted when the user's "Encrypted sharing" setting is on, unless
- * [encrypt] says otherwise) in the theme's colors. Regenerates after input pauses, keeping the previous code visible
- * meanwhile; shows a spinner before the first code and nothing when [value] is null.
+ * A QR code for [value], encoded with [QrCodec] (encrypted when the user's "Encrypted sharing"
+ * setting is on, unless [encrypt] says otherwise) in the theme's colors. Regenerates after input
+ * pauses, keeping the previous code visible meanwhile; shows a spinner before the first code and
+ * nothing when [value] is null.
  */
 @Composable
 public fun <T> ShareQrCode(
@@ -143,7 +137,8 @@ public fun <T> ShareQrCode(
     encrypt: Boolean? = null,
 ) {
     val qrCodec = koinInject<QrCodec>()
-    val encryptedShare by foundationViewModel().setting(FoundationSettingKeys.encryptedShare).collectAsState()
+    val encryptedShare by
+        foundationViewModel().setting(FoundationSettingKeys.encryptedShare).collectAsState()
     val useEncryption = encrypt ?: encryptedShare
     val color = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.onPrimary
@@ -157,40 +152,36 @@ public fun <T> ShareQrCode(
             return@LaunchedEffect
         }
         delay(QR_GENERATION_DEBOUNCE_MS)
-        qrBitmap = withContext(Dispatchers.Default) {
-            generateQrCode(
-                text = qrCodec.encode(value, serializer, useEncryption),
-                colorRgb = color.toArgb(),
-                backgroundColorRgb = backgroundColor.toArgb()
-            )
-        }
+        qrBitmap =
+            withContext(Dispatchers.Default) {
+                generateQrCode(
+                    text = qrCodec.encode(value, serializer, useEncryption),
+                    colorRgb = color.toArgb(),
+                    backgroundColorRgb = backgroundColor.toArgb(),
+                )
+            }
     }
 
     Crossfade(
         modifier = modifier,
-        targetState = qrBitmap
+        targetState = qrBitmap,
     ) { qr ->
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when {
-                qr != null -> QrCodeCard(
-                    qrBitmap = qr,
-                    cardColor = MaterialTheme.colorScheme.onSurface
-                )
-
-                value != null -> Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .fillMaxSize()
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.Center)
+                qr != null ->
+                    QrCodeCard(
+                        qrBitmap = qr,
+                        cardColor = MaterialTheme.colorScheme.onSurface,
                     )
-                }
+
+                value != null ->
+                    Box(modifier = Modifier.aspectRatio(1f).fillMaxSize()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
 
                 else -> Spacer(modifier = Modifier.fillMaxSize())
             }

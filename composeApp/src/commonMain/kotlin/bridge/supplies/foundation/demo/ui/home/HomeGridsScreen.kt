@@ -16,76 +16,68 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import bridge.supplies.foundation.ui.isPortrait
 import bridge.supplies.foundation.demo.data.MainViewModel
 import bridge.supplies.foundation.ui.components.BodyText
 import bridge.supplies.foundation.ui.components.EdgeFadeLazyStaggeredVerticalGrid
 import bridge.supplies.foundation.ui.components.EdgeFadeLazyVerticalGrid
 import bridge.supplies.foundation.ui.components.SettingsSwitch
 import bridge.supplies.foundation.ui.components.TitledCard
+import bridge.supplies.foundation.ui.isPortrait
 
 @Composable
 fun HomeGridsScreen(
     viewModel: MainViewModel,
-    hapticFeedback: () -> Unit
+    hapticFeedback: () -> Unit,
 ) {
     val isPortraitMode = isPortrait()
     var isStaggered by rememberSaveable { mutableStateOf(false) }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
+
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         SettingsSwitch(
             modifier = Modifier.padding(horizontal = 8.dp),
             title = "Staggered grid",
             subtitle = "Don't force content cards to align sizes",
-            enabled = isStaggered
+            enabled = isStaggered,
         ) { enabled ->
             isStaggered = enabled
             hapticFeedback()
         }
-        
+
         Crossfade(
             modifier = Modifier.weight(1f),
-            targetState = isStaggered
+            targetState = isStaggered,
         ) { staggered ->
             if (!staggered) {
                 val state = rememberLazyGridState()
-                
+
                 EdgeFadeLazyVerticalGrid(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 8.dp),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
                     state = state,
                     columns = if (isPortraitMode) 2 else 3,
                     horizontalItemSpacing = 0.dp,
-                    endSpacing = 16.dp
+                    endSpacing = 16.dp,
                 ) {
                     repeat(10) { index ->
-                        val text = when (index % 3) {
-                            0 -> "This card will stay the same size."
-                            1 -> "This card has a bit more text, but will still stay the same size."
-                            else -> "Even with a lot of text, this card will still conform to the same size."
-                        }
-                        
+                        val text =
+                            when (index % 3) {
+                                0 -> "This card will stay the same size."
+                                1 ->
+                                    "This card has a bit more text, but will still stay the same size."
+                                else ->
+                                    "Even with a lot of text, this card will still conform to the same size."
+                            }
+
                         item {
                             TitledCard(
-                                modifier = Modifier
-                                    .padding(horizontal = 8.dp)
-                                    .aspectRatio(1f),
+                                modifier = Modifier.padding(horizontal = 8.dp).aspectRatio(1f),
                                 title = "Grid Card $index",
-                                subtitle = "Subtitle $index"
+                                subtitle = "Subtitle $index",
                             ) {
                                 Column(
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .padding(bottom = 16.dp)
+                                    modifier =
+                                        Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
                                 ) {
-                                    BodyText(
-                                        text = text
-                                    )
+                                    BodyText(text = text)
                                 }
                             }
                         }
@@ -94,35 +86,32 @@ fun HomeGridsScreen(
             } else {
                 val state = rememberLazyStaggeredGridState()
                 EdgeFadeLazyStaggeredVerticalGrid(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 8.dp),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
                     state = state,
                     columns = if (isPortraitMode) 2 else 3,
                     horizontalItemSpacing = 0.dp,
-                    endSpacing = 16.dp
+                    endSpacing = 16.dp,
                 ) {
                     repeat(100) { index ->
-                        val text = when (index % 3) {
-                            0 -> "This card will wrap the size of its contents."
-                            1 -> "This card has just a bit more text and will grow accordingly."
-                            else -> "Staggered grids allow items of varying heights to fit together efficiently."
-                        }
-                        
+                        val text =
+                            when (index % 3) {
+                                0 -> "This card will wrap the size of its contents."
+                                1 -> "This card has just a bit more text and will grow accordingly."
+                                else ->
+                                    "Staggered grids allow items of varying heights to fit together efficiently."
+                            }
+
                         item {
                             TitledCard(
                                 modifier = Modifier.padding(horizontal = 8.dp),
                                 title = "Staggered $index",
-                                subtitle = "Subtitle $index"
+                                subtitle = "Subtitle $index",
                             ) {
                                 Column(
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .padding(bottom = 16.dp)
+                                    modifier =
+                                        Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
                                 ) {
-                                    BodyText(
-                                        text = text
-                                    )
+                                    BodyText(text = text)
                                 }
                             }
                         }

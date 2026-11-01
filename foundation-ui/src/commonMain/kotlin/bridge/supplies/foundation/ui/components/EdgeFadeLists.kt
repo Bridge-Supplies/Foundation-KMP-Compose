@@ -75,22 +75,22 @@ import kotlinx.coroutines.launch
 @Composable
 public fun rememberNestedScrollConnection(
     firstVisibleItemScrollOffset: () -> Int,
-    onScrollUp: (Boolean) -> Unit
+    onScrollUp: (Boolean) -> Unit,
 ): NestedScrollConnection {
     return remember {
         object : NestedScrollConnection {
             private var scrollOffset = 0f
-            
+
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val newScrollOffset = -(firstVisibleItemScrollOffset()).toFloat()
                 val actualDelta = newScrollOffset - scrollOffset
-                
+
                 if (available.y >= 1) {
                     onScrollUp(true)
                 } else if (actualDelta < 0f) {
                     onScrollUp(false)
                 }
-                
+
                 scrollOffset = newScrollOffset
                 return Offset.Zero
             }
@@ -109,39 +109,36 @@ public fun EdgeFadeWrapper(
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp = 16.dp,
     onScrollForward: ((forward: Boolean) -> Unit)? = null,
-    wrappedContent: @Composable BoxScope.() -> Unit
+    wrappedContent: @Composable BoxScope.() -> Unit,
 ) {
-    val modifier = when {
-        orientation == Orientation.Vertical ->
-            Modifier.wrapContentHeight()
-        
-        orientation == Orientation.Horizontal && !useIntrinsicHeight ->
-            Modifier.wrapContentWidth()
-        
-        else ->
-            Modifier.wrapContentWidth().height(IntrinsicSize.Max)
-    }
-    
-    Box(
-        modifier = modifier
-    ) {
+    val modifier =
+        when {
+            orientation == Orientation.Vertical -> Modifier.wrapContentHeight()
+
+            orientation == Orientation.Horizontal && !useIntrinsicHeight ->
+                Modifier.wrapContentWidth()
+
+            else -> Modifier.wrapContentWidth().height(IntrinsicSize.Max)
+        }
+
+    Box(modifier = modifier) {
         wrappedContent()
-        
+
         if (orientation == Orientation.Vertical) {
             AnimatedVerticalEdgeFade(
                 isVisible = showStartEdgeFade,
                 isStartEdge = true,
                 fadeColor = fadeColor,
                 fadeSize = fadeSize,
-                onScrollForward = onScrollForward
+                onScrollForward = onScrollForward,
             )
-            
+
             AnimatedVerticalEdgeFade(
                 isVisible = showEndEdgeFade,
                 isStartEdge = false,
                 fadeColor = fadeColor,
                 fadeSize = fadeSize,
-                onScrollForward = onScrollForward
+                onScrollForward = onScrollForward,
             )
         } else {
             AnimatedHorizontalEdgeFade(
@@ -149,15 +146,15 @@ public fun EdgeFadeWrapper(
                 isStartEdge = true,
                 fadeColor = fadeColor,
                 fadeSize = fadeSize,
-                onScrollForward = onScrollForward
+                onScrollForward = onScrollForward,
             )
-            
+
             AnimatedHorizontalEdgeFade(
                 isVisible = showEndEdgeFade,
                 isStartEdge = false,
                 fadeColor = fadeColor,
                 fadeSize = fadeSize,
-                onScrollForward = onScrollForward
+                onScrollForward = onScrollForward,
             )
         }
     }
@@ -170,70 +167,68 @@ public fun BoxScope.AnimatedVerticalEdgeFade(
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp,
     scrollFabSize: Dp = 36.dp,
-    onScrollForward: ((forward: Boolean) -> Unit)? = null
+    onScrollForward: ((forward: Boolean) -> Unit)? = null,
 ) {
-    val alignment = if (isStartEdge) {
-        Alignment.TopCenter
-    } else {
-        Alignment.BottomCenter
-    }
-    
-    val heightMod = if (onScrollForward != null) {
-        Modifier
-            .defaultMinSize(minHeight = scrollFabSize)
-            .heightIn(max = fadeSize)
-    } else {
-        Modifier
-            .height(fadeSize)
-    }
-    
+    val alignment =
+        if (isStartEdge) {
+            Alignment.TopCenter
+        } else {
+            Alignment.BottomCenter
+        }
+
+    val heightMod =
+        if (onScrollForward != null) {
+            Modifier.defaultMinSize(minHeight = scrollFabSize).heightIn(max = fadeSize)
+        } else {
+            Modifier.height(fadeSize)
+        }
+
     AnimatedVisibility(
         visible = isVisible,
         enter = fadeIn() + slideInVertically(initialOffsetY = { if (isStartEdge) -it else it }),
         exit = fadeOut() + slideOutVertically(targetOffsetY = { if (isStartEdge) -it else it }),
-        modifier = heightMod
-            .align(alignment)
-            .fillMaxWidth()
+        modifier = heightMod.align(alignment).fillMaxWidth(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            if (isStartEdge) fadeColor else Color.Transparent,
-                            if (isStartEdge) Color.Transparent else fadeColor
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    if (isStartEdge) fadeColor else Color.Transparent,
+                                    if (isStartEdge) Color.Transparent else fadeColor,
+                                )
                         )
                     )
-                )
-                .then(
-                    if (onScrollForward != null)
-                        Modifier.clickable {
-                            onScrollForward(isStartEdge)
-                        } else Modifier
-                )
+                    .then(
+                        if (onScrollForward != null)
+                            Modifier.clickable {
+                                onScrollForward(isStartEdge)
+                            }
+                        else Modifier
+                    )
         ) {
             onScrollForward?.let {
                 SmallFab(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(scrollFabSize)
-                        .padding(4.dp),
+                    modifier = Modifier.align(Alignment.Center).size(scrollFabSize).padding(4.dp),
                     icon = {
                         Icon(
-                            imageVector = if (isStartEdge) {
-                                Icons.Default.ArrowUpward
-                            } else {
-                                Icons.Default.ArrowDownward
-                            },
-                            contentDescription = if (isStartEdge) {
-                                "Back"
-                            } else {
-                                "Forward"
-                            }
+                            imageVector =
+                                if (isStartEdge) {
+                                    Icons.Default.ArrowUpward
+                                } else {
+                                    Icons.Default.ArrowDownward
+                                },
+                            contentDescription =
+                                if (isStartEdge) {
+                                    "Back"
+                                } else {
+                                    "Forward"
+                                },
                         )
                     },
-                    containerColor = fadeColor
+                    containerColor = fadeColor,
                 ) {
                     onScrollForward(isStartEdge)
                 }
@@ -249,69 +244,67 @@ public fun BoxScope.AnimatedHorizontalEdgeFade(
     fadeColor: Color = MaterialTheme.colorScheme.background,
     fadeSize: Dp,
     scrollFabSize: Dp = 36.dp,
-    onScrollForward: ((forward: Boolean) -> Unit)? = null
+    onScrollForward: ((forward: Boolean) -> Unit)? = null,
 ) {
-    val alignment = if (isStartEdge) {
-        Alignment.CenterStart
-    } else {
-        Alignment.CenterEnd
-    }
-    
-    val widthMod = if (onScrollForward != null) {
-        Modifier
-            .defaultMinSize(minWidth = scrollFabSize)
-            .widthIn(max = fadeSize)
-    } else {
-        Modifier
-            .width(fadeSize)
-    }
-    
+    val alignment =
+        if (isStartEdge) {
+            Alignment.CenterStart
+        } else {
+            Alignment.CenterEnd
+        }
+
+    val widthMod =
+        if (onScrollForward != null) {
+            Modifier.defaultMinSize(minWidth = scrollFabSize).widthIn(max = fadeSize)
+        } else {
+            Modifier.width(fadeSize)
+        }
+
     AnimatedVisibility(
         visible = isVisible,
         enter = fadeIn() + slideInHorizontally(initialOffsetX = { if (isStartEdge) -it else it }),
         exit = fadeOut() + slideOutHorizontally(targetOffsetX = { if (isStartEdge) -it else it }),
-        modifier = widthMod
-            .align(alignment)
-            .fillMaxHeight()
+        modifier = widthMod.align(alignment).fillMaxHeight(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            if (isStartEdge) fadeColor else Color.Transparent,
-                            if (isStartEdge) Color.Transparent else fadeColor
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors =
+                                listOf(
+                                    if (isStartEdge) fadeColor else Color.Transparent,
+                                    if (isStartEdge) Color.Transparent else fadeColor,
+                                )
                         )
                     )
-                )
-                .then(
-                    if (onScrollForward != null)
-                        Modifier.clickable {
-                            onScrollForward(isStartEdge)
-                        } else Modifier
-                )
+                    .then(
+                        if (onScrollForward != null)
+                            Modifier.clickable {
+                                onScrollForward(isStartEdge)
+                            }
+                        else Modifier
+                    )
         ) {
             onScrollForward?.let {
                 SmallFab(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(scrollFabSize)
-                        .padding(4.dp),
+                    modifier = Modifier.align(Alignment.Center).size(scrollFabSize).padding(4.dp),
                     icon = {
                         Icon(
-                            imageVector = if (isStartEdge) {
-                                Icons.AutoMirrored.Default.ArrowBack
-                            } else {
-                                Icons.AutoMirrored.Default.ArrowForward
-                            },
-                            contentDescription = if (isStartEdge) {
-                                "Back"
-                            } else {
-                                "Forward"
-                            }
+                            imageVector =
+                                if (isStartEdge) {
+                                    Icons.AutoMirrored.Default.ArrowBack
+                                } else {
+                                    Icons.AutoMirrored.Default.ArrowForward
+                                },
+                            contentDescription =
+                                if (isStartEdge) {
+                                    "Back"
+                                } else {
+                                    "Forward"
+                                },
                         )
-                    }
+                    },
                 ) {
                     onScrollForward(isStartEdge)
                 }
@@ -319,7 +312,6 @@ public fun BoxScope.AnimatedHorizontalEdgeFade(
         }
     }
 }
-
 
 // STATIC LISTS
 
@@ -339,58 +331,60 @@ public fun EdgeFadeColumn(
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
     onScrollForward: (() -> Unit)? = null, // include to activate scroll helpers
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var containerSize by remember { mutableStateOf(0) }
-    
-    val onScrollForwardInternal: ((Boolean) -> Unit)? = if (onScrollForward != null) {
-        { scrollForward ->
-            onScrollForward.invoke()
-            
-            coroutineScope.launch {
-                if (scrollForward) {
-                    state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
-                } else {
-                    state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+
+    val onScrollForwardInternal: ((Boolean) -> Unit)? =
+        if (onScrollForward != null) {
+            { scrollForward ->
+                onScrollForward.invoke()
+
+                coroutineScope.launch {
+                    if (scrollForward) {
+                        state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
+                    } else {
+                        state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+                    }
                 }
             }
-        }
-    } else null
-    
+        } else null
+
     val showStartEdgeFade by remember {
         derivedStateOf {
             state.value > 0
         }
     }
-    
+
     val showEndEdgeFade by remember {
         derivedStateOf {
             state.value < state.maxValue
         }
     }
-    
+
     EdgeFadeWrapper(
         orientation = Orientation.Vertical,
         showStartEdgeFade = showStartEdgeFade,
         showEndEdgeFade = showEndEdgeFade,
         fadeColor = fadeColor,
         fadeSize = fadeSize,
-        onScrollForward = onScrollForwardInternal
+        onScrollForward = onScrollForwardInternal,
     ) {
         Column(
-            modifier = modifier
-                .verticalScroll(state)
-                .onGloballyPositioned { containerSize = it.size.height },
+            modifier =
+                modifier.verticalScroll(state).onGloballyPositioned {
+                    containerSize = it.size.height
+                },
             verticalArrangement = Arrangement.spacedBy(itemSpacing, verAlignment),
-            horizontalAlignment = horAlignment
+            horizontalAlignment = horAlignment,
         ) {
             if (startSpacing >= itemSpacing) {
                 HorizontalSpacer(startSpacing - itemSpacing)
             }
-            
+
             content()
-            
+
             if (endSpacing >= itemSpacing) {
                 HorizontalSpacer(endSpacing - itemSpacing)
             }
@@ -414,67 +408,66 @@ public fun EdgeFadeRow(
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
     onScrollForward: (() -> Unit)? = null, // include to activate scroll helpers
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var containerSize by remember { mutableStateOf(0) }
-    
-    val onScrollForwardInternal: ((Boolean) -> Unit)? = if (onScrollForward != null) {
-        { scrollForward ->
-            onScrollForward.invoke()
-            
-            coroutineScope.launch {
-                if (scrollForward) {
-                    state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
-                } else {
-                    state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+
+    val onScrollForwardInternal: ((Boolean) -> Unit)? =
+        if (onScrollForward != null) {
+            { scrollForward ->
+                onScrollForward.invoke()
+
+                coroutineScope.launch {
+                    if (scrollForward) {
+                        state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
+                    } else {
+                        state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+                    }
                 }
             }
-        }
-    } else null
-    
+        } else null
+
     val showStartEdgeFade by remember {
         derivedStateOf {
             state.value > 0
         }
     }
-    
+
     val showEndEdgeFade by remember {
         derivedStateOf {
             state.value < state.maxValue
         }
     }
-    
+
     EdgeFadeWrapper(
         orientation = Orientation.Horizontal,
         showStartEdgeFade = showStartEdgeFade,
         showEndEdgeFade = showEndEdgeFade,
         fadeColor = fadeColor,
         fadeSize = fadeSize,
-        onScrollForward = onScrollForwardInternal
+        onScrollForward = onScrollForwardInternal,
     ) {
         Row(
-            modifier = modifier
-                .horizontalScroll(state)
-                .onGloballyPositioned {
+            modifier =
+                modifier.horizontalScroll(state).onGloballyPositioned {
                     containerSize = it.parentLayoutCoordinates?.size?.width ?: it.size.width
                 },
             horizontalArrangement = Arrangement.spacedBy(itemSpacing, horAlignment),
-            verticalAlignment = verAlignment
+            verticalAlignment = verAlignment,
         ) {
             if (startSpacing >= itemSpacing) {
                 VerticalSpacer(startSpacing - itemSpacing)
             }
-            
+
             content()
-            
+
             if (endSpacing >= itemSpacing) {
                 VerticalSpacer(endSpacing - itemSpacing)
             }
         }
     }
 }
-
 
 // LAZY LISTS
 
@@ -494,61 +487,61 @@ public fun EdgeFadeIndexedLazyColumn(
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
     onScrollForward: (() -> Unit)? = null, // include to activate scroll helpers
-    content: IndexedLazyListScope.() -> Unit
+    content: IndexedLazyListScope.() -> Unit,
 ) {
     val listState = state.listState
     val coroutineScope = rememberCoroutineScope()
     var containerSize by remember { mutableStateOf(0) }
-    
-    val onScrollForwardInternal: ((Boolean) -> Unit)? = if (onScrollForward != null) {
-        { scrollForward ->
-            onScrollForward.invoke()
-            
-            coroutineScope.launch {
-                if (scrollForward) {
-                    listState.animateScrollBy(-containerSize.toFloat() * scrollPercent)
-                } else {
-                    listState.animateScrollBy(containerSize.toFloat() * scrollPercent)
+
+    val onScrollForwardInternal: ((Boolean) -> Unit)? =
+        if (onScrollForward != null) {
+            { scrollForward ->
+                onScrollForward.invoke()
+
+                coroutineScope.launch {
+                    if (scrollForward) {
+                        listState.animateScrollBy(-containerSize.toFloat() * scrollPercent)
+                    } else {
+                        listState.animateScrollBy(containerSize.toFloat() * scrollPercent)
+                    }
                 }
             }
-        }
-    } else null
-    
+        } else null
+
     val showStartEdgeFade by remember {
         derivedStateOf {
             listState.canScrollBackward
         }
     }
-    
+
     val showEndEdgeFade by remember {
         derivedStateOf {
             listState.canScrollForward
         }
     }
-    
+
     EdgeFadeWrapper(
         showStartEdgeFade = showStartEdgeFade,
         showEndEdgeFade = showEndEdgeFade,
         orientation = Orientation.Vertical,
         fadeColor = fadeColor,
         fadeSize = fadeSize,
-        onScrollForward = onScrollForwardInternal
+        onScrollForward = onScrollForwardInternal,
     ) {
         IndexedLazyColumn(
-            modifier = modifier
-                .onGloballyPositioned { containerSize = it.size.height },
+            modifier = modifier.onGloballyPositioned { containerSize = it.size.height },
             state = state,
             verticalArrangement = Arrangement.spacedBy(itemSpacing, verAlignment),
-            horizontalAlignment = horAlignment
+            horizontalAlignment = horAlignment,
         ) {
             if (startSpacing >= itemSpacing) {
                 item {
                     HorizontalSpacer(startSpacing - itemSpacing)
                 }
             }
-            
+
             content()
-            
+
             if (endSpacing >= itemSpacing) {
                 item {
                     HorizontalSpacer(endSpacing - itemSpacing)
@@ -574,61 +567,61 @@ public fun EdgeFadeIndexedLazyRow(
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
     onScrollForward: (() -> Unit)? = null, // include to activate scroll helpers
-    content: IndexedLazyListScope.() -> Unit
+    content: IndexedLazyListScope.() -> Unit,
 ) {
     val listState = state.listState
     val coroutineScope = rememberCoroutineScope()
     var containerSize by remember { mutableStateOf(0) }
-    
-    val onScrollForwardInternal: ((Boolean) -> Unit)? = if (onScrollForward != null) {
-        { scrollForward ->
-            onScrollForward.invoke()
-            
-            coroutineScope.launch {
-                if (scrollForward) {
-                    listState.animateScrollBy(-containerSize.toFloat() * scrollPercent)
-                } else {
-                    listState.animateScrollBy(containerSize.toFloat() * scrollPercent)
+
+    val onScrollForwardInternal: ((Boolean) -> Unit)? =
+        if (onScrollForward != null) {
+            { scrollForward ->
+                onScrollForward.invoke()
+
+                coroutineScope.launch {
+                    if (scrollForward) {
+                        listState.animateScrollBy(-containerSize.toFloat() * scrollPercent)
+                    } else {
+                        listState.animateScrollBy(containerSize.toFloat() * scrollPercent)
+                    }
                 }
             }
-        }
-    } else null
-    
+        } else null
+
     val showStartEdgeFade by remember {
         derivedStateOf {
             listState.canScrollBackward
         }
     }
-    
+
     val showEndEdgeFade by remember {
         derivedStateOf {
             listState.canScrollForward
         }
     }
-    
+
     EdgeFadeWrapper(
         showStartEdgeFade = showStartEdgeFade,
         showEndEdgeFade = showEndEdgeFade,
         orientation = Orientation.Horizontal,
         fadeColor = fadeColor,
         fadeSize = fadeSize,
-        onScrollForward = onScrollForwardInternal
+        onScrollForward = onScrollForwardInternal,
     ) {
         IndexedLazyRow(
-            modifier = modifier
-                .onGloballyPositioned { containerSize = it.size.width },
+            modifier = modifier.onGloballyPositioned { containerSize = it.size.width },
             state = state,
             horizontalArrangement = Arrangement.spacedBy(itemSpacing, horAlignment),
-            verticalAlignment = verAlignment
+            verticalAlignment = verAlignment,
         ) {
             if (startSpacing >= itemSpacing) {
                 item {
                     VerticalSpacer(startSpacing - itemSpacing)
                 }
             }
-            
+
             content()
-            
+
             if (endSpacing >= itemSpacing) {
                 item {
                     VerticalSpacer(endSpacing - itemSpacing)
@@ -656,61 +649,61 @@ public fun EdgeFadeLazyVerticalGrid(
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
     onScrollForward: (() -> Unit)? = null, // include to activate scroll helpers
-    content: LazyGridScope.() -> Unit
+    content: LazyGridScope.() -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var containerSize by remember { mutableStateOf(0) }
-    
-    val onScrollForwardInternal: ((Boolean) -> Unit)? = if (onScrollForward != null) {
-        { scrollForward ->
-            onScrollForward.invoke()
-            
-            coroutineScope.launch {
-                if (scrollForward) {
-                    state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
-                } else {
-                    state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+
+    val onScrollForwardInternal: ((Boolean) -> Unit)? =
+        if (onScrollForward != null) {
+            { scrollForward ->
+                onScrollForward.invoke()
+
+                coroutineScope.launch {
+                    if (scrollForward) {
+                        state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
+                    } else {
+                        state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+                    }
                 }
             }
-        }
-    } else null
-    
+        } else null
+
     val showStartEdgeFade by remember {
         derivedStateOf {
             state.canScrollBackward
         }
     }
-    
+
     val showEndEdgeFade by remember {
         derivedStateOf {
             state.canScrollForward
         }
     }
-    
+
     EdgeFadeWrapper(
         showStartEdgeFade = showStartEdgeFade,
         showEndEdgeFade = showEndEdgeFade,
         orientation = Orientation.Vertical,
         fadeColor = fadeColor,
         fadeSize = fadeSize,
-        onScrollForward = onScrollForwardInternal
+        onScrollForward = onScrollForwardInternal,
     ) {
         LazyVerticalGrid(
-            modifier = modifier
-                .onGloballyPositioned { containerSize = it.size.height },
+            modifier = modifier.onGloballyPositioned { containerSize = it.size.height },
             state = state,
             columns = GridCells.Fixed(columns),
             verticalArrangement = Arrangement.spacedBy(verticalItemSpacing, verAlignment),
-            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing, horAlignment)
+            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing, horAlignment),
         ) {
             if (startSpacing >= verticalItemSpacing) {
                 item(span = { GridItemSpan(columns) }) {
                     HorizontalSpacer(startSpacing - verticalItemSpacing)
                 }
             }
-            
+
             content()
-            
+
             if (endSpacing >= verticalItemSpacing) {
                 item(span = { GridItemSpan(columns) }) {
                     HorizontalSpacer(endSpacing - verticalItemSpacing)
@@ -737,61 +730,61 @@ public fun EdgeFadeLazyStaggeredVerticalGrid(
     fadeSize: Dp = 16.dp,
     scrollPercent: Float = 0.65f,
     onScrollForward: (() -> Unit)? = null, // include to activate scroll helpers
-    content: LazyStaggeredGridScope.() -> Unit
+    content: LazyStaggeredGridScope.() -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var containerSize by remember { mutableStateOf(0) }
-    
-    val onScrollForwardInternal: ((Boolean) -> Unit)? = if (onScrollForward != null) {
-        { scrollForward ->
-            onScrollForward.invoke()
-            
-            coroutineScope.launch {
-                if (scrollForward) {
-                    state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
-                } else {
-                    state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+
+    val onScrollForwardInternal: ((Boolean) -> Unit)? =
+        if (onScrollForward != null) {
+            { scrollForward ->
+                onScrollForward.invoke()
+
+                coroutineScope.launch {
+                    if (scrollForward) {
+                        state.animateScrollBy(-containerSize.toFloat() * scrollPercent)
+                    } else {
+                        state.animateScrollBy(containerSize.toFloat() * scrollPercent)
+                    }
                 }
             }
-        }
-    } else null
-    
+        } else null
+
     val showStartEdgeFade by remember {
         derivedStateOf {
             state.canScrollBackward
         }
     }
-    
+
     val showEndEdgeFade by remember {
         derivedStateOf {
             state.canScrollForward
         }
     }
-    
+
     EdgeFadeWrapper(
         showStartEdgeFade = showStartEdgeFade,
         showEndEdgeFade = showEndEdgeFade,
         orientation = Orientation.Vertical,
         fadeColor = fadeColor,
         fadeSize = fadeSize,
-        onScrollForward = onScrollForwardInternal
+        onScrollForward = onScrollForwardInternal,
     ) {
         LazyVerticalStaggeredGrid(
-            modifier = modifier
-                .onGloballyPositioned { containerSize = it.size.height },
+            modifier = modifier.onGloballyPositioned { containerSize = it.size.height },
             state = state,
             columns = StaggeredGridCells.Fixed(columns),
             verticalItemSpacing = verticalItemSpacing,
-            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing, horAlignment)
+            horizontalArrangement = Arrangement.spacedBy(horizontalItemSpacing, horAlignment),
         ) {
             if (startSpacing >= verticalItemSpacing) {
                 item(span = StaggeredGridItemSpan.FullLine) {
                     HorizontalSpacer(startSpacing - verticalItemSpacing)
                 }
             }
-            
+
             content()
-            
+
             if (endSpacing >= verticalItemSpacing) {
                 item(span = StaggeredGridItemSpan.FullLine) {
                     HorizontalSpacer(endSpacing - verticalItemSpacing)

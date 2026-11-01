@@ -20,7 +20,6 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.ui.resources.Res
-import bridge.supplies.foundation.ui.resources.app_settings_title
 import bridge.supplies.foundation.ui.resources.theme_settings_title
 import bridge.supplies.foundation.ui.shell.Chrome
 import bridge.supplies.foundation.ui.shell.FoundationApp
@@ -29,15 +28,14 @@ import bridge.supplies.foundation.ui.shell.Navigator
 import bridge.supplies.foundation.ui.shell.TopBarAction
 import bridge.supplies.foundation.ui.shell.TopBarActions
 import bridge.supplies.foundation.ui.shell.screenMetadata
-import org.jetbrains.compose.resources.stringResource
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 
 @OptIn(ExperimentalTestApi::class)
 class ShellUiTests {
@@ -59,20 +57,16 @@ class ShellUiTests {
     }
 
     @Composable
-    private fun TestAppShell(
-        onNavigatorReady: (Navigator) -> Unit = {}
-    ) {
+    private fun TestAppShell(onNavigatorReady: (Navigator) -> Unit = {}) {
         CompositionLocalProvider(
             LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200))
         ) {
             Box(Modifier.size(400.dp, 600.dp)) {
                 FoundationApp(
                     tabs = testTabs,
-                    routes = testRouteRegistry
+                    routes = testRouteRegistry,
                 ) {
-                    entry<Tab1RootRoute>(
-                        metadata = screenMetadata(titleText = "Tab 1 Root")
-                    ) {
+                    entry<Tab1RootRoute>(metadata = screenMetadata(titleText = "Tab 1 Root")) {
                         val nav = LocalNavigator.current
                         onNavigatorReady(nav)
                         TopBarActions(
@@ -80,7 +74,7 @@ class ShellUiTests {
                                 TopBarAction(
                                     icon = Icons.Default.Info,
                                     label = Res.string.theme_settings_title,
-                                    onClick = {}
+                                    onClick = {},
                                 )
                             )
                         )
@@ -92,9 +86,7 @@ class ShellUiTests {
                         }
                     }
 
-                    entry<Tab1DetailRoute>(
-                        metadata = screenMetadata(titleText = "Tab 1 Detail")
-                    ) {
+                    entry<Tab1DetailRoute>(metadata = screenMetadata(titleText = "Tab 1 Detail")) {
                         val nav = LocalNavigator.current
                         onNavigatorReady(nav)
                         Column {
@@ -114,10 +106,11 @@ class ShellUiTests {
                     }
 
                     entry<Tab3ImmersiveRoute>(
-                        metadata = screenMetadata(
-                            titleText = "Immersive Title",
-                            chrome = Chrome.Immersive()
-                        )
+                        metadata =
+                            screenMetadata(
+                                titleText = "Immersive Title",
+                                chrome = Chrome.Immersive(),
+                            )
                     ) {
                         val nav = LocalNavigator.current
                         onNavigatorReady(nav)

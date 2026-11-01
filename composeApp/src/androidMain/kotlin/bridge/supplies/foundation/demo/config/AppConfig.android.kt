@@ -1,11 +1,11 @@
 package bridge.supplies.foundation.demo.config
 
-import bridge.supplies.foundation.core.platform.FoundationAndroid
 import android.content.Context
 import android.os.Build
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import bridge.supplies.foundation.core.platform.FoundationAndroid
 import bridge.supplies.foundation.demo.data.MainViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -41,12 +41,9 @@ fun ComponentActivity.showSystemUI(show: Boolean) {
     }
 }
 
-
 // Koin modules
 
-actual class KoinInitializer(
-    private val context: Context
-) {
+actual class KoinInitializer(private val context: Context) {
     actual fun init() {
         FoundationAndroid.init(context)
         startKoin {
@@ -54,7 +51,7 @@ actual class KoinInitializer(
             androidLogger()
             modules(
                 viewModelModule,
-                foundationModule
+                foundationModule,
             )
         }
     }

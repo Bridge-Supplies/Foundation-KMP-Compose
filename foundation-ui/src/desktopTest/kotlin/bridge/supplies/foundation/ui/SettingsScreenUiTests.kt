@@ -7,9 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -30,14 +30,14 @@ import bridge.supplies.foundation.ui.shell.TopBarActionHost
 import bridge.supplies.foundation.ui.theme.ExpressiveAnimation
 import bridge.supplies.foundation.ui.theme.FoundationTheme
 import bridge.supplies.foundation.ui.theme.ThemeConfig
-import kotlinx.coroutines.runBlocking
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 
 private data object DummySettingsRoute : NavKey
 
@@ -45,7 +45,8 @@ private data object DummySettingsRoute : NavKey
 class SettingsScreenUiTests {
 
     private lateinit var settings: InMemoryFoundationSettings
-    private val customSwitchKey = BooleanSetting(settingName("custom_test_feature"), default = false)
+    private val customSwitchKey =
+        BooleanSetting(settingName("custom_test_feature"), default = false)
 
     @BeforeTest
     fun setUp() {
@@ -72,27 +73,28 @@ class SettingsScreenUiTests {
             CompositionLocalProvider(
                 LocalRoute provides DummySettingsRoute,
                 LocalTopBarActionHost provides actionHost,
-                LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200))
+                LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200)),
             ) {
                 Box(Modifier.size(400.dp, 800.dp)) {
                     FoundationSettingsScreen(
-                        builtIns = BuiltInSettings(
-                            theme = true,
-                            encryptedSharing = false,
-                            landingTips = false,
-                            expressiveAnimation = false,
-                            fullscreenLandscape = false,
-                            vibration = false,
-                            scrollHelpers = false
-                        ),
+                        builtIns =
+                            BuiltInSettings(
+                                theme = true,
+                                encryptedSharing = false,
+                                landingTips = false,
+                                expressiveAnimation = false,
+                                fullscreenLandscape = false,
+                                vibration = false,
+                                scrollHelpers = false,
+                            ),
                         extra = {
                             section(Res.string.invalid_date) {
                                 switch(
                                     key = customSwitchKey,
-                                    title = Res.string.share_sheet_copy_text
+                                    title = Res.string.share_sheet_copy_text,
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -125,16 +127,19 @@ class SettingsScreenUiTests {
             CompositionLocalProvider(
                 LocalRoute provides DummySettingsRoute,
                 LocalTopBarActionHost provides actionHost,
-                LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200))
+                LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200)),
             ) {
                 Box(Modifier.size(400.dp, 2000.dp)) {
                     FoundationSettingsScreen(
                         builtIns = BuiltInSettings(),
                         extra = {
                             section(Res.string.invalid_date) {
-                                switch(key = customSwitchKey, title = Res.string.share_sheet_copy_text)
+                                switch(
+                                    key = customSwitchKey,
+                                    title = Res.string.share_sheet_copy_text,
+                                )
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -156,11 +161,13 @@ class SettingsScreenUiTests {
                     CompositionLocalProvider(
                         LocalRoute provides DummySettingsRoute,
                         LocalTopBarActionHost provides actionHost,
-                        LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200))
+                        LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200)),
                     ) {
                         FoundationTheme(ThemeConfig(expressiveAnimation = mode)) {
                             Box(Modifier.size(400.dp, 2000.dp)) {
-                                FoundationSettingsScreen(builtIns = BuiltInSettings(expressiveAnimation = true))
+                                FoundationSettingsScreen(
+                                    builtIns = BuiltInSettings(expressiveAnimation = true)
+                                )
                             }
                         }
                     }

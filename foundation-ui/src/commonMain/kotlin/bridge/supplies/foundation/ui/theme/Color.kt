@@ -2,7 +2,6 @@ package bridge.supplies.foundation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-
 internal val md_theme_light_primary: Color = Color(0xFF006879)
 internal val md_theme_light_onPrimary: Color = Color(0xFFFFFFFF)
 internal val md_theme_light_primaryContainer: Color = Color(0xFFA9EDFF)
@@ -64,6 +63,5 @@ internal val md_theme_dark_shadow: Color = Color(0xFF000000)
 internal val md_theme_dark_surfaceTint: Color = Color(0xFF54D7F3)
 internal val md_theme_dark_outlineVariant: Color = Color(0xFF3F484B)
 internal val md_theme_dark_scrim: Color = Color(0xFF000000)
-
 
 internal val seed: Color = Color(0xFF006879)

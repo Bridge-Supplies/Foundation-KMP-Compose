@@ -12,7 +12,7 @@ actual class KoinInitializer() {
         startKoin {
             modules(
                 viewModelModule,
-                foundationModule
+                foundationModule,
             )
         }
     }

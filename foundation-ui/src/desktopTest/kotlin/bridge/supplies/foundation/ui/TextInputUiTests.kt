@@ -15,12 +15,12 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.v2.runComposeUiTest
 import bridge.supplies.foundation.ui.components.TextInput
 import bridge.supplies.foundation.ui.theme.FoundationTheme
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 
 @OptIn(ExperimentalTestApi::class)
 class TextInputUiTests {
@@ -121,7 +121,9 @@ class TextInputUiTests {
         field.performClick()
         waitForIdle()
 
-        runOnIdle { stored = "second record" } // a clear button, or the sheet moving to another record
+        runOnIdle {
+            stored = "second record"
+        } // a clear button, or the sheet moving to another record
         waitForIdle()
 
         assertEquals("second record", field.editableText())
@@ -147,7 +149,9 @@ class TextInputUiTests {
 
         runOnIdle { focusManager?.clearFocus() }
         waitForIdle()
-        runOnIdle { stored = "ab" } // the save of an earlier keystroke arrives after the field lost focus
+        runOnIdle {
+            stored = "ab"
+        } // the save of an earlier keystroke arrives after the field lost focus
         waitForIdle()
 
         assertEquals("abc", field.editableText())

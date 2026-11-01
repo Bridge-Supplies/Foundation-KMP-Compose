@@ -15,11 +15,21 @@ spotless {
     // A file tree, not patterns: Spotless's patterns walk build/, whose iOS symlinks can be broken
     val ignored = listOf("**/build/**", "**/.gradle/**", "**/.kotlin/**", "foundation/**")
     kotlin {
-        target(fileTree(rootDir) { include("**/*.kt"); exclude(ignored) })
+        target(
+            fileTree(rootDir) {
+                include("**/*.kt")
+                exclude(ignored)
+            }
+        )
         ktfmt(ktfmtVersion).kotlinlangStyle()
     }
     kotlinGradle {
-        target(fileTree(rootDir) { include("**/*.gradle.kts"); exclude(ignored) })
+        target(
+            fileTree(rootDir) {
+                include("**/*.gradle.kts")
+                exclude(ignored)
+            }
+        )
         ktfmt(ktfmtVersion).kotlinlangStyle()
     }
 }

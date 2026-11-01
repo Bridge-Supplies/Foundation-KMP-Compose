@@ -25,20 +25,22 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         commonMain.dependencies {
             // Resolved from the included Foundation build (dependency substitution by group:name)
-            implementation("bridge.supplies.foundation:foundation-ui:${foundationLibs.versions.app.versionName.get()}")
+            implementation(
+                "bridge.supplies.foundation:foundation-ui:${foundationLibs.versions.app.versionName.get()}"
+            )
             implementation(foundationLibs.kotlinx.serialization.json)
             implementation(foundationLibs.compose.material.icons.extended)
         }
-        
+
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(foundationLibs.kotlinx.coroutines.test)
         }
-        
+
         named("desktopTest") {
             dependencies {
                 // Skia native library for the host OS (Compose graphics classes load it)
