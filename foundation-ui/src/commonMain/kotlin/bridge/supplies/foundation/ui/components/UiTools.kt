@@ -72,7 +72,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -266,6 +265,9 @@ public fun HintText(
     )
 }
 
+/** How many sent values [TextInput] remembers while waiting to see them come back from the caller. */
+private const val MAX_UNCONFIRMED_TEXT_VALUES = 64
+
 @Composable
 public fun TextInput(
     modifier: Modifier = Modifier,
@@ -281,23 +283,23 @@ public fun TextInput(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     
-    // The field owns its text while focused: callers often store each change asynchronously,
-    // and a stored value that arrives late must not overwrite newer keystrokes.
+    // Callers often store each change asynchronously, so a value can come back after newer keystrokes.
+    // A value this field sent is a late echo and is ignored; any other value is an outside change and applies.
     var noteText by remember {
         mutableStateOf(text)
     }
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
+    val sentValues = remember { ArrayDeque<String>() }
 
     LaunchedEffect(text) {
-        if (!isFocused) noteText = text
+        val echo = sentValues.indexOf(text)
+        if (echo >= 0) {
+            repeat(echo + 1) { sentValues.removeFirst() }
+        } else {
+            sentValues.clear()
+            noteText = text
+        }
     }
 
-    LaunchedEffect(noteText) {
-        if (noteText != text) onValueChange(noteText)
-    }
-    
     val supportingText: @Composable (() -> Unit)? =
         if (maxTextLength != null) {
             { Text("${noteText.length}/$maxTextLength") }
@@ -306,11 +308,16 @@ public fun TextInput(
     OutlinedTextField(
         modifier = modifier
             .wrapContentHeight()
-            .fillMaxWidth()
-            .onFocusChanged { isFocused = it.isFocused },
+            .fillMaxWidth(),
         value = noteText,
         onValueChange = {
-            noteText = if (maxTextLength != null) it.take(maxTextLength) else it
+            val newText = if (maxTextLength != null) it.take(maxTextLength) else it
+            if (newText != noteText) {
+                noteText = newText
+                if (sentValues.size == MAX_UNCONFIRMED_TEXT_VALUES) sentValues.removeFirst()
+                sentValues.addLast(newText)
+                onValueChange(newText)
+            }
         },
         label = {
             if (hintText != null) {
