@@ -97,7 +97,7 @@ public data class BuiltInSettings(
 @DslMarker
 public annotation class SettingsDsl
 
-/** App settings sections shown after Foundation's built-ins. */
+/** App settings sections, shown before Foundation's built-ins. */
 @SettingsDsl
 public interface SettingsScope {
     public fun section(title: StringResource, content: SettingsSectionScope.() -> Unit)
@@ -120,7 +120,7 @@ public interface SettingsSectionScope {
 }
 
 /**
- * Foundation's settings screen: Theming and System cards, then the app's [extra] sections, with an
+ * Foundation's settings screen: the app's [extra] sections, then the Theming and System cards, with an
  * "About app" button when [onNavigateToAbout] is set and a top bar shortcut to the system app settings.
  */
 @Composable
@@ -164,6 +164,23 @@ public fun FoundationSettingsScreen(
             horizontalItemSpacing = 0.dp,
             endSpacing = 56.dp
         ) {
+            // The app's own settings first; Foundation's always come last
+            sections.forEach { section ->
+                item {
+                    TitledCard(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .animateItem(),
+                        title = stringResource(section.title)
+                    ) {
+                        section.items.forEach { it() }
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+            }
+
             if (builtIns.theme) {
                 item {
                     ThemeSettings(
@@ -183,21 +200,6 @@ public fun FoundationSettingsScreen(
                 )
             }
 
-            sections.forEach { section ->
-                item {
-                    TitledCard(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .animateItem(),
-                        title = stringResource(section.title)
-                    ) {
-                        section.items.forEach { it() }
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
-            }
         }
 
         if (onNavigateToAbout != null) {
