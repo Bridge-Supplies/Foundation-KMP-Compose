@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
@@ -115,6 +116,35 @@ class SettingsScreenUiTests {
         runBlocking {
             assertTrue(settings.get(customSwitchKey))
         }
+    }
+
+    @Test
+    fun appSectionsComeBeforeFoundationsSettings() = runComposeUiTest {
+        setContent {
+            val actionHost = remember { TopBarActionHost() }
+            CompositionLocalProvider(
+                LocalRoute provides DummySettingsRoute,
+                LocalTopBarActionHost provides actionHost,
+                LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200))
+            ) {
+                Box(Modifier.size(400.dp, 2000.dp)) {
+                    FoundationSettingsScreen(
+                        builtIns = BuiltInSettings(),
+                        extra = {
+                            section(Res.string.invalid_date) {
+                                switch(key = customSwitchKey, title = Res.string.share_sheet_copy_text)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        val appSetting = onNodeWithText("Copy to clipboard").getBoundsInRoot().top
+        val theming = onNodeWithText("Dark mode").getBoundsInRoot().top
+        val system = onNodeWithText("System").getBoundsInRoot().top
+        assertTrue(appSetting < theming, "app settings must be above Theming")
+        assertTrue(theming < system, "Theming must be above System")
     }
 
     @Test

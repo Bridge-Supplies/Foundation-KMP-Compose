@@ -413,7 +413,7 @@ val showHints by foundation.setting(showHintsKey).collectAsState()
 foundation.set(showHintsKey, false)
 ```
 
-Build your settings screen with `FoundationSettingsScreen`. It renders Foundation's built-in Theming and System cards (configurable via `BuiltInSettings`) followed by your app's custom sections (see the note on motion below):
+Build your settings screen with `FoundationSettingsScreen`. It renders your app's custom sections first, followed by Foundation's built-in Theming and System cards (configurable via `BuiltInSettings`; see the note on motion below):
 
 ```kotlin
 entry<SettingsOptions> {
@@ -554,6 +554,13 @@ Apps with their own compact binary format (for example a game turn packed into ~
 ```kotlin
 val text: String = qrCodec.encodeBytes(bytes, encrypt = true)
 val back: Result<ByteArray> = qrCodec.decodeBytes(text) // fails for other payloads or another key
+```
+
+**Devices without a back camera:** `QrCodeScanner` only opens the back camera, so on Android `PlatformFeature.CODE_SCANNING` is on only if the device has one. Check it (`currentPlatform().supports(PlatformFeature.CODE_SCANNING)`) before offering to scan. Devices with only a front camera or webcam, such as most Chromebooks, can still show QR codes but can't scan them. Your app decides who can install it: `android.permission.CAMERA` makes Google Play require a back camera unless the manifest says otherwise, so an app that works without one declares:
+
+```xml
+<uses-feature android:name="android.hardware.camera" android:required="false" />
+<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 ```
 
 ### 8. Platform services and UI helpers
