@@ -71,6 +71,33 @@ class QrCodecTests {
     }
     
     @Test
+    fun wrongKeyBytesPayloadsAlwaysFail() {
+        // Without a check inside the encrypted data, about 1 in 255 of these passes the padding check by chance
+        val otherKey = FoundationQrCodec("SomeOtherKey0016")
+        repeat(3000) { i ->
+            val text = codec.encodeBytes(byteArrayOf(1, 2, 3, i.toByte()))
+            assertTrue(otherKey.decodeBytes(text).isFailure, "wrong key accepted on attempt $i")
+        }
+    }
+    
+    @Test
+    fun damagedBytesPayloadsFail() {
+        val text = codec.encodeBytes(ByteArray(40) { it.toByte() })
+        // Whole Base45 groups (3 characters = 2 bytes) off the end, so only the length is wrong
+        for (cut in listOf(3, 6, 24, 45)) {
+            assertTrue(codec.decodeBytes(text.dropLast(cut)).isFailure, "accepted with $cut characters cut")
+        }
+    }
+    
+    @Test
+    fun emptyAndBlockSizedBytesRoundTrip() {
+        for (size in listOf(0, 1, 11, 12, 15, 16, 28, 32, 150)) {
+            val bytes = ByteArray(size) { it.toByte() }
+            assertContentEquals(bytes, codec.decodeBytes(codec.encodeBytes(bytes)).getOrThrow(), "size $size")
+        }
+    }
+    
+    @Test
     fun bytesAndJsonPayloadsDontCrossDecode() {
         val bytesText = codec.encodeBytes(byteArrayOf(1, 2, 3))
         val jsonText = codec.encode(Message("json"), Message.serializer())
