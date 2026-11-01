@@ -13,6 +13,7 @@ All notable changes to Foundation are documented in this file.
 - **App settings come first:** `FoundationSettingsScreen` now shows the app's `extra` sections above the Theming and System cards, which always come last.
 - **`CODE_SCANNING` reflects the device on Android:** it's on only when the device has a back camera, the one the QR scanner uses, instead of always. Screens that check it hide scanning on devices without one.
 - **The expressive-animation switch is hidden by default.** In 2.0.0 Settings always showed it. Apps now get expressive motion with no switch unless they pass `ThemeConfig(expressiveAnimation = ExpressiveAnimation.USER_CHOICE)` (the demo app does). `BuiltInSettings.expressiveAnimation` still hides the switch in `USER_CHOICE` mode.
+- **Formatting:** all Kotlin is now formatted with ktfmt through Spotless, and `scripts/verify.sh` checks it.
 - **End-to-end test harness:** `scripts/verify.sh e2e` keeps the app's identity (Android and iOS app ids, iOS `.app` name, baseline folder, seed and assert flows) in one `E2E_*` block, so apps that copy the script change only that block. The iOS app is always rebuilt (incremental, `ARCHS=arm64`) so the smoke flow never runs a stale build. The Maestro flows wait longer for the first screen after an install, and `scripts/e2e/README.md` lists Maestro tips for Compose apps. A step that can't run now fails the tier instead of passing silently (a failed iOS build, an APK that can't be installed), and a Foundation submodule bump or a shared-code change now runs the iOS tests.
 
 ### Fixed

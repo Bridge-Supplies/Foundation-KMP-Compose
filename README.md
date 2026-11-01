@@ -665,6 +665,8 @@ If you are forking or cloning this repository as a standalone starter template i
 
 ## Testing
 
+Code is formatted with [Spotless](https://github.com/diffplug/spotless) and ktfmt's Kotlin language style: run `./gradlew spotlessApply` before committing. `scripts/verify.sh` fails on unformatted code.
+
 - **Repository verification** with `scripts/verify.sh <tier>` (a shared lock keeps parallel runs from overlapping):
   - `quick`: compiles the Android debug app and the Desktop app, runs common/Desktop unit tests in all modules, and runs (or links) iOS simulator tests when iOS-relevant files changed.
   - `ui`: `quick` + Compose UI and screenshot-golden tests (`:foundation-ui:desktopTest`; record new goldens with `-DrecordGolden=true`) + the consumer test below.
