@@ -11,8 +11,8 @@ import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.koin.compose.currentKoinScope
 import kotlin.enums.EnumEntries
+import org.koin.compose.currentKoinScope
 
 @Composable
 public inline fun <reified T : ViewModel> koinViewModel(): T {
@@ -38,20 +38,21 @@ public expect suspend fun setClipboardText(clipboard: Clipboard, text: String)
 @Composable
 public fun <T : Enum<T>> rememberSaveableEnumMap(
     enumValues: EnumEntries<T>,
-    initialValue: Boolean = false
+    initialValue: Boolean = false,
 ): SnapshotStateMap<T, Boolean> {
     return rememberSaveable(
-        saver = mapSaver(
-            save = { stateMap -> stateMap.mapKeys { it.key.name } },
-            restore = { savedMap ->
-                mutableStateMapOf<T, Boolean>().apply {
-                    savedMap.forEach { (keyName, value) ->
-                        val key = enumValues.first { it.name == keyName }
-                        this[key] = value as Boolean
+        saver =
+            mapSaver(
+                save = { stateMap -> stateMap.mapKeys { it.key.name } },
+                restore = { savedMap ->
+                    mutableStateMapOf<T, Boolean>().apply {
+                        savedMap.forEach { (keyName, value) ->
+                            val key = enumValues.first { it.name == keyName }
+                            this[key] = value as Boolean
+                        }
                     }
-                }
-            }
-        )
+                },
+            )
     ) {
         mutableStateMapOf<T, Boolean>().apply {
             enumValues.forEach {

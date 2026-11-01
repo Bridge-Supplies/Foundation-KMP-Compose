@@ -95,9 +95,19 @@ appId: ${APP_ID}
 
 ---
 
+### Maestro tips for Compose apps
+
+- **First launch after an install is slow** on the emulator (a fresh debug build can take ~15 s until the first screen's text is there). Use a 30 s `extendedWaitUntil` for the first screen.
+- **`hideKeyboard` only works on Android.** On iOS it fails with Compose text fields; close the text keyboard with `pressKey: Enter` (the field's Done action), and wrap `hideKeyboard` in `runFlow: when: platform: Android`.
+- **iOS sheets move when the keyboard appears,** and Maestro can tap where an element was before the move. Close the keyboard before tapping buttons, and wrap tap-then-type steps in `retry`.
+- **`scrollUntilVisible` counts an element half under the screen edge as visible.** Swipe explicitly when a button must be fully on screen.
+- **Switches are often siblings of their labels.** Assert a switch's state with `checked` plus `rightOf`/`below`/`above` bounds around it.
+
+---
+
 ## Integrating into `scripts/verify.sh`
 
-App repositories can wire E2E tests into their verification tiers (`scripts/verify.sh e2e`):
-1. Compile the debug APK (`:composeApp:assembleDebug` or `:androidApp:assembleDebug`).
-2. Run `maestro test -e APP_ID=<app-id> .maestro/smoke.yaml`.
-3. If a baseline APK exists in `baselines/`, execute `scripts/e2e/over-install.sh`.
+Apps copy `scripts/verify.sh` and `scripts/e2e/over-install.sh` and change only the `E2E_*` block at the top of the e2e tier: the Android and iOS app ids, the iOS `.app` name, the baseline folder name, and the seed/assert flows. The tier then:
+1. Builds the Android debug APK and runs `.maestro/smoke.yaml` on the emulator.
+2. Builds the iOS app for the simulator (incremental, `ARCHS=arm64`) and runs the same smoke flow there.
+3. If a baseline APK is found, runs `scripts/e2e/over-install.sh` with the seed and assert flows.

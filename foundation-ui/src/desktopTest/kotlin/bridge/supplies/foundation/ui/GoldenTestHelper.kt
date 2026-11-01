@@ -7,17 +7,19 @@ import javax.imageio.ImageIO
 object GoldenTestHelper {
     private val goldenDir: File by lazy {
         val currentDir = File("").absoluteFile
-        val candidates = listOf(
-            File(currentDir, "src/desktopTest/resources/golden"),
-            File(currentDir, "foundation-ui/src/desktopTest/resources/golden"),
-            File(currentDir, "resources/golden")
-        )
+        val candidates =
+            listOf(
+                File(currentDir, "src/desktopTest/resources/golden"),
+                File(currentDir, "foundation-ui/src/desktopTest/resources/golden"),
+                File(currentDir, "resources/golden"),
+            )
         val dir = candidates.firstOrNull { it.parentFile?.exists() == true } ?: candidates.first()
         dir.apply { mkdirs() }
     }
 
     val isRecordMode: Boolean
-        get() = System.getProperty("recordGolden") == "true" || System.getenv("RECORD_GOLDEN") == "true"
+        get() =
+            System.getProperty("recordGolden") == "true" || System.getenv("RECORD_GOLDEN") == "true"
 
     fun assertGolden(image: BufferedImage, goldenName: String, maxDiffFraction: Double = 0.002) {
         val file = File(goldenDir, "$goldenName.png")
@@ -29,12 +31,16 @@ object GoldenTestHelper {
         }
 
         if (!file.exists()) {
-            throw AssertionError("Golden file not found at ${file.absolutePath}. Run tests with -DrecordGolden=true to record.")
+            throw AssertionError(
+                "Golden file not found at ${file.absolutePath}. Run tests with -DrecordGolden=true to record."
+            )
         }
 
         val expected = ImageIO.read(file)
         if (expected.width != image.width || expected.height != image.height) {
-            throw AssertionError("Golden dimension mismatch for $goldenName: expected ${expected.width}x${expected.height}, got ${image.width}x${image.height}")
+            throw AssertionError(
+                "Golden dimension mismatch for $goldenName: expected ${expected.width}x${expected.height}, got ${image.width}x${image.height}"
+            )
         }
 
         var diffPixels = 0

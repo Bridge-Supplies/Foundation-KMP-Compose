@@ -27,12 +27,14 @@ import bridge.supplies.foundation.ui.shell.TopBarActionHost
 import bridge.supplies.foundation.ui.shell.screenMetadata
 import bridge.supplies.foundation.ui.theme.ColorTheme
 import bridge.supplies.foundation.ui.theme.DarkMode
+import bridge.supplies.foundation.ui.theme.ExpressiveAnimation
 import bridge.supplies.foundation.ui.theme.FoundationTheme
 import bridge.supplies.foundation.ui.theme.Palette
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
+import bridge.supplies.foundation.ui.theme.ThemeConfig
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 
 private data object DummySettingsScreenshotRoute : NavKey
 
@@ -46,13 +48,14 @@ class ScreenshotGoldensTest {
 
     private fun setupTestKoin(darkMode: DarkMode) {
         stopKoin()
-        val settings = InMemoryFoundationSettings(
-            mapOf(
-                FoundationSettingKeys.darkMode to darkMode,
-                FoundationSettingKeys.colorTheme to ColorTheme.BLUE,
-                FoundationSettingKeys.paletteStyle to Palette.BOLD,
+        val settings =
+            InMemoryFoundationSettings(
+                mapOf(
+                    FoundationSettingKeys.darkMode to darkMode,
+                    FoundationSettingKeys.colorTheme to ColorTheme.BLUE,
+                    FoundationSettingKeys.paletteStyle to Palette.BOLD,
+                )
             )
-        )
         startKoin {
             modules(testFoundationModule(settings))
         }
@@ -62,18 +65,14 @@ class ScreenshotGoldensTest {
     private fun ShellTestContent() {
         FoundationApp(
             tabs = testTabs,
-            routes = testRouteRegistry
+            routes = testRouteRegistry,
         ) {
-            entry<Tab1RootRoute>(
-                metadata = screenMetadata(titleText = "Home")
-            ) {
+            entry<Tab1RootRoute>(metadata = screenMetadata(titleText = "Home")) {
                 Column {
                     Text("Home Content")
                 }
             }
-            entry<Tab2RootRoute>(
-                metadata = screenMetadata(titleText = "Settings")
-            ) {
+            entry<Tab2RootRoute>(metadata = screenMetadata(titleText = "Settings")) {
                 Text("Settings Content")
             }
         }
@@ -84,19 +83,20 @@ class ScreenshotGoldensTest {
         val actionHost = remember { TopBarActionHost() }
         CompositionLocalProvider(
             LocalRoute provides DummySettingsScreenshotRoute,
-            LocalTopBarActionHost provides actionHost
+            LocalTopBarActionHost provides actionHost,
         ) {
-            FoundationTheme {
+            FoundationTheme(ThemeConfig(expressiveAnimation = ExpressiveAnimation.USER_CHOICE)) {
                 FoundationSettingsScreen(
-                    builtIns = BuiltInSettings(
-                        theme = true,
-                        encryptedSharing = true,
-                        landingTips = true,
-                        expressiveAnimation = true,
-                        fullscreenLandscape = true,
-                        vibration = true,
-                        scrollHelpers = true
-                    )
+                    builtIns =
+                        BuiltInSettings(
+                            theme = true,
+                            encryptedSharing = true,
+                            landingTips = true,
+                            expressiveAnimation = true,
+                            fullscreenLandscape = true,
+                            vibration = true,
+                            scrollHelpers = true,
+                        )
                 )
             }
         }

@@ -26,7 +26,9 @@ import org.koin.core.module.Module
 // A minimal app on Foundation's public API. It only has to compile and link on every target.
 
 @Serializable data object Start : NavKey
+
 @Serializable data class Detail(val id: Int) : NavKey
+
 @Serializable data object Options : NavKey
 
 val consumerRoutes = RouteRegistry {
@@ -36,25 +38,39 @@ val consumerRoutes = RouteRegistry {
 }
 
 // Foundation's own strings stand in for app strings here
-val consumerTabs = listOf(
-    FoundationTab("start", ColorTheme.RED.titleRes, Icons.Outlined.Home, Icons.Filled.Home, Start),
-    FoundationTab("options", ColorTheme.BLUE.titleRes, Icons.Outlined.Settings, Icons.Filled.Settings, Options),
-)
+val consumerTabs =
+    listOf(
+        FoundationTab(
+            "start",
+            ColorTheme.RED.titleRes,
+            Icons.Outlined.Home,
+            Icons.Filled.Home,
+            Start,
+        ),
+        FoundationTab(
+            "options",
+            ColorTheme.BLUE.titleRes,
+            Icons.Outlined.Settings,
+            Icons.Filled.Settings,
+            Options,
+        ),
+    )
 
 val consumerSetting = BooleanSetting(settingName("consumer_flag"), false)
 
-fun consumerModules(): List<Module> = listOf(
-    foundationCoreModule(
-        FoundationConfig(
-            appName = "Consumer",
-            packageName = "bridge.supplies.consumertest",
-            version = "0.0.1",
-            build = "1",
-            encryptionKey = "ConsumerTestKey!",
-        )
-    ),
-    foundationUiModule(),
-)
+fun consumerModules(): List<Module> =
+    listOf(
+        foundationCoreModule(
+            FoundationConfig(
+                appName = "Consumer",
+                packageName = "bridge.supplies.consumertest",
+                version = "0.0.1",
+                build = "1",
+                encryptionKey = "ConsumerTestKey!",
+            )
+        ),
+        foundationUiModule(),
+    )
 
 @Composable
 fun ConsumerApp() {
@@ -64,7 +80,9 @@ fun ConsumerApp() {
         landing = Landing.None,
     ) {
         entry<Start> { Text("Start") }
-        entry<Detail>(metadata = screenMetadata(titleText = "Detail")) { route -> Text("Detail ${route.id}") }
+        entry<Detail>(metadata = screenMetadata(titleText = "Detail")) { route ->
+            Text("Detail ${route.id}")
+        }
         entry<Options> {
             FoundationSettingsScreen {
                 section(ColorTheme.GREEN.titleRes) {

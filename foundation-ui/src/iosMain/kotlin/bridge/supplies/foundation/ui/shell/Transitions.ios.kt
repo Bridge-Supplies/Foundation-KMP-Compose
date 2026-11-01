@@ -1,8 +1,8 @@
 package bridge.supplies.foundation.ui.shell
 
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 @Composable
 public actual fun BackHandler(
     enabled: Boolean,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     // no-op
 }
@@ -30,27 +30,25 @@ internal actual val CENTER_TOP_BAR_TITLE = true
 internal actual fun ScreenEnterTransition(): EnterTransition =
     slideInHorizontally(
         initialOffsetX = { it },
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
+        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING),
     )
 
 internal actual fun ScreenExitTransition(): ExitTransition =
-    fadeOut(
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    ) + slideOutHorizontally(
-        targetOffsetX = { -it / TRANSITION_OFFSET_DIV },
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    )
+    fadeOut(animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)) +
+        slideOutHorizontally(
+            targetOffsetX = { -it / TRANSITION_OFFSET_DIV },
+            animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING),
+        )
 
 internal actual fun ScreenPopEnterTransition(): EnterTransition =
-    fadeIn(
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    ) + slideInHorizontally(
-        initialOffsetX = { -it / TRANSITION_OFFSET_DIV },
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    )
+    fadeIn(animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)) +
+        slideInHorizontally(
+            initialOffsetX = { -it / TRANSITION_OFFSET_DIV },
+            animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING),
+        )
 
 internal actual fun ScreenPopExitTransition(): ExitTransition =
     slideOutHorizontally(
         targetOffsetX = { it },
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
+        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING),
     )

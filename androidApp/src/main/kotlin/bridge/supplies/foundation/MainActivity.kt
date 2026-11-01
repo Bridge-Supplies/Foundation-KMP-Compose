@@ -12,12 +12,12 @@ import bridge.supplies.foundation.ui.util.koinViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         enableEdgeToEdge()
-        
+
         setContent {
             val viewModel = koinViewModel<MainViewModel>()
-            
+
             App(
                 viewModel = viewModel,
                 onShowSystemUi = { isPortraitMode ->
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                 },
                 onCloseApplication = {
                     finish()
-                }
+                },
             )
         }
     }

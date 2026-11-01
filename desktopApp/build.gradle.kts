@@ -23,9 +23,9 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(
-                TargetFormat.Dmg, // TargetFormat.Pkg, // MacOS
-//                TargetFormat.Exe, TargetFormat.Msi, // Windows
-//                TargetFormat.Deb, TargetFormat.Rpm // Linux
+                TargetFormat.Dmg // TargetFormat.Pkg, // MacOS
+                //                TargetFormat.Exe, TargetFormat.Msi, // Windows
+                //                TargetFormat.Deb, TargetFormat.Rpm // Linux
             )
 
             packageName = libs.versions.app.packageName.get()

@@ -10,6 +10,14 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import bridge.supplies.foundation.core.platform.openUrl
+import bridge.supplies.foundation.demo.data.MainViewModel
+import bridge.supplies.foundation.demo.data.SharedData
+import bridge.supplies.foundation.demo.ui.home.HomeColumnsScreen
+import bridge.supplies.foundation.demo.ui.home.HomeDateScreen
+import bridge.supplies.foundation.demo.ui.home.HomeGridsScreen
+import bridge.supplies.foundation.demo.ui.home.HomeInfoScreen
+import bridge.supplies.foundation.demo.ui.home.HomeRowsScreen
+import bridge.supplies.foundation.demo.ui.share.ShareCodeScreen
 import bridge.supplies.foundation.ui.about.AboutConfig
 import bridge.supplies.foundation.ui.about.FoundationAboutScreen
 import bridge.supplies.foundation.ui.qr.ScanQrScreen
@@ -18,8 +26,6 @@ import bridge.supplies.foundation.ui.shell.FoundationTab
 import bridge.supplies.foundation.ui.shell.LocalNavigator
 import bridge.supplies.foundation.ui.shell.RouteRegistry
 import bridge.supplies.foundation.ui.shell.screenMetadata
-import bridge.supplies.foundation.demo.data.MainViewModel
-import bridge.supplies.foundation.demo.data.SharedData
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.screen_about_title
 import foundation.composeapp.generated.resources.screen_home_columns_title
@@ -31,25 +37,25 @@ import foundation.composeapp.generated.resources.tab_home_title
 import foundation.composeapp.generated.resources.tab_settings_title
 import foundation.composeapp.generated.resources.tab_share_title
 import kotlinx.serialization.Serializable
-import bridge.supplies.foundation.demo.ui.home.HomeColumnsScreen
-import bridge.supplies.foundation.demo.ui.home.HomeDateScreen
-import bridge.supplies.foundation.demo.ui.home.HomeGridsScreen
-import bridge.supplies.foundation.demo.ui.home.HomeInfoScreen
-import bridge.supplies.foundation.demo.ui.home.HomeRowsScreen
-import bridge.supplies.foundation.demo.ui.share.ShareCodeScreen
 
 // ROUTES
 
 @Serializable data object HomeInfo : NavKey
+
 @Serializable data class HomeDate(val selectedDateMs: Long) : NavKey
+
 @Serializable data object HomeColumns : NavKey
+
 @Serializable data object HomeRows : NavKey
+
 @Serializable data object HomeGrids : NavKey
 
 @Serializable data object ShareGenerate : NavKey
+
 @Serializable data object ShareScan : NavKey
 
 @Serializable data object SettingsOptions : NavKey
+
 @Serializable data object SettingsAbout : NavKey
 
 val appRoutes = RouteRegistry {
@@ -64,39 +70,38 @@ val appRoutes = RouteRegistry {
     subclass(SettingsAbout::class, SettingsAbout.serializer())
 }
 
-
 // TABS
 
-val appTabs = listOf(
-    FoundationTab(
-        id = "home",
-        title = Res.string.tab_home_title,
-        icon = Icons.Outlined.Home,
-        selectedIcon = Icons.Filled.Home,
-        root = HomeInfo
-    ),
-    FoundationTab(
-        id = "share",
-        title = Res.string.tab_share_title,
-        icon = Icons.Outlined.QrCode,
-        selectedIcon = Icons.Filled.QrCode,
-        root = ShareGenerate
-    ),
-    FoundationTab(
-        id = "settings",
-        title = Res.string.tab_settings_title,
-        icon = Icons.Outlined.Settings,
-        selectedIcon = Icons.Filled.Settings,
-        root = SettingsOptions
+val appTabs =
+    listOf(
+        FoundationTab(
+            id = "home",
+            title = Res.string.tab_home_title,
+            icon = Icons.Outlined.Home,
+            selectedIcon = Icons.Filled.Home,
+            root = HomeInfo,
+        ),
+        FoundationTab(
+            id = "share",
+            title = Res.string.tab_share_title,
+            icon = Icons.Outlined.QrCode,
+            selectedIcon = Icons.Filled.QrCode,
+            root = ShareGenerate,
+        ),
+        FoundationTab(
+            id = "settings",
+            title = Res.string.tab_settings_title,
+            icon = Icons.Outlined.Settings,
+            selectedIcon = Icons.Filled.Settings,
+            root = SettingsOptions,
+        ),
     )
-)
-
 
 // SCREENS
 
 fun EntryProviderScope<NavKey>.appEntries(
     viewModel: MainViewModel,
-    hapticFeedback: () -> Unit
+    hapticFeedback: () -> Unit,
 ) {
     // HOME
     entry<HomeInfo> {
@@ -107,7 +112,7 @@ fun EntryProviderScope<NavKey>.appEntries(
             onNavigateDateScreen = { selectedDate -> navigator.navigate(HomeDate(selectedDate)) },
             onNavigateColumnsScreen = { navigator.navigate(HomeColumns) },
             onNavigateRowsScreen = { navigator.navigate(HomeRows) },
-            onNavigateGridsScreen = { navigator.navigate(HomeGrids) }
+            onNavigateGridsScreen = { navigator.navigate(HomeGrids) },
         )
     }
 
@@ -115,28 +120,28 @@ fun EntryProviderScope<NavKey>.appEntries(
         HomeDateScreen(
             viewModel = viewModel,
             hapticFeedback = hapticFeedback,
-            initialSelectedDateMs = route.selectedDateMs
+            initialSelectedDateMs = route.selectedDateMs,
         )
     }
 
     entry<HomeColumns>(metadata = screenMetadata(title = Res.string.screen_home_columns_title)) {
         HomeColumnsScreen(
             viewModel = viewModel,
-            hapticFeedback = hapticFeedback
+            hapticFeedback = hapticFeedback,
         )
     }
 
     entry<HomeRows>(metadata = screenMetadata(title = Res.string.screen_home_rows_title)) {
         HomeRowsScreen(
             viewModel = viewModel,
-            hapticFeedback = hapticFeedback
+            hapticFeedback = hapticFeedback,
         )
     }
 
     entry<HomeGrids>(metadata = screenMetadata(title = Res.string.screen_home_grids_title)) {
         HomeGridsScreen(
             viewModel = viewModel,
-            hapticFeedback = hapticFeedback
+            hapticFeedback = hapticFeedback,
         )
     }
 
@@ -146,7 +151,7 @@ fun EntryProviderScope<NavKey>.appEntries(
         ShareCodeScreen(
             viewModel = viewModel,
             hapticFeedback = hapticFeedback,
-            onNavigateToScanner = { navigator.navigate(ShareScan) }
+            onNavigateToScanner = { navigator.navigate(ShareScan) },
         )
     }
 
@@ -161,23 +166,21 @@ fun EntryProviderScope<NavKey>.appEntries(
             onPermissionDenied = {
                 hapticFeedback()
                 navigator.back()
-            }
+            },
         )
     }
-    
+
     // SETTINGS
     entry<SettingsOptions> {
         val navigator = LocalNavigator.current
-        FoundationSettingsScreen(
-            onNavigateToAbout = { navigator.navigate(SettingsAbout) }
-        )
+        FoundationSettingsScreen(onNavigateToAbout = { navigator.navigate(SettingsAbout) })
     }
 
     entry<SettingsAbout>(metadata = screenMetadata(title = Res.string.screen_about_title)) {
         FoundationAboutScreen(
             AboutConfig(
                 licensesJson = { Res.readBytes("files/json/licenses.json") },
-                onVersionClick = { openUrl("https://www.youtube.com/shorts/lCJo8vhmIdc") }
+                onVersionClick = { openUrl("https://www.youtube.com/shorts/lCJo8vhmIdc") },
             )
         )
     }

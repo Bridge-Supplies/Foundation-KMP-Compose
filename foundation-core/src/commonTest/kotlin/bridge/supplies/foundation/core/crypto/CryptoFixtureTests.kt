@@ -16,9 +16,9 @@ import kotlin.test.assertEquals
  * Guards QR/share-code compatibility across crypto library upgrades.
  *
  * The fixtures below were produced with korlibs krypto 4.0.10 (before the swap to
- * `com.soywiz:korlibs-crypto`) using the dev key and must never change. They use the same
- * pipeline as `compressAndEncrypt()` (JSON -> GZIP -> AES-CBC/PKCS7 with key = IV -> hex),
- * but with an explicit key so the result doesn't depend on the build's `ENCRYPTION_KEY`.
+ * `com.soywiz:korlibs-crypto`) using the dev key and must never change. They use the same pipeline
+ * as `compressAndEncrypt()` (JSON -> GZIP -> AES-CBC/PKCS7 with key = IV -> hex), but with an
+ * explicit key so the result doesn't depend on the build's `ENCRYPTION_KEY`.
  */
 class CryptoFixtureTests {
     private val key = "BridgeDevKey0016".toByteArray()

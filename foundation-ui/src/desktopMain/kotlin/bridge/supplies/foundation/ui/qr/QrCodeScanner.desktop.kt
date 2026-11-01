@@ -8,7 +8,7 @@ public actual fun QrCodeScanner(
     modifier: Modifier,
     onSuccess: (String) -> Unit,
     onFailure: (String) -> Unit,
-    onDenied: () -> Unit
+    onDenied: () -> Unit,
 ) {
     // no camera scanning on desktop (PlatformFeature.CODE_SCANNING is unsupported)
 }

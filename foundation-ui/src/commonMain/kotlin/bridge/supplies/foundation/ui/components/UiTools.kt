@@ -91,31 +91,33 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import bridge.supplies.foundation.ui.resources.Res
-import bridge.supplies.foundation.ui.resources.button_expand_less
-import bridge.supplies.foundation.ui.resources.button_expand_more
-import bridge.supplies.foundation.ui.resources.invalid_date
-import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.stringResource
-import kotlin.math.max
 import bridge.supplies.foundation.core.time.getDateDisplay
 import bridge.supplies.foundation.core.time.getDateTime
 import bridge.supplies.foundation.core.time.getTodayDate
 import bridge.supplies.foundation.core.time.getTodayUtcMs
+import bridge.supplies.foundation.ui.resources.Res
+import bridge.supplies.foundation.ui.resources.button_expand_less
+import bridge.supplies.foundation.ui.resources.button_expand_more
+import bridge.supplies.foundation.ui.resources.invalid_date
 import bridge.supplies.foundation.ui.shell.TRANSITION_EASING
 import bridge.supplies.foundation.ui.shell.TRANSITION_ENTER_MS
 import bridge.supplies.foundation.ui.util.hideAndClearFocus
+import kotlin.math.max
+import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 // FOUNDATION
 
 // MODIFIERS
 
 @Composable
-public fun Modifier.consumeClick(): Modifier = this.clickable(
-    interactionSource = remember { MutableInteractionSource() },
-    indication = null
-) { /* no-op */ }
-
+public fun Modifier.consumeClick(): Modifier =
+    this.clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null,
+    ) {
+        /* no-op */
+    }
 
 // BASE COMPONENTS
 
@@ -126,19 +128,17 @@ public fun TitleText(
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
     minLines: Int = 1,
-    maxLines: Int = 2
+    maxLines: Int = 2,
 ) {
     Text(
-        modifier = modifier
-            .wrapContentHeight()
-            .animateContentSize(),
+        modifier = modifier.wrapContentHeight().animateContentSize(),
         text = text,
         style = MaterialTheme.typography.titleLarge,
         minLines = minLines,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
-        color = textColor
+        color = textColor,
     )
 }
 
@@ -149,19 +149,17 @@ public fun SubtitleText(
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
     minLines: Int = 1,
-    maxLines: Int = 2
+    maxLines: Int = 2,
 ) {
     Text(
-        modifier = modifier
-            .wrapContentHeight()
-            .animateContentSize(),
+        modifier = modifier.wrapContentHeight().animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodyLarge,
         minLines = minLines,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
-        color = textColor
+        color = textColor,
     )
 }
 
@@ -172,26 +170,22 @@ public fun OptionDetailText(
     subtitle: String? = null,
     titleMaxLines: Int = 1,
     subtitleMaxLines: Int = 3,
-    textColor: Color = Color.Unspecified
+    textColor: Color = Color.Unspecified,
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier) {
         SubtitleText(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             text = title,
             maxLines = titleMaxLines,
-            textColor = textColor
+            textColor = textColor,
         )
-        
+
         if (subtitle != null) {
             SmallText(
                 text = subtitle,
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 maxLines = subtitleMaxLines,
-                textColor = textColor
+                textColor = textColor,
             )
         }
     }
@@ -204,19 +198,17 @@ public fun BodyText(
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
     minLines: Int = 1,
-    maxLines: Int = Int.MAX_VALUE
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     Text(
-        modifier = modifier
-            .wrapContentHeight()
-            .animateContentSize(),
+        modifier = modifier.wrapContentHeight().animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         overflow = TextOverflow.Ellipsis,
         color = textColor,
         textAlign = textAlign,
         minLines = minLines,
-        maxLines = maxLines
+        maxLines = maxLines,
     )
 }
 
@@ -227,19 +219,17 @@ public fun SmallText(
     textAlign: TextAlign = TextAlign.Start,
     textColor: Color = Color.Unspecified,
     minLines: Int = 1,
-    maxLines: Int = 2
+    maxLines: Int = 2,
 ) {
     Text(
-        modifier = modifier
-            .wrapContentHeight()
-            .animateContentSize(),
+        modifier = modifier.wrapContentHeight().animateContentSize(),
         text = text,
         style = MaterialTheme.typography.bodySmall,
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
         color = textColor,
         minLines = minLines,
-        maxLines = maxLines
+        maxLines = maxLines,
     )
 }
 
@@ -249,21 +239,24 @@ public fun HintText(
     text: String,
     textAlign: TextAlign = TextAlign.Start,
     minLines: Int = 1,
-    maxLines: Int = 2
+    maxLines: Int = 2,
 ) {
     Text(
-        modifier = modifier
-            .wrapContentHeight()
-            .animateContentSize(),
+        modifier = modifier.wrapContentHeight().animateContentSize(),
         text = text,
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         minLines = minLines,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
-        textAlign = textAlign
+        textAlign = textAlign,
     )
 }
+
+/**
+ * How many sent values [TextInput] remembers while waiting to see them come back from the caller.
+ */
+private const val MAX_UNCONFIRMED_TEXT_VALUES = 64
 
 @Composable
 public fun TextInput(
@@ -275,51 +268,68 @@ public fun TextInput(
     maxLines: Int = 1,
     maxTextLength: Int? = null,
     hintText: String? = null,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    
-    var noteText by remember(text) {
+
+    // Callers often store each change asynchronously, so a value can come back after newer
+    // keystrokes.
+    // A value this field sent is a late echo and is ignored; any other value is an outside change
+    // and applies.
+    var noteText by remember {
         mutableStateOf(text)
     }
-    
-    LaunchedEffect(noteText) {
-        onValueChange(noteText)
+    val sentValues = remember { ArrayDeque<String>() }
+
+    LaunchedEffect(text) {
+        val echo = sentValues.indexOf(text)
+        if (echo >= 0) {
+            repeat(echo + 1) { sentValues.removeFirst() }
+        } else {
+            sentValues.clear()
+            noteText = text
+        }
     }
-    
+
     val supportingText: @Composable (() -> Unit)? =
         if (maxTextLength != null) {
             { Text("${noteText.length}/$maxTextLength") }
         } else null
-    
+
     OutlinedTextField(
-        modifier = modifier
-            .wrapContentHeight()
-            .fillMaxWidth(),
+        modifier = modifier.wrapContentHeight().fillMaxWidth(),
         value = noteText,
         onValueChange = {
-            noteText = if (maxTextLength != null) it.take(maxTextLength) else it
+            val newText = if (maxTextLength != null) it.take(maxTextLength) else it
+            if (newText != noteText) {
+                noteText = newText
+                if (sentValues.size == MAX_UNCONFIRMED_TEXT_VALUES) sentValues.removeFirst()
+                sentValues.addLast(newText)
+                onValueChange(newText)
+            }
         },
         label = {
             if (hintText != null) {
                 Text(hintText)
             }
         },
-        keyboardOptions = KeyboardOptions(
-            autoCorrectEnabled = true,
-            capitalization = capitalization,
-            keyboardType = keyboardType,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                keyboardController.hideAndClearFocus(focusManager)
-            }
-        ),
+        keyboardOptions =
+            KeyboardOptions(
+                autoCorrectEnabled = true,
+                capitalization = capitalization,
+                keyboardType = keyboardType,
+                imeAction = ImeAction.Done,
+            ),
+        keyboardActions =
+            KeyboardActions(
+                onDone = {
+                    keyboardController.hideAndClearFocus(focusManager)
+                }
+            ),
         minLines = minLines,
         maxLines = maxLines,
-        supportingText = supportingText
+        supportingText = supportingText,
     )
 }
 
@@ -329,21 +339,22 @@ public fun TextButton(
     text: String,
     outlined: Boolean = false,
     enabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    val buttonText = @Composable {
-        Text(
-            text = text,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-    
+    val buttonText =
+        @Composable {
+            Text(
+                text = text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
     if (outlined) {
         OutlinedButton(
             modifier = modifier,
             enabled = enabled,
-            onClick = onClick
+            onClick = onClick,
         ) {
             buttonText()
         }
@@ -351,7 +362,7 @@ public fun TextButton(
         Button(
             modifier = modifier,
             enabled = enabled,
-            onClick = onClick
+            onClick = onClick,
         ) {
             buttonText()
         }
@@ -362,15 +373,15 @@ public fun TextButton(
 public fun FloatingButton(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     ExtendedFloatingActionButton(
         modifier = modifier,
-        onClick = onClick
+        onClick = onClick,
     ) {
         Text(
             text = text,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -380,14 +391,11 @@ public fun BoxScope.BottomButton(
     modifier: Modifier = Modifier,
     text: String,
     paddingValues: PaddingValues = PaddingValues(0.dp),
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
-        modifier = modifier
-            .align(Alignment.BottomEnd)
-            .wrapContentHeight()
-            .padding(paddingValues),
-        horizontalArrangement = Arrangement.End
+        modifier = modifier.align(Alignment.BottomEnd).wrapContentHeight().padding(paddingValues),
+        horizontalArrangement = Arrangement.End,
     ) {
         ExtendedFloatingActionButton(
             onClick = {
@@ -405,18 +413,15 @@ public fun BoxScope.BottomButtons(
     text: String,
     paddingValues: PaddingValues = PaddingValues(0.dp),
     onClick: () -> Unit,
-    iconButtons: @Composable RowScope.() -> Unit = { },
+    iconButtons: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
-        modifier = modifier
-            .align(Alignment.BottomEnd)
-            .wrapContentHeight()
-            .padding(paddingValues),
+        modifier = modifier.align(Alignment.BottomEnd).wrapContentHeight().padding(paddingValues),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         iconButtons()
-        
+
         ExtendedFloatingActionButton(
             onClick = {
                 onClick()
@@ -432,12 +437,12 @@ public fun SmallFab(
     modifier: Modifier = Modifier,
     containerColor: Color = FloatingActionButtonDefaults.containerColor,
     icon: @Composable () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     SmallFloatingActionButton(
         modifier = modifier,
         onClick = onClick,
-        containerColor = containerColor
+        containerColor = containerColor,
     ) {
         icon()
     }
@@ -449,26 +454,26 @@ public fun ClickableIcon(
     imageVector: ImageVector,
     contentDescription: String,
     isFilled: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     if (isFilled) {
         FilledIconButton(
             modifier = modifier,
-            onClick = onClick
+            onClick = onClick,
         ) {
             Icon(
                 imageVector = imageVector,
-                contentDescription = contentDescription
+                contentDescription = contentDescription,
             )
         }
     } else {
         IconButton(
             modifier = modifier,
-            onClick = onClick
+            onClick = onClick,
         ) {
             Icon(
                 imageVector = imageVector,
-                contentDescription = contentDescription
+                contentDescription = contentDescription,
             )
         }
     }
@@ -481,20 +486,19 @@ public fun ToggleableIcon(
     enabledVector: ImageVector,
     disabledVector: ImageVector,
     contentDescription: String,
-    onToggle: (enabled: Boolean) -> Unit
+    onToggle: (enabled: Boolean) -> Unit,
 ) {
     IconToggleButton(
         modifier = modifier,
         checked = enabled,
-        onCheckedChange = onToggle
+        onCheckedChange = onToggle,
     ) {
         Icon(
             imageVector = if (enabled) enabledVector else disabledVector,
-            contentDescription = contentDescription
+            contentDescription = contentDescription,
         )
     }
 }
-
 
 // COMPLEX COMPONENTS
 
@@ -506,84 +510,69 @@ public fun TitledCard(
     showDivider: Boolean = false,
     isElevated: Boolean = false,
     onClick: (() -> Unit)? = null,
-    iconButtons: @Composable RowScope.() -> Unit = { },
-    content: @Composable ColumnScope.() -> Unit
+    iconButtons: @Composable RowScope.() -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    val cardContent = @Composable {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                ) {
-                    TitleText(
-                        text = title,
-                        modifier = Modifier
-                            .padding(top = 6.dp)
-                            .padding(horizontal = 16.dp)
-                    )
-                    
-                    if (subtitle != null) {
-                        SubtitleText(
-                            text = subtitle,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
+    val cardContent =
+        @Composable {
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        TitleText(
+                            text = title,
+                            modifier = Modifier.padding(top = 6.dp).padding(horizontal = 16.dp),
                         )
+
+                        if (subtitle != null) {
+                            SubtitleText(
+                                text = subtitle,
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                            )
+                        }
                     }
+
+                    iconButtons()
+
+                    Spacer(Modifier.width(8.dp))
                 }
-                
-                iconButtons()
-                
-                Spacer(Modifier.width(8.dp))
+
+                Spacer(Modifier.height(10.dp))
+
+                if (showDivider) {
+                    HorizontalSeparator()
+                }
+
+                content()
             }
-            
-            Spacer(Modifier.height(10.dp))
-            
-            if (showDivider) {
-                HorizontalSeparator()
-            }
-            
-            content()
         }
-    }
-    
+
     when {
         isElevated && onClick != null -> {
             ElevatedCard(
                 modifier = modifier,
-                onClick = onClick
+                onClick = onClick,
             ) {
                 cardContent()
             }
         }
-        
+
         isElevated -> {
-            ElevatedCard(
-                modifier = modifier
-            ) {
+            ElevatedCard(modifier = modifier) {
                 cardContent()
             }
         }
-        
+
         !isElevated && onClick != null -> {
             Card(
                 modifier = modifier,
-                onClick = onClick
+                onClick = onClick,
             ) {
                 cardContent()
             }
         }
-        
+
         else -> {
-            Card(
-                modifier = modifier
-            ) {
+            Card(modifier = modifier) {
                 cardContent()
             }
         }
@@ -599,91 +588,88 @@ public fun ExpandableTitledCard(
     maxUnexpandedHeight: Dp = 172.dp,
     isExpanded: Boolean,
     onExpand: ((expanded: Boolean) -> Unit)? = null,
-    content: @Composable ColumnScope.(isExpanded: Boolean) -> Unit
+    content: @Composable ColumnScope.(isExpanded: Boolean) -> Unit,
 ) {
-    val animatedIcon by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 360f,
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    )
-    
-    val animatedMaxHeight by animateDpAsState(
-        label = "max_height",
-        targetValue = if (isExpanded) {
-            Float.POSITIVE_INFINITY.dp
-        } else {
-            maxUnexpandedHeight
-        }
-    )
-    
+    val animatedIcon by
+        animateFloatAsState(
+            targetValue = if (isExpanded) 180f else 360f,
+            animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING),
+        )
+
+    val animatedMaxHeight by
+        animateDpAsState(
+            label = "max_height",
+            targetValue =
+                if (isExpanded) {
+                    Float.POSITIVE_INFINITY.dp
+                } else {
+                    maxUnexpandedHeight
+                },
+        )
+
     val onClick: () -> Unit = {
         onExpand?.invoke(!isExpanded)
     }
-    
-    val cardContent = @Composable {
-        EdgeFadeWrapper(
-            showStartEdgeFade = false,
-            showEndEdgeFade = !isExpanded,
-            orientation = Orientation.Vertical
-        ) {
-            Column(
-                modifier = Modifier
-                    .animateContentSize()
-                    .heightIn(max = animatedMaxHeight)
-                    .padding(top = 16.dp)
+
+    val cardContent =
+        @Composable {
+            EdgeFadeWrapper(
+                showStartEdgeFade = false,
+                showEndEdgeFade = !isExpanded,
+                orientation = Orientation.Vertical,
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 16.dp, end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TitleText(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 16.dp)
-                            .padding(bottom = 4.dp),
-                        text = title,
-                        maxLines = if (isExpanded) 2 else 1
-                    )
-                    
-                    ClickableIcon(
-                        modifier = Modifier
-                            .rotate(animatedIcon)
-                            .size(44.dp),
-                        imageVector = Icons.Default.ExpandLess,
-                        contentDescription = if (isExpanded) {
-                            stringResource(Res.string.button_expand_less)
-                        } else {
-                            stringResource(Res.string.button_expand_more)
-                        }
-                    ) {
-                        onClick()
-                    }
-                }
-                
-                if (showDivider) {
-                    HorizontalSeparator()
-                }
-                
                 Column(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
+                    modifier =
+                        Modifier.animateContentSize()
+                            .heightIn(max = animatedMaxHeight)
+                            .padding(top = 16.dp)
                 ) {
-                    content(isExpanded)
-                    
-                    AnimatedVisibility(isExpanded) {
-                        Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.padding(start = 16.dp, end = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        TitleText(
+                            modifier =
+                                Modifier.weight(1f).padding(end = 16.dp).padding(bottom = 4.dp),
+                            text = title,
+                            maxLines = if (isExpanded) 2 else 1,
+                        )
+
+                        ClickableIcon(
+                            modifier = Modifier.rotate(animatedIcon).size(44.dp),
+                            imageVector = Icons.Default.ExpandLess,
+                            contentDescription =
+                                if (isExpanded) {
+                                    stringResource(Res.string.button_expand_less)
+                                } else {
+                                    stringResource(Res.string.button_expand_more)
+                                },
+                        ) {
+                            onClick()
+                        }
+                    }
+
+                    if (showDivider) {
+                        HorizontalSeparator()
+                    }
+
+                    Column(modifier = Modifier.padding(top = 8.dp)) {
+                        content(isExpanded)
+
+                        AnimatedVisibility(isExpanded) {
+                            Spacer(Modifier.height(16.dp))
+                        }
                     }
                 }
             }
         }
-    }
-    
+
     if (isElevated) {
         ElevatedCard(
             modifier = modifier,
             onClick = {
                 onClick()
-            }
+            },
         ) {
             cardContent()
         }
@@ -692,7 +678,7 @@ public fun ExpandableTitledCard(
             modifier = modifier,
             onClick = {
                 onClick()
-            }
+            },
         ) {
             cardContent()
         }
@@ -705,37 +691,37 @@ public fun SettingsSwitch(
     title: String,
     subtitle: String? = null,
     enabled: Boolean,
-    onEnabled: (Boolean) -> Unit
+    onEnabled: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .clickable {
-                onEnabled(!enabled)
-            }
-            .padding(end = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .clickable {
+                    onEnabled(!enabled)
+                }
+                .padding(end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         OptionDetailText(
-            modifier = Modifier
-                .weight(1f)
-                .padding(
-                    vertical = 8.dp,
-                    horizontal = 16.dp
-                ),
+            modifier =
+                Modifier.weight(1f)
+                    .padding(
+                        vertical = 8.dp,
+                        horizontal = 16.dp,
+                    ),
             title = title,
-            subtitle = subtitle
+            subtitle = subtitle,
         )
-        
+
         Switch(
             checked = enabled,
             onCheckedChange = {
                 onEnabled(it)
             },
-            colors = SwitchDefaults.colors(
-                uncheckedTrackColor = MaterialTheme.colorScheme.background
-            )
+            colors =
+                SwitchDefaults.colors(uncheckedTrackColor = MaterialTheme.colorScheme.background),
         )
     }
 }
@@ -749,26 +735,21 @@ public fun <T> SettingsSelector(
     optionList: List<T>,
     selectedOption: T,
     onSelectOption: (T) -> Unit,
-    optionName: @Composable (T) -> String
+    optionName: @Composable (T) -> String,
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier) {
         OptionDetailText(
-            modifier = Modifier
-                .padding(
+            modifier =
+                Modifier.padding(
                     vertical = 8.dp,
-                    horizontal = 16.dp
+                    horizontal = 16.dp,
                 ),
             title = title,
-            subtitle = subtitle
+            subtitle = subtitle,
         )
-        
+
         SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = 10.dp)
+            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(horizontal = 10.dp)
         ) {
             optionList.forEachIndexed { index, value ->
                 SegmentedButton(
@@ -776,15 +757,16 @@ public fun <T> SettingsSelector(
                     onClick = {
                         onSelectOption(value)
                     },
-                    shape = SegmentedButtonDefaults.itemShape(
-                        index = index,
-                        count = optionList.size
-                    )
+                    shape =
+                        SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = optionList.size,
+                        ),
                 ) {
                     Text(
                         text = optionName(value),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -798,44 +780,39 @@ public fun StickyHeader(
     titleText: String,
     subtitleText: String? = null,
     backgroundColor: Color = MaterialTheme.colorScheme.background,
-    iconButtons: @Composable RowScope.() -> Unit = { }
+    iconButtons: @Composable RowScope.() -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .consumeClick()
-    ) {
+    Column(modifier = Modifier.fillMaxWidth().wrapContentHeight().consumeClick()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .background(backgroundColor)
-                .then(modifier) // apply inner padding etc afterwards
-                .padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier.fillMaxWidth()
+                    .wrapContentHeight()
+                    .background(backgroundColor)
+                    .then(modifier) // apply inner padding etc afterwards
+                    .padding(top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(Modifier.width(8.dp))
-            
+
             OptionDetailText(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = if (subtitleText == null) 8.dp else 0.dp)
-                    .padding(end = 8.dp),
+                modifier =
+                    Modifier.weight(1f)
+                        .padding(vertical = if (subtitleText == null) 8.dp else 0.dp)
+                        .padding(end = 8.dp),
                 title = titleText,
                 subtitle = subtitleText,
-                subtitleMaxLines = 1
+                subtitleMaxLines = 1,
             )
-            
+
             iconButtons()
         }
-        
+
         EdgeFadeWrapper(
             showStartEdgeFade = true,
             showEndEdgeFade = false,
             orientation = Orientation.Vertical,
             fadeSize = 8.dp,
-            fadeColor = backgroundColor
+            fadeColor = backgroundColor,
         ) {
             Spacer(Modifier.height(8.dp))
         }
@@ -846,8 +823,7 @@ public fun StickyHeader(
 public fun HorizontalSeparator() {
     HorizontalDivider(
         color = MaterialTheme.colorScheme.outlineVariant,
-        modifier = Modifier
-            .padding(vertical = 8.dp, horizontal = 16.dp)
+        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
     )
 }
 
@@ -855,33 +831,29 @@ public fun HorizontalSeparator() {
 public fun VerticalSeparator() {
     VerticalDivider(
         color = MaterialTheme.colorScheme.outlineVariant,
-        modifier = Modifier
-            .padding(vertical = 16.dp, horizontal = 8.dp)
+        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
     )
 }
 
 @Composable
-public fun HorizontalSpacer(
-    height: Dp
-) {
+public fun HorizontalSpacer(height: Dp) {
     Spacer(
-        Modifier
-            .fillMaxWidth()
-            .height(height.coerceAtLeast(0.5.dp)) // needed for edge fades to detect start/end of lists
+        Modifier.fillMaxWidth()
+            .height(
+                height.coerceAtLeast(0.5.dp)
+            ) // needed for edge fades to detect start/end of lists
     )
 }
 
 @Composable
-public fun VerticalSpacer(
-    width: Dp
-) {
+public fun VerticalSpacer(width: Dp) {
     Spacer(
-        Modifier
-            .fillMaxHeight()
-            .width(width.coerceAtLeast(0.5.dp)) // needed for edge fades to detect start/end of lists
+        Modifier.fillMaxHeight()
+            .width(
+                width.coerceAtLeast(0.5.dp)
+            ) // needed for edge fades to detect start/end of lists
     )
 }
-
 
 // FUNCTIONS
 
@@ -890,25 +862,25 @@ public suspend fun showSnackBar(
     actionLabel: String,
     snackbarHost: SnackbarHostState,
     hapticFeedback: () -> Unit,
-    onComplete: (() -> Unit)? = null
+    onComplete: (() -> Unit)? = null,
 ) {
     // clear any existing snackbars
     snackbarHost.currentSnackbarData?.dismiss()
-    
+
     hapticFeedback()
-    
-    val snackbar = snackbarHost.showSnackbar(
-        message = message,
-        actionLabel = actionLabel,
-        duration = SnackbarDuration.Short
-    )
-    
+
+    val snackbar =
+        snackbarHost.showSnackbar(
+            message = message,
+            actionLabel = actionLabel,
+            duration = SnackbarDuration.Short,
+        )
+
     if (snackbar == SnackbarResult.ActionPerformed) {
         snackbarHost.currentSnackbarData?.dismiss()
         onComplete?.invoke()
     }
 }
-
 
 // Adapted for multiplatform from: https://dev.to/bmonjoie/jetpack-compose-reveal-effect-1fao
 
@@ -918,61 +890,61 @@ public fun CircularReveal(
     startDelayMs: Int,
     revealDurationMs: Int,
     onCompleted: (suspend () -> Unit)? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     var isRevealed by remember { mutableStateOf(false) }
-    
-    val animationProgress: State<Float> = animateFloatAsState(
-        targetValue = if (isRevealed) 1f else 0f,
-        animationSpec = tween(revealDurationMs, easing = TRANSITION_EASING),
-        label = "circular_reveal"
-    )
-    
+
+    val animationProgress: State<Float> =
+        animateFloatAsState(
+            targetValue = if (isRevealed) 1f else 0f,
+            animationSpec = tween(revealDurationMs, easing = TRANSITION_EASING),
+            label = "circular_reveal",
+        )
+
     LaunchedEffect(Unit) {
         delay(startDelayMs.toLong())
         isRevealed = true
         delay(revealDurationMs.toLong())
         onCompleted?.invoke()
     }
-    
-    Box(
-        modifier = modifier
-            .circularReveal(animationProgress.value)
-    ) {
+
+    Box(modifier = modifier.circularReveal(animationProgress.value)) {
         content()
     }
 }
 
 public fun Modifier.circularReveal(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    offset: Offset? = null
+    offset: Offset? = null,
 ): Modifier = clip(CircularRevealShape(progress, offset))
 
 private class CircularRevealShape(
     @param:FloatRange(from = 0.0, to = 1.0) private val progress: Float,
-    private val offset: Offset? = null
+    private val offset: Offset? = null,
 ) : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         return Outline.Generic(
             Path().apply {
                 val startingOffset = offset ?: Offset(size.width / 2f, size.height / 2f)
                 // end result slightly larger than full screen
                 val revealRadius = max(size.width, size.height) * progress * 0.7f
-                
+
                 addOval(
                     Rect(
-                        topLeft = Offset(
-                            x = startingOffset.x - revealRadius,
-                            y = startingOffset.y - revealRadius
-                        ),
-                        bottomRight = Offset(
-                            x = startingOffset.x + revealRadius,
-                            y = startingOffset.y + revealRadius
-                        )
+                        topLeft =
+                            Offset(
+                                x = startingOffset.x - revealRadius,
+                                y = startingOffset.y - revealRadius,
+                            ),
+                        bottomRight =
+                            Offset(
+                                x = startingOffset.x + revealRadius,
+                                y = startingOffset.y + revealRadius,
+                            ),
                     )
                 )
             }
@@ -993,7 +965,7 @@ public fun <T> rememberInteractionSources(items: List<T>): Map<T, MutableInterac
 
 public suspend fun attentionRipple(
     interactionSource: MutableInteractionSource,
-    duration: Long = 1000L
+    duration: Long = 1000L,
 ) {
     val press = PressInteraction.Press(Offset.Infinite)
     interactionSource.emit(press)
@@ -1004,12 +976,13 @@ public suspend fun attentionRipple(
 @OptIn(ExperimentalMaterial3Api::class)
 public object PastOrPresentSelectableDates : SelectableDates {
     override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= getTodayUtcMs()
+
     override fun isSelectableYear(year: Int): Boolean = year <= getTodayDate().year
 }
 
 /**
- * A date picker in a card. [title] replaces the headline text (default: the selected date, e.g. "Birthday: …"),
- * and [trailing] adds content after it, e.g. an icon for the selected date.
+ * A date picker in a card. [title] replaces the headline text (default: the selected date, e.g.
+ * "Birthday: …"), and [trailing] adds content after it, e.g. an icon for the selected date.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1023,41 +996,38 @@ public fun DatePickerCard(
             stringResource(Res.string.invalid_date)
         }
     },
-    trailing: (@Composable (selectedDateMs: Long?) -> Unit)? = null
+    trailing: (@Composable (selectedDateMs: Long?) -> Unit)? = null,
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
     ) {
         DatePicker(
-            modifier = Modifier
-                .padding(top = 8.dp),
+            modifier = Modifier.padding(top = 8.dp),
             state = datePickerState,
             title = null,
             headline = {
                 val dateMs = datePickerState.selectedDateMillis
-                
+
                 Row(
-                    modifier = Modifier
-                        .padding(start = 24.dp, end = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.padding(start = 24.dp, end = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = title(dateMs),
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .animateContentSize()
+                        modifier = Modifier.padding(bottom = 8.dp).animateContentSize(),
                     )
-                    
+
                     if (trailing != null) {
                         Spacer(Modifier.weight(1f))
                         trailing(dateMs)
                     }
                 }
-            }
+            },
         )
     }
 }

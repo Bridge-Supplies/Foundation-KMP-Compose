@@ -74,11 +74,17 @@ import bridge.supplies.foundation.ui.shell.TopBarAction
 import bridge.supplies.foundation.ui.shell.TopBarActions
 import bridge.supplies.foundation.ui.theme.ColorTheme
 import bridge.supplies.foundation.ui.theme.DarkMode
+import bridge.supplies.foundation.ui.theme.ExpressiveAnimation
+import bridge.supplies.foundation.ui.theme.LocalExpressiveAnimation
 import bridge.supplies.foundation.ui.theme.Palette
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** Which of Foundation's built-in settings to show. Items the platform or [FeatureFlags] don't support are hidden anyway. */
+/**
+ * Which of Foundation's built-in settings to show. Items the platform or [FeatureFlags] don't
+ * support are hidden anyway, and the expressive-animation toggle only appears when
+ * `ThemeConfig.expressiveAnimation` is `USER_CHOICE`.
+ */
 public data class BuiltInSettings(
     val theme: Boolean = true,
     val encryptedSharing: Boolean = true,
@@ -89,10 +95,9 @@ public data class BuiltInSettings(
     val scrollHelpers: Boolean = true,
 )
 
-@DslMarker
-public annotation class SettingsDsl
+@DslMarker public annotation class SettingsDsl
 
-/** App settings sections shown after Foundation's built-ins. */
+/** App settings sections, shown before Foundation's built-ins. */
 @SettingsDsl
 public interface SettingsScope {
     public fun section(title: StringResource, content: SettingsSectionScope.() -> Unit)
@@ -100,7 +105,12 @@ public interface SettingsScope {
 
 @SettingsDsl
 public interface SettingsSectionScope {
-    public fun switch(key: SettingKey<Boolean>, title: StringResource, subtitle: StringResource? = null)
+    public fun switch(
+        key: SettingKey<Boolean>,
+        title: StringResource,
+        subtitle: StringResource? = null,
+    )
+
     public fun <E : Enum<E>> choice(
         key: EnumSetting<E>,
         title: StringResource,
@@ -111,18 +121,20 @@ public interface SettingsSectionScope {
 
     /** A row that opens [route] on the current tab, e.g. a sub-screen of settings. */
     public fun link(title: StringResource, subtitle: StringResource? = null, route: NavKey)
+
     public fun custom(content: @Composable () -> Unit)
 }
 
 /**
- * Foundation's settings screen: Theming and System cards, then the app's [extra] sections, with an
- * "About app" button when [onNavigateToAbout] is set and a top bar shortcut to the system app settings.
+ * Foundation's settings screen: the app's [extra] sections, then the Theming and System cards, with
+ * an "About app" button when [onNavigateToAbout] is set and a top bar shortcut to the system app
+ * settings.
  */
 @Composable
 public fun FoundationSettingsScreen(
     builtIns: BuiltInSettings = BuiltInSettings(),
     onNavigateToAbout: (() -> Unit)? = null,
-    extra: SettingsScope.() -> Unit = { },
+    extra: SettingsScope.() -> Unit = {},
 ) {
     val hapticFeedback = rememberHapticFeedback()
     val isPortrait = isPortrait()
@@ -130,11 +142,12 @@ public fun FoundationSettingsScreen(
     val sections = remember(extra) { SettingsBuilder().apply(extra).sections }
 
     var bottomButtonsVisible by remember { mutableStateOf(true) }
-    val nestedScrollConnection = rememberNestedScrollConnection(
-        firstVisibleItemScrollOffset = { listState.firstVisibleItemScrollOffset }
-    ) { scrollUp ->
-        bottomButtonsVisible = scrollUp
-    }
+    val nestedScrollConnection =
+        rememberNestedScrollConnection(
+            firstVisibleItemScrollOffset = { listState.firstVisibleItemScrollOffset }
+        ) { scrollUp ->
+            bottomButtonsVisible = scrollUp
+        }
 
     TopBarActions(
         listOf(
@@ -145,71 +158,60 @@ public fun FoundationSettingsScreen(
         )
     )
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         EdgeFadeLazyStaggeredVerticalGrid(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .nestedScroll(nestedScrollConnection),
+            modifier = Modifier.padding(horizontal = 8.dp).nestedScroll(nestedScrollConnection),
             state = listState,
             columns = if (isPortrait) 1 else 2,
             horizontalItemSpacing = 0.dp,
-            endSpacing = 56.dp
+            endSpacing = 56.dp,
         ) {
-            if (builtIns.theme) {
-                item {
-                    ThemeSettings(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .animateItem()
-                    )
-                }
-            }
-
-            item {
-                SystemSettings(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .animateItem(),
-                    builtIns = builtIns
-                )
-            }
-
+            // The app's own settings first; Foundation's always come last
             sections.forEach { section ->
                 item {
                     TitledCard(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .animateItem(),
-                        title = stringResource(section.title)
+                        modifier =
+                            Modifier.padding(horizontal = 8.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .animateItem(),
+                        title = stringResource(section.title),
                     ) {
                         section.items.forEach { it() }
                         Spacer(Modifier.height(8.dp))
                     }
                 }
             }
+
+            if (builtIns.theme) {
+                item {
+                    ThemeSettings(modifier = Modifier.padding(horizontal = 8.dp).animateItem())
+                }
+            }
+
+            item {
+                SystemSettings(
+                    modifier = Modifier.padding(horizontal = 8.dp).animateItem(),
+                    builtIns = builtIns,
+                )
+            }
         }
 
         if (onNavigateToAbout != null) {
             AnimatedVisibility(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd),
+                modifier = Modifier.align(Alignment.BottomEnd),
                 visible = bottomButtonsVisible,
                 enter = slideInVertically(initialOffsetY = { it * 2 }),
                 exit = slideOutVertically(targetOffsetY = { it * 2 }),
             ) {
                 BottomButton(
                     text = stringResource(Res.string.navigation_settings_about),
-                    paddingValues = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
-                    )
+                    paddingValues =
+                        PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 16.dp,
+                        ),
                 ) {
                     hapticFeedback()
                     onNavigateToAbout()
@@ -222,22 +224,34 @@ public fun FoundationSettingsScreen(
 @Composable
 private fun SystemSettings(
     modifier: Modifier = Modifier,
-    builtIns: BuiltInSettings
+    builtIns: BuiltInSettings,
 ) {
     val viewModel = foundationViewModel()
     val features = viewModel.config.features
+    val showExpressiveAnimation =
+        builtIns.expressiveAnimation &&
+            LocalExpressiveAnimation.current == ExpressiveAnimation.USER_CHOICE
+
+    // Nothing to show on this platform with this app's options: no empty card
+    val hasSettings =
+        (builtIns.encryptedSharing && features.qrSharing) ||
+            (builtIns.landingTips && features.landingTips) ||
+            showExpressiveAnimation ||
+            (builtIns.fullscreenLandscape &&
+                viewModel.supports(PlatformFeature.FULLSCREEN_LANDSCAPE)) ||
+            (builtIns.vibration && viewModel.supports(PlatformFeature.VIBRATION)) ||
+            builtIns.scrollHelpers
+    if (!hasSettings) return
 
     TitledCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        title = stringResource(Res.string.app_settings_title)
+        modifier = modifier.fillMaxWidth().wrapContentHeight(),
+        title = stringResource(Res.string.app_settings_title),
     ) {
         if (builtIns.encryptedSharing && features.qrSharing) {
             SettingSwitch(
                 key = FoundationSettingKeys.encryptedShare,
                 title = Res.string.app_settings_encryption_title,
-                subtitle = Res.string.app_settings_encryption_subtitle
+                subtitle = Res.string.app_settings_encryption_subtitle,
             )
         }
 
@@ -245,23 +259,27 @@ private fun SystemSettings(
             SettingSwitch(
                 key = FoundationSettingKeys.landingTips,
                 title = Res.string.app_settings_landing_tips_title,
-                subtitle = Res.string.app_settings_landing_tips_subtitle
+                subtitle = Res.string.app_settings_landing_tips_subtitle,
             )
         }
 
-        if (builtIns.expressiveAnimation) {
+        // Only when the theme leaves the choice to the user (ThemeConfig.expressiveAnimation =
+        // USER_CHOICE)
+        if (showExpressiveAnimation) {
             SettingSwitch(
                 key = FoundationSettingKeys.expressiveAnimation,
                 title = Res.string.app_settings_expressive_animation_title,
-                subtitle = Res.string.app_settings_expressive_animation_subtitle
+                subtitle = Res.string.app_settings_expressive_animation_subtitle,
             )
         }
 
-        if (builtIns.fullscreenLandscape && viewModel.supports(PlatformFeature.FULLSCREEN_LANDSCAPE)) {
+        if (
+            builtIns.fullscreenLandscape && viewModel.supports(PlatformFeature.FULLSCREEN_LANDSCAPE)
+        ) {
             SettingSwitch(
                 key = FoundationSettingKeys.fullscreenLandscape,
                 title = Res.string.app_settings_fullscreen_landscape_title,
-                subtitle = Res.string.app_settings_fullscreen_landscape_subtitle
+                subtitle = Res.string.app_settings_fullscreen_landscape_subtitle,
             )
         }
 
@@ -269,7 +287,7 @@ private fun SystemSettings(
             SettingSwitch(
                 key = FoundationSettingKeys.vibration,
                 title = Res.string.app_settings_vibration_title,
-                subtitle = Res.string.app_settings_vibration_subtitle
+                subtitle = Res.string.app_settings_vibration_subtitle,
             )
         }
 
@@ -277,7 +295,7 @@ private fun SystemSettings(
             SettingSwitch(
                 key = FoundationSettingKeys.scrollHelpers,
                 title = Res.string.app_settings_scroll_helpers_title,
-                subtitle = Res.string.app_settings_scroll_helpers_subtitle
+                subtitle = Res.string.app_settings_scroll_helpers_subtitle,
             )
         }
 
@@ -286,30 +304,29 @@ private fun SystemSettings(
 }
 
 @Composable
-private fun ThemeSettings(
-    modifier: Modifier = Modifier
-) {
+private fun ThemeSettings(modifier: Modifier = Modifier) {
     val viewModel = foundationViewModel()
     val useColorTheme by viewModel.setting(FoundationSettingKeys.colorTheme).collectAsState()
     val supportsDynamicColors = viewModel.supports(PlatformFeature.DYNAMIC_COLORS)
 
     TitledCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        title = stringResource(Res.string.theme_settings_title)
+        modifier = modifier.fillMaxWidth().wrapContentHeight(),
+        title = stringResource(Res.string.theme_settings_title),
     ) {
         SettingChoice(
             modifier = Modifier.padding(bottom = 8.dp),
             key = FoundationSettingKeys.colorTheme,
             title = Res.string.theme_settings_color_theme_title,
-            subtitle = if (supportsDynamicColors) {
-                Res.string.theme_settings_color_theme_subtitle
-            } else {
-                Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors
-            },
-            options = if (supportsDynamicColors) ColorTheme.entries else ColorTheme.entries - ColorTheme.AUTO,
-            label = { it.titleRes }
+            subtitle =
+                if (supportsDynamicColors) {
+                    Res.string.theme_settings_color_theme_subtitle
+                } else {
+                    Res.string.theme_settings_color_theme_subtitle_no_dynamic_colors
+                },
+            options =
+                if (supportsDynamicColors) ColorTheme.entries
+                else ColorTheme.entries - ColorTheme.AUTO,
+            label = { it.titleRes },
         )
 
         AnimatedVisibility(useColorTheme.isPreset) {
@@ -319,7 +336,7 @@ private fun ThemeSettings(
                 title = Res.string.theme_settings_palette_title,
                 subtitle = Res.string.theme_settings_palette_subtitle,
                 options = Palette.entries,
-                label = { it.titleRes }
+                label = { it.titleRes },
             )
         }
 
@@ -329,13 +346,12 @@ private fun ThemeSettings(
             title = Res.string.theme_settings_dark_mode_title,
             subtitle = Res.string.theme_settings_dark_mode_subtitle,
             options = DarkMode.entries,
-            label = { it.titleRes }
+            label = { it.titleRes },
         )
 
         Spacer(Modifier.height(8.dp))
     }
 }
-
 
 // Building blocks bound to a setting key
 
@@ -355,7 +371,7 @@ public fun SettingSwitch(
         modifier = modifier,
         title = stringResource(title),
         subtitle = subtitle?.let { stringResource(it) },
-        enabled = enabled
+        enabled = enabled,
     ) { value ->
         viewModel.set(key, value)
         hapticFeedback()
@@ -386,7 +402,7 @@ public fun <E : Enum<E>> SettingChoice(
             viewModel.set(key, option)
             hapticFeedback()
         },
-        optionName = { stringResource(label(it)) }
+        optionName = { stringResource(label(it)) },
     )
 }
 
@@ -400,33 +416,32 @@ private fun SettingLink(
     val hapticFeedback = rememberHapticFeedback()
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                hapticFeedback()
-                navigator.navigate(route)
-            }
-            .padding(end = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier.fillMaxWidth()
+                .clickable {
+                    hapticFeedback()
+                    navigator.navigate(route)
+                }
+                .padding(end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         OptionDetailText(
-            modifier = Modifier
-                .weight(1f)
-                .padding(
-                    vertical = 8.dp,
-                    horizontal = 16.dp
-                ),
+            modifier =
+                Modifier.weight(1f)
+                    .padding(
+                        vertical = 8.dp,
+                        horizontal = 16.dp,
+                    ),
             title = stringResource(title),
-            subtitle = subtitle?.let { stringResource(it) }
+            subtitle = subtitle?.let { stringResource(it) },
         )
 
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null
+            contentDescription = null,
         )
     }
 }
-
 
 // DSL implementation
 
@@ -446,7 +461,11 @@ private class SettingsBuilder : SettingsScope {
 private class SectionBuilder : SettingsSectionScope {
     val items = mutableListOf<@Composable () -> Unit>()
 
-    override fun switch(key: SettingKey<Boolean>, title: StringResource, subtitle: StringResource?) {
+    override fun switch(
+        key: SettingKey<Boolean>,
+        title: StringResource,
+        subtitle: StringResource?,
+    ) {
         items += { SettingSwitch(key, title, subtitle) }
     }
 
@@ -457,7 +476,9 @@ private class SectionBuilder : SettingsSectionScope {
         options: List<E>,
         label: (E) -> StringResource,
     ) {
-        items += { SettingChoice(key, title, subtitle, options, Modifier.padding(bottom = 8.dp), label) }
+        items += {
+            SettingChoice(key, title, subtitle, options, Modifier.padding(bottom = 8.dp), label)
+        }
     }
 
     override fun link(title: StringResource, subtitle: StringResource?, route: NavKey) {

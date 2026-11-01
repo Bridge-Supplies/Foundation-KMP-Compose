@@ -5,8 +5,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
-import org.jetbrains.skia.Image
 import java.awt.datatransfer.StringSelection
+import org.jetbrains.skia.Image
 
 public actual fun bitmapFromBytes(bytes: ByteArray): ImageBitmap {
     return Image.makeFromEncoded(bytes).toComposeImageBitmap()

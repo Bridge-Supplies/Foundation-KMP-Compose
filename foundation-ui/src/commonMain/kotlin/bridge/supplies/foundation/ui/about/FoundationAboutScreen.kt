@@ -58,8 +58,9 @@ private const val FOUNDATION_URL = "https://github.com/Bridge-Supplies/Foundatio
 
 public class AboutConfig(
     /**
-     * The license report JSON generated in the app's shared module (jk1 license-report), e.g.
-     * `{ Res.readBytes("files/json/licenses.json") }`. It covers Foundation's dependencies and the app's.
+     * The license report JSON generated in the app's shared module (jk1 license-report), e.g. `{
+     * Res.readBytes("files/json/licenses.json") }`. It covers Foundation's dependencies and the
+     * app's.
      */
     public val licensesJson: suspend () -> ByteArray,
     /** Called when the version row is tapped (an easter egg, for example). */
@@ -68,97 +69,96 @@ public class AboutConfig(
     public val extraContent: (@Composable () -> Unit)? = null,
 )
 
-/** App name, version and build, then the open source licenses grouped by license, and a "Built with Foundation" link. */
+/**
+ * App name, version and build, then the open source licenses grouped by license, and a "Built with
+ * Foundation" link.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-public fun FoundationAboutScreen(
-    config: AboutConfig
-) {
+public fun FoundationAboutScreen(config: AboutConfig) {
     val horPaddingMod = Modifier.padding(horizontal = 16.dp)
     val viewModel = foundationViewModel()
     val hapticFeedback = rememberHapticFeedback()
-    val licenses by produceState(LicenseMap()) {
-        value = withContext(Dispatchers.Default) { loadLicenses(config.licensesJson()) }
-    }
+    val licenses by
+        produceState(LicenseMap()) {
+            value = withContext(Dispatchers.Default) { loadLicenses(config.licensesJson()) }
+        }
     val listState = rememberIndexedLazyListState()
-    
+
     var bottomButtonsVisible by remember { mutableStateOf(true) }
-    val nestedScrollConnection = rememberNestedScrollConnection(
-        firstVisibleItemScrollOffset = { listState.listState.firstVisibleItemScrollOffset }
-    ) { scrollUp ->
-        bottomButtonsVisible = scrollUp
-    }
-    
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
+    val nestedScrollConnection =
+        rememberNestedScrollConnection(
+            firstVisibleItemScrollOffset = { listState.listState.firstVisibleItemScrollOffset }
+        ) { scrollUp ->
+            bottomButtonsVisible = scrollUp
+        }
+
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         EdgeFadeIndexedLazyColumn(
-            modifier = Modifier
-                .nestedScroll(nestedScrollConnection),
+            modifier = Modifier.nestedScroll(nestedScrollConnection),
             state = listState,
-            endSpacing = 56.dp
+            endSpacing = 56.dp,
         ) {
             item {
                 TitledCard(
                     modifier = horPaddingMod,
-                    title = viewModel.config.appName
+                    title = viewModel.config.appName,
                 ) {
                     OptionDetailText(
-                        modifier = Modifier
-                            .then(
-                                if (config.onVersionClick != null) {
-                                    Modifier.clickable {
-                                        hapticFeedback()
-                                        config.onVersionClick.invoke()
+                        modifier =
+                            Modifier.then(
+                                    if (config.onVersionClick != null) {
+                                        Modifier.clickable {
+                                            hapticFeedback()
+                                            config.onVersionClick.invoke()
+                                        }
+                                    } else {
+                                        Modifier
                                     }
-                                } else {
-                                    Modifier
-                                }
-                            )
-                            .padding(
-                                vertical = 8.dp,
-                                horizontal = 16.dp
-                            ),
+                                )
+                                .padding(
+                                    vertical = 8.dp,
+                                    horizontal = 16.dp,
+                                ),
                         title = stringResource(Res.string.app_about_version),
                         subtitle = viewModel.config.version,
                     )
-                    
+
                     OptionDetailText(
-                        modifier = Modifier
-                            .padding(
+                        modifier =
+                            Modifier.padding(
                                 vertical = 8.dp,
-                                horizontal = 16.dp
+                                horizontal = 16.dp,
                             ),
                         title = stringResource(Res.string.app_about_build),
                         subtitle = viewModel.config.build,
                     )
-                    
+
                     config.extraContent?.invoke()
-                    
+
                     Spacer(Modifier.height(8.dp))
                 }
             }
-            
+
             licenses.mapping.keys.forEach { sortedLicenseUrl ->
                 val licenseList = licenses.mapping[sortedLicenseUrl] ?: listOf()
-                
+
                 stickyHeader {
                     val licenseUrl = licenseList.first().moduleLicenseUrl
-                    val licenseTitle = licenseList.first().moduleLicense.ifBlank {
-                        stringResource(Res.string.settings_about_licenses_unknown)
-                    }
-                    
+                    val licenseTitle =
+                        licenseList.first().moduleLicense.ifBlank {
+                            stringResource(Res.string.settings_about_licenses_unknown)
+                        }
+
                     StickyHeader(
                         modifier = horPaddingMod,
                         titleText = licenseTitle,
-                        subtitleText = licenseUrl.ifBlank { null }
+                        subtitleText = licenseUrl.ifBlank { null },
                     ) {
                         if (licenseUrl.isNotBlank()) {
                             ClickableIcon(
                                 imageVector = Icons.Default.Link,
-                                contentDescription = licenseTitle
+                                contentDescription = licenseTitle,
                             ) {
                                 hapticFeedback()
                                 openUrl(licenseUrl)
@@ -166,7 +166,7 @@ public fun FoundationAboutScreen(
                         }
                     }
                 }
-                
+
                 itemsIndexed(items = licenseList) { index, license ->
                     LicenseCard(
                         modifier = horPaddingMod,
@@ -174,26 +174,26 @@ public fun FoundationAboutScreen(
                         onViewModuleUrl = { url ->
                             hapticFeedback()
                             openUrl(url)
-                        }
+                        },
                     )
                 }
             }
         }
-        
+
         AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.BottomEnd),
+            modifier = Modifier.align(Alignment.BottomEnd),
             visible = bottomButtonsVisible,
             enter = slideInVertically(initialOffsetY = { it * 2 }),
             exit = slideOutVertically(targetOffsetY = { it * 2 }),
         ) {
             BottomButton(
                 text = stringResource(Res.string.tag_built_with_foundation),
-                paddingValues = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                )
+                paddingValues =
+                    PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 16.dp,
+                    ),
             ) {
                 hapticFeedback()
                 openUrl(FOUNDATION_URL)
@@ -206,7 +206,7 @@ public fun FoundationAboutScreen(
 private fun LicenseCard(
     modifier: Modifier = Modifier,
     license: License,
-    onViewModuleUrl: (String) -> Unit
+    onViewModuleUrl: (String) -> Unit,
 ) {
     Card(
         modifier = modifier,
@@ -214,24 +214,20 @@ private fun LicenseCard(
             if (license.moduleUrl.isNotBlank()) {
                 onViewModuleUrl(license.moduleUrl)
             }
-        }
+        },
     ) {
         Column(
-            modifier = Modifier
-                .minimumInteractiveComponentSize(),
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.minimumInteractiveComponentSize(),
+            verticalArrangement = Arrangement.Center,
         ) {
             HintText(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                 text = license.moduleName + ":" + license.moduleVersion,
-                maxLines = 1
+                maxLines = 1,
             )
         }
     }
 }
-
 
 // Licenses (jk1 license-report JSON)
 
@@ -241,7 +237,7 @@ private data class License(
     val moduleUrl: String = "",
     val moduleVersion: String = "",
     val moduleLicense: String = "",
-    val moduleLicenseUrl: String = ""
+    val moduleLicenseUrl: String = "",
 )
 
 @Serializable
@@ -249,20 +245,21 @@ private data class LicenseList(
     @SerialName("dependencies") val licenses: List<License> = emptyList()
 )
 
-private data class LicenseMap(
-    val mapping: Map<String, List<License>> = emptyMap()
-)
+private data class LicenseMap(val mapping: Map<String, List<License>> = emptyMap())
 
 private val licenseJson = Json { ignoreUnknownKeys = true }
 
-private fun loadLicenses(bytes: ByteArray): LicenseMap = LicenseMap(
-    licenseJson.decodeFromString<LicenseList>(bytes.decodeToString()).licenses
-        .sortedBy {
-            it.moduleName
-        }
-        .groupBy {
-            it.moduleLicenseUrl
-                .replaceFirst(oldValue = "https://", newValue = "")
-                .replaceFirst(oldValue = "http://", newValue = "")
-        }
-)
+private fun loadLicenses(bytes: ByteArray): LicenseMap =
+    LicenseMap(
+        licenseJson
+            .decodeFromString<LicenseList>(bytes.decodeToString())
+            .licenses
+            .sortedBy {
+                it.moduleName
+            }
+            .groupBy {
+                it.moduleLicenseUrl
+                    .replaceFirst(oldValue = "https://", newValue = "")
+                    .replaceFirst(oldValue = "http://", newValue = "")
+            }
+    )

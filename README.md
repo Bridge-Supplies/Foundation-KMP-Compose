@@ -1,6 +1,6 @@
 # Foundation (KMP-Compose Library & Template)
 ## Presented by [Bridge Supplies](https://bridge.supplies)
-### Latest version: 2.0.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
+### Latest version: 2.1.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
 
 Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) and [Compose Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) library and starter template targeting Android, iOS, and Desktop JVM (macOS, Windows, Linux). It provides a shared app shell, theming, persistence, offline QR sharing, and common UI components so apps can focus on their own features without duplicating infrastructure.
 
@@ -106,7 +106,7 @@ From your app repository's root directory:
 
 ```bash
 git submodule add https://github.com/Bridge-Supplies/Foundation-KMP-Compose.git foundation
-cd foundation && git checkout v2.0.0 && cd ..   # pin a release tag
+cd foundation && git checkout v2.1.0 && cd ..   # pin a release tag
 git add .gitmodules foundation
 ```
 
@@ -413,7 +413,7 @@ val showHints by foundation.setting(showHintsKey).collectAsState()
 foundation.set(showHintsKey, false)
 ```
 
-Build your settings screen with `FoundationSettingsScreen`. It renders Foundation's built-in Theming and System cards (configurable via `BuiltInSettings`) followed by your app's custom sections:
+Build your settings screen with `FoundationSettingsScreen`. It renders your app's custom sections first, followed by Foundation's built-in Theming and System cards (configurable via `BuiltInSettings`; see the note on motion below):
 
 ```kotlin
 entry<SettingsOptions> {
@@ -444,6 +444,8 @@ entry<SettingsOptions> {
     }
 }
 ```
+
+**Motion (Material 3 Expressive):** apps use expressive motion by default and Settings shows no switch for it. To fix it off, pass `ThemeConfig(expressiveAnimation = ExpressiveAnimation.OFF)`; to let users choose, pass `ExpressiveAnimation.USER_CHOICE`, which adds the "Use Expressive animation" switch to the built-in System card.
 
 ### 5. Bottom sheets (`SheetController`, `DateSheet`, `ShareAppSheet`, custom `SheetContent`)
 
@@ -547,6 +549,20 @@ val encoded: String = qrCodec.encode(payload, SharedData.serializer(), encrypt =
 val decoded: Result<SharedData> = qrCodec.decode(encoded, SharedData.serializer())
 ```
 
+Apps with their own compact binary format (for example a game turn packed into ~150 bytes) can skip JSON: `encodeBytes` uses the same encryption and writes Base45 text with only QR alphanumeric characters, which makes a noticeably smaller QR code (150 bytes: QR version 8 instead of 12). Show it with `CodeDisplay` and read it with `QrCodeScanner`, which both work with plain text:
+
+```kotlin
+val text: String = qrCodec.encodeBytes(bytes, encrypt = true)
+val back: Result<ByteArray> = qrCodec.decodeBytes(text) // fails for other payloads or another key
+```
+
+**Devices without a back camera:** `QrCodeScanner` only opens the back camera, so on Android `PlatformFeature.CODE_SCANNING` is on only if the device has one. Check it (`currentPlatform().supports(PlatformFeature.CODE_SCANNING)`) before offering to scan. Devices with only a front camera or webcam, such as most Chromebooks, can still show QR codes but can't scan them. Your app decides who can install it: `android.permission.CAMERA` makes Google Play require a back camera unless the manifest says otherwise, so an app that works without one declares:
+
+```xml
+<uses-feature android:name="android.hardware.camera" android:required="false" />
+<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+```
+
 ### 8. Platform services and UI helpers
 
 - `openUrl(url, inApp = false)` — opens a URL in the external browser, or inside the app when `inApp = true` (Custom Tabs on Android, `SFSafariViewController` on iOS; Desktop always uses the system browser).
@@ -562,8 +578,8 @@ Each release is a tag `vX.Y.Z` on `main`. `main` gets one squashed commit per ve
 
 1. Bump the submodule to the target release tag:
    ```bash
-   cd foundation && git fetch --tags && git checkout v2.0.1 && cd ..
-   git add foundation && git commit -m "Bump Foundation to v2.0.1"
+   cd foundation && git fetch --tags && git checkout v2.1.0 && cd ..
+   git add foundation && git commit -m "Bump Foundation to v2.1.0"
    ```
 2. Read [`CHANGELOG.md`](CHANGELOG.md) for any breaking changes or migration steps.
 3. Run your app's verification script (`scripts/verify.sh quick`) and test on your target platforms.
@@ -648,6 +664,8 @@ If you are forking or cloning this repository as a standalone starter template i
 - `Desktop`: runs `./gradlew :desktopApp:run` (main class is `app-packageName` + `.` + `app-name` from `gradle/libs.versions.toml`)
 
 ## Testing
+
+Code is formatted with [Spotless](https://github.com/diffplug/spotless) and ktfmt's Kotlin language style: run `./gradlew spotlessApply` before committing. `scripts/verify.sh` fails on unformatted code.
 
 - **Repository verification** with `scripts/verify.sh <tier>` (a shared lock keeps parallel runs from overlapping):
   - `quick`: compiles the Android debug app and the Desktop app, runs common/Desktop unit tests in all modules, and runs (or links) iOS simulator tests when iOS-relevant files changed.

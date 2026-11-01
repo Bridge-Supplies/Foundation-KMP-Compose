@@ -37,8 +37,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,18 +54,18 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
-import bridge.supplies.foundation.ui.components.ClickableIcon
 import bridge.supplies.foundation.ui.FoundationViewModel
+import bridge.supplies.foundation.ui.components.ClickableIcon
 import bridge.supplies.foundation.ui.foundationViewModel
 import bridge.supplies.foundation.ui.isPortrait
 import bridge.supplies.foundation.ui.rememberHapticFeedback
+import bridge.supplies.foundation.ui.resources.Res
+import bridge.supplies.foundation.ui.resources.navigation_back
 import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
 import bridge.supplies.foundation.ui.sheets.SheetContent
 import bridge.supplies.foundation.ui.sheets.SheetHost
 import bridge.supplies.foundation.ui.theme.FoundationTheme
 import bridge.supplies.foundation.ui.theme.ThemeConfig
-import bridge.supplies.foundation.ui.resources.Res
-import bridge.supplies.foundation.ui.resources.navigation_back
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -73,8 +73,11 @@ import org.jetbrains.compose.resources.stringResource
 /** What [FoundationApp] shows before the tabs. */
 public sealed interface Landing {
     public data object None : Landing
-    
-    /** The app [icon] and name, with a random tip (Foundation's plus [extraTips]) when tips are enabled. */
+
+    /**
+     * The app [icon] and name, with a random tip (Foundation's plus [extraTips]) when tips are
+     * enabled.
+     */
     public class Default(
         public val icon: DrawableResource,
         public val extraTips: List<StringResource> = emptyList(),
@@ -93,18 +96,24 @@ public data class ShellOptions(
 )
 
 public val LocalSnackbarHostState: ProvidableCompositionLocal<SnackbarHostState> =
-    staticCompositionLocalOf { error("SnackbarHostState is only available inside FoundationApp") }
+    staticCompositionLocalOf {
+        error("SnackbarHostState is only available inside FoundationApp")
+    }
 
 /**
- * The app shell: tabs with one back stack each, a top bar, and a bottom bar (portrait) or rail (landscape).
+ * The app shell: tabs with one back stack each, a top bar, and a bottom bar (portrait) or rail
+ * (landscape).
  *
- * Applies [FoundationTheme] and reads Foundation's settings (fullscreen landscape, haptics) from [FoundationViewModel].
+ * Applies [FoundationTheme] and reads Foundation's settings (fullscreen landscape, haptics) from
+ * [FoundationViewModel].
  *
  * @param tabs top-level destinations, the first one is the start tab
  * @param routes serializers for every route used in [entries]
  * @param onShowSystemUi called with whether the system bars should show
  * @param onCloseApplication called on back from the start tab's root
- * @param sheets content for the app's own [SheetRequest][bridge.supplies.foundation.core.sheets.SheetRequest]s; Foundation draws the sheet
+ * @param sheets content for the app's own
+ *   [SheetRequest][bridge.supplies.foundation.core.sheets.SheetRequest]s; Foundation draws the
+ *   sheet
  * @param entries the app's screens: `entry<MyRoute>(metadata = screenMetadata(…)) { route -> … }`
  */
 @Composable
@@ -114,13 +123,22 @@ public fun FoundationApp(
     landing: Landing = Landing.None,
     theme: ThemeConfig = ThemeConfig(),
     shell: ShellOptions = ShellOptions(),
-    onShowSystemUi: (Boolean) -> Unit = { },
-    onCloseApplication: () -> Unit = { },
-    sheets: SheetContent = { },
+    onShowSystemUi: (Boolean) -> Unit = {},
+    onCloseApplication: () -> Unit = {},
+    sheets: SheetContent = {},
     entries: EntryProviderScope<NavKey>.() -> Unit,
 ) {
     FoundationTheme(theme) {
-        FoundationShell(tabs, routes, landing, shell, onShowSystemUi, onCloseApplication, sheets, entries)
+        FoundationShell(
+            tabs,
+            routes,
+            landing,
+            shell,
+            onShowSystemUi,
+            onCloseApplication,
+            sheets,
+            entries,
+        )
     }
 }
 
@@ -136,7 +154,8 @@ private fun FoundationShell(
     entries: EntryProviderScope<NavKey>.() -> Unit,
 ) {
     val viewModel = foundationViewModel()
-    val fullscreenLandscape by viewModel.setting(FoundationSettingKeys.fullscreenLandscape).collectAsState()
+    val fullscreenLandscape by
+        viewModel.setting(FoundationSettingKeys.fullscreenLandscape).collectAsState()
     val onHapticFeedback = rememberHapticFeedback()
     val navigator = rememberNavigator(tabs, routes)
     val snackbarHost = remember { SnackbarHostState() }
@@ -186,39 +205,35 @@ private fun FoundationShell(
         LocalTopBarActionHost provides actionHost,
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .safeDrawingPadding()
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .safeDrawingPadding()
         ) {
             AnimatedVisibility(
                 visible = showBars && !isPortrait,
-                modifier = Modifier
-                    .fillMaxHeight()
+                modifier = Modifier.fillMaxHeight(),
             ) {
                 ShellRail(
                     navigator = navigator,
                     verticallyCentered = shell.railVerticallyCentered,
-                    onSelectTab = onSelectTab
+                    onSelectTab = onSelectTab,
                 )
             }
 
             Scaffold(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background),
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
                 topBar = {
                     AnimatedVisibility(
                         visible = showBars,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         ShellTopBar(
                             navigator = navigator,
                             metadata = metadata,
                             actions = actionHost.actions[navigator.currentRoute].orEmpty(),
                             centerTitle = shell.centerTopBarTitle,
-                            onNavigateBack = { onNavigateBack() }
+                            onNavigateBack = { onNavigateBack() },
                         )
                     }
                 },
@@ -227,33 +242,31 @@ private fun FoundationShell(
                         visible = showBars && isPortrait,
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut(),
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        BottomAppBar(
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
+                        BottomAppBar(contentPadding = PaddingValues(0.dp)) {
                             ShellBottomBar(
                                 navigator = navigator,
-                                onSelectTab = onSelectTab
+                                onSelectTab = onSelectTab,
                             )
                         }
                     }
                 },
                 snackbarHost = {
                     SnackbarHost(hostState = snackbarHost)
-                }
+                },
             ) { innerPadding ->
                 AnimatedContent(
                     targetState = if (landingDone) navigator.currentTabId else null,
-                    transitionSpec = { TopLevelEnterTransition() togetherWith TopLevelExitTransition() },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
+                    transitionSpec = {
+                        TopLevelEnterTransition() togetherWith TopLevelExitTransition()
+                    },
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
                 ) { tabId ->
                     if (tabId == null) {
                         when (landing) {
-                            is Landing.Default -> DefaultLandingScreen(landing) { landingDone = true }
+                            is Landing.Default ->
+                                DefaultLandingScreen(landing) { landingDone = true }
                             is Landing.Custom -> landing.content { landingDone = true }
                             Landing.None -> Unit
                         }
@@ -263,10 +276,18 @@ private fun FoundationShell(
                             NavDisplay(
                                 backStack = navigator.stackOf(tabId),
                                 onBack = { onNavigateBack() },
-                                transitionSpec = { ScreenEnterTransition() togetherWith ScreenExitTransition() },
-                                popTransitionSpec = { ScreenPopEnterTransition() togetherWith ScreenPopExitTransition() },
-                                predictivePopTransitionSpec = { ScreenPopEnterTransition() togetherWith ScreenPopExitTransition() },
-                                entryProvider = entryFor
+                                transitionSpec = {
+                                    ScreenEnterTransition() togetherWith ScreenExitTransition()
+                                },
+                                popTransitionSpec = {
+                                    ScreenPopEnterTransition() togetherWith
+                                        ScreenPopExitTransition()
+                                },
+                                predictivePopTransitionSpec = {
+                                    ScreenPopEnterTransition() togetherWith
+                                        ScreenPopExitTransition()
+                                },
+                                entryProvider = entryFor,
                             )
                         }
                     }
@@ -285,30 +306,30 @@ private fun ShellTopBar(
     metadata: Map<String, Any>,
     actions: List<TopBarAction>,
     centerTitle: Boolean,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
-    val title = metadata.screenTitleText
-        ?: metadata.screenTitle?.let { stringResource(it) }
-        ?: stringResource(navigator.currentTab.title)
+    val title =
+        metadata.screenTitleText
+            ?: metadata.screenTitle?.let { stringResource(it) }
+            ?: stringResource(navigator.currentTab.title)
 
     val titleContent: @Composable () -> Unit = {
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
     val navigationIcon: @Composable () -> Unit = {
         AnimatedVisibility(
             visible = navigator.canNavigateBack,
-            modifier = Modifier
-                .fillMaxHeight()
+            modifier = Modifier.fillMaxHeight(),
         ) {
             ClickableIcon(
                 onClick = onNavigateBack,
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(Res.string.navigation_back)
+                contentDescription = stringResource(Res.string.navigation_back),
             )
         }
     }
@@ -317,7 +338,7 @@ private fun ShellTopBar(
             ClickableIcon(
                 onClick = action.onClick,
                 imageVector = action.icon,
-                contentDescription = stringResource(action.label)
+                contentDescription = stringResource(action.label),
             )
         }
     }
@@ -326,13 +347,13 @@ private fun ShellTopBar(
         CenterAlignedTopAppBar(
             title = titleContent,
             navigationIcon = navigationIcon,
-            actions = actionsContent
+            actions = actionsContent,
         )
     } else {
         TopAppBar(
             title = titleContent,
             navigationIcon = navigationIcon,
-            actions = actionsContent
+            actions = actionsContent,
         )
     }
 }
@@ -341,12 +362,9 @@ private fun ShellTopBar(
 private fun ShellRail(
     navigator: Navigator,
     verticallyCentered: Boolean,
-    onSelectTab: (FoundationTab) -> Unit
+    onSelectTab: (FoundationTab) -> Unit,
 ) {
-    NavigationRail(
-        modifier = Modifier
-            .fillMaxHeight()
-    ) {
+    NavigationRail(modifier = Modifier.fillMaxHeight()) {
         if (verticallyCentered) {
             Spacer(Modifier.weight(1f))
         } else {
@@ -361,12 +379,12 @@ private fun ShellRail(
                 icon = {
                     Icon(
                         imageVector = if (selected) tab.selectedIcon else tab.icon,
-                        contentDescription = stringResource(tab.title)
+                        contentDescription = stringResource(tab.title),
                     )
                 },
                 label = { Text(stringResource(tab.title)) },
                 selected = selected,
-                onClick = { onSelectTab(tab) }
+                onClick = { onSelectTab(tab) },
             )
         }
 
@@ -377,12 +395,9 @@ private fun ShellRail(
 @Composable
 private fun ShellBottomBar(
     navigator: Navigator,
-    onSelectTab: (FoundationTab) -> Unit
+    onSelectTab: (FoundationTab) -> Unit,
 ) {
-    NavigationBar(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
+    NavigationBar(modifier = Modifier.fillMaxWidth()) {
         navigator.tabs.forEach { tab ->
             val selected = tab == navigator.currentTab
 
@@ -391,12 +406,12 @@ private fun ShellBottomBar(
                 icon = {
                     Icon(
                         imageVector = if (selected) tab.selectedIcon else tab.icon,
-                        contentDescription = stringResource(tab.title)
+                        contentDescription = stringResource(tab.title),
                     )
                 },
                 label = { Text(stringResource(tab.title)) },
                 selected = selected,
-                onClick = { onSelectTab(tab) }
+                onClick = { onSelectTab(tab) },
             )
         }
     }

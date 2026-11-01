@@ -14,14 +14,15 @@ expect class KoinInitializer {
 }
 
 /** Foundation configuration for this app (identity from the generated BuildConfig). */
-val foundationConfig = FoundationConfig(
-    appName = BuildConfig.APP_NAME,
-    packageName = BuildConfig.PACKAGE_NAME,
-    version = BuildConfig.APP_VERSION,
-    build = BuildConfig.APP_BUILD,
-    encryptionKey = BuildConfig.ENCRYPTION_KEY,
-    shareUrl = "https://github.com/Bridge-Supplies/Foundation-KMP-Compose",
-)
+val foundationConfig =
+    FoundationConfig(
+        appName = BuildConfig.APP_NAME,
+        packageName = BuildConfig.PACKAGE_NAME,
+        version = BuildConfig.APP_VERSION,
+        build = BuildConfig.APP_BUILD,
+        encryptionKey = BuildConfig.ENCRYPTION_KEY,
+        shareUrl = "https://github.com/Bridge-Supplies/Foundation-KMP-Compose",
+    )
 
 /** Foundation's settings, platform and shared state. */
 val foundationModule: Module = module {
