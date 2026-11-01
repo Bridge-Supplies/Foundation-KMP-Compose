@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.core.platform.PlatformFeature
+import bridge.supplies.foundation.demo.data.MainViewModel
+import bridge.supplies.foundation.demo.data.SharedData
 import bridge.supplies.foundation.ui.components.FloatingButton
 import bridge.supplies.foundation.ui.components.TextInput
 import bridge.supplies.foundation.ui.foundationViewModel
@@ -29,8 +31,6 @@ import bridge.supplies.foundation.ui.sheets.ShareAppSheet
 import bridge.supplies.foundation.ui.sheets.sheetController
 import bridge.supplies.foundation.ui.shell.TopBarAction
 import bridge.supplies.foundation.ui.shell.TopBarActions
-import bridge.supplies.foundation.demo.data.MainViewModel
-import bridge.supplies.foundation.demo.data.SharedData
 import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.action_share
 import foundation.composeapp.generated.resources.generate_qr_code_encrypted_text
@@ -42,24 +42,25 @@ import org.jetbrains.compose.resources.stringResource
 fun ShareCodeScreen(
     viewModel: MainViewModel,
     hapticFeedback: () -> Unit,
-    onNavigateToScanner: () -> Unit
+    onNavigateToScanner: () -> Unit,
 ) {
     val sheets = sheetController()
     val isPortraitMode = isPortrait()
     val sharedText by viewModel.sharedText.collectAsState()
     val foundation = foundationViewModel()
-    val useEncryptedShare by foundation.setting(FoundationSettingKeys.encryptedShare).collectAsState()
+    val useEncryptedShare by
+        foundation.setting(FoundationSettingKeys.encryptedShare).collectAsState()
     val sharedData = sharedText.takeIf { it.isNotBlank() }?.let { SharedData(it) }
-    
+
     val onUpdateSharedText = { newText: String ->
         viewModel.setSharedText(newText)
     }
-    
+
     val onClickScanner = {
         hapticFeedback()
         onNavigateToScanner()
     }
-    
+
     TopBarActions(
         listOf(
             TopBarAction(Icons.Default.Share, Res.string.action_share) {
@@ -68,38 +69,38 @@ fun ShareCodeScreen(
             }
         )
     )
-    
+
     if (isPortraitMode) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .padding(top = 8.dp, bottom = 16.dp),
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             ShareQrCode(
                 modifier = Modifier.weight(1f),
                 value = sharedData,
-                serializer = SharedData.serializer()
+                serializer = SharedData.serializer(),
             )
-            
+
             CodeScannerInfo(
                 sharedText = sharedText,
                 useEncryptedShare = useEncryptedShare,
                 supportsScanning = foundation.supports(PlatformFeature.CODE_SCANNING),
                 onUpdateSharedText = onUpdateSharedText,
-                onClickScanner = onClickScanner
+                onClickScanner = onClickScanner,
             )
         }
     } else {
         Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .padding(top = 8.dp, bottom = 16.dp),
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CodeScannerInfo(
                 modifier = Modifier.weight(1f),
@@ -107,13 +108,13 @@ fun ShareCodeScreen(
                 useEncryptedShare = useEncryptedShare,
                 supportsScanning = foundation.supports(PlatformFeature.CODE_SCANNING),
                 onUpdateSharedText = onUpdateSharedText,
-                onClickScanner = onClickScanner
+                onClickScanner = onClickScanner,
             )
-            
+
             ShareQrCode(
                 modifier = Modifier.weight(1f),
                 value = sharedData,
-                serializer = SharedData.serializer()
+                serializer = SharedData.serializer(),
             )
         }
     }
@@ -128,56 +129,52 @@ fun CodeScannerInfo(
     onUpdateSharedText: (String) -> Unit,
     onClickScanner: () -> Unit,
 ) {
-    val inputHint = if (useEncryptedShare) {
-        stringResource(Res.string.generate_qr_code_encrypted_text)
-    } else {
-        stringResource(Res.string.generate_qr_code_text)
-    }
-    
+    val inputHint =
+        if (useEncryptedShare) {
+            stringResource(Res.string.generate_qr_code_encrypted_text)
+        } else {
+            stringResource(Res.string.generate_qr_code_text)
+        }
+
     Column(
-        modifier = modifier
-            .wrapContentHeight(),
-        verticalArrangement = Arrangement.spacedBy(
-            space = 8.dp,
-            alignment = Alignment.CenterVertically
-        )
+        modifier = modifier.wrapContentHeight(),
+        verticalArrangement =
+            Arrangement.spacedBy(
+                space = 8.dp,
+                alignment = Alignment.CenterVertically,
+            ),
     ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
+        Card(modifier = Modifier.fillMaxWidth()) {
             Column {
                 TextInput(
-                    modifier = Modifier
-                        .padding(16.dp),
+                    modifier = Modifier.padding(16.dp),
                     text = sharedText ?: "",
                     minLines = 3,
                     maxLines = 3,
-                    hintText = inputHint
+                    hintText = inputHint,
                 ) { newText ->
                     onUpdateSharedText(newText)
                 }
-                
+
                 Spacer(Modifier.height(6.dp))
             }
         }
-        
+
         if (supportsScanning) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(
-                    space = 8.dp,
-                    alignment = Alignment.CenterHorizontally
-                )
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    Arrangement.spacedBy(
+                        space = 8.dp,
+                        alignment = Alignment.CenterHorizontally,
+                    ),
             ) {
                 FloatingButton(
-                    modifier = Modifier
-                        .weight(1f),
+                    modifier = Modifier.weight(1f),
                     text = stringResource(Res.string.scanner_button_text),
                     onClick = {
                         onClickScanner()
-                    }
+                    },
                 )
             }
         }

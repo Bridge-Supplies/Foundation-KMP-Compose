@@ -1,8 +1,8 @@
 import com.github.jk1.license.render.JsonReportRenderer
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -17,11 +17,10 @@ plugins {
 licenseReport {
     // KMP has no plain runtimeClasspath; scan the Android and desktop runtime dependencies
     configurations = arrayOf("androidRuntimeClasspath", "desktopRuntimeClasspath")
-    // Foundation's own modules aren't third-party licenses (and resolving their Android variants is ambiguous)
+    // Foundation's own modules aren't third-party licenses (and resolving their Android variants is
+    // ambiguous)
     excludeGroups = arrayOf("bridge.supplies.foundation")
-    renderers = arrayOf(
-        JsonReportRenderer("licenses.json")
-    )
+    renderers = arrayOf(JsonReportRenderer("licenses.json"))
     outputDir = "${project.layout.projectDirectory}/reports/licenses"
 }
 
@@ -37,9 +36,11 @@ tasks.register("prepareLicenseReport") {
 }
 
 // The license JSON is a Compose resource, so generate it before Compose resources are prepared.
-tasks.matching { it.name.startsWith("prepareComposeResourcesTaskFor") }.configureEach {
-    dependsOn("prepareLicenseReport")
-}
+tasks
+    .matching { it.name.startsWith("prepareComposeResourcesTaskFor") }
+    .configureEach {
+        dependsOn("prepareLicenseReport")
+    }
 
 // keystore.properties is optional: without it the build uses a dev-only encryption key
 // (see README > Publishing). Release signing lives in androidApp.
@@ -55,7 +56,9 @@ val devEncryptionKey = "BridgeDevKey0016"
 buildConfig {
     val keystoreProperties = getKeystoreProperties()
     if (keystoreProperties == null) {
-        logger.warn("keystore.properties not found: using the dev-only encryption key; release signing is disabled.")
+        logger.warn(
+            "keystore.properties not found: using the dev-only encryption key; release signing is disabled."
+        )
     }
 
     packageName(libs.versions.app.packageName.get())
@@ -63,7 +66,10 @@ buildConfig {
     buildConfigField("PACKAGE_NAME", libs.versions.app.packageName.get())
     buildConfigField("APP_VERSION", libs.versions.app.versionName.get())
     buildConfigField("APP_BUILD", libs.versions.app.versionCode.get())
-    buildConfigField("ENCRYPTION_KEY", keystoreProperties?.getProperty("encryptionKey") ?: devEncryptionKey)
+    buildConfigField(
+        "ENCRYPTION_KEY",
+        keystoreProperties?.getProperty("encryptionKey") ?: devEncryptionKey,
+    )
 }
 
 compose.resources {
@@ -94,7 +100,7 @@ kotlin {
 
         commonMain.dependencies {
             api(projects.foundationUi)
-            
+
             // api: these types appear in this module's public API, used by androidApp/desktopApp
             api(libs.compose.runtime)
             api(libs.compose.foundation)
@@ -112,7 +118,6 @@ kotlin {
 
             api(libs.koin.core)
             api(libs.koin.compose)
-
         }
 
         androidMain.dependencies {
@@ -131,18 +136,19 @@ kotlin {
     }
 
     listOf(
-        iosArm64(), // iOS devices
-//        iosX64(), // MacOS Simulator (Intel)
-        iosSimulatorArm64() // iOS Simulator (Apple Silicon)
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            binaryOption("bundleId", libs.versions.app.packageName.get())
-            binaryOption("bundleVersion", libs.versions.app.versionCode.get())
-            binaryOption("bundleShortVersionString", libs.versions.app.versionName.get())
-            isStatic = true
+            iosArm64(), // iOS devices
+            //        iosX64(), // MacOS Simulator (Intel)
+            iosSimulatorArm64(), // iOS Simulator (Apple Silicon)
+        )
+        .forEach { iosTarget ->
+            iosTarget.binaries.framework {
+                baseName = "ComposeApp"
+                binaryOption("bundleId", libs.versions.app.packageName.get())
+                binaryOption("bundleVersion", libs.versions.app.versionCode.get())
+                binaryOption("bundleShortVersionString", libs.versions.app.versionName.get())
+                isStatic = true
+            }
         }
-    }
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {

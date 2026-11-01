@@ -17,9 +17,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,16 +64,19 @@ public interface SheetScope {
     public fun hapticFeedback()
 }
 
-/** The app's sheet content for its own [SheetRequest]s. Foundation wraps it in a modal bottom sheet. */
+/**
+ * The app's sheet content for its own [SheetRequest]s. Foundation wraps it in a modal bottom sheet.
+ */
 public typealias SheetContent = @Composable SheetScope.(request: SheetRequest) -> Unit
 
-@Composable
-public fun sheetController(): SheetController = koinInject()
-
+@Composable public fun sheetController(): SheetController = koinInject()
 
 // Built-in sheets
 
-/** A date picker sheet. Use [selectableDates] to restrict choices, e.g. `PastOrPresentSelectableDates`. */
+/**
+ * A date picker sheet. Use [selectableDates] to restrict choices, e.g.
+ * `PastOrPresentSelectableDates`.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 public class DateSheet(
     public val initialDateMs: Long = getTodayUtcMs(),
@@ -81,9 +84,11 @@ public class DateSheet(
     public val onSelected: (Long) -> Unit,
 ) : SheetRequest
 
-/** A QR code and copy button for the app's [FoundationConfig.shareUrl][bridge.supplies.foundation.core.config.FoundationConfig.shareUrl]. */
+/**
+ * A QR code and copy button for the app's
+ * [FoundationConfig.shareUrl][bridge.supplies.foundation.core.config.FoundationConfig.shareUrl].
+ */
 public data object ShareAppSheet : SheetRequest
-
 
 // Host
 
@@ -96,33 +101,37 @@ internal fun SheetHost(sheets: SheetContent) {
 
     // Keyed on orientation too: the sheet doesn't adapt to rotation otherwise
     key(current, isPortrait()) {
-        val sheetState = rememberBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
-        )
+        val sheetState =
+            rememberBottomSheetState(
+                initialValue = SheetValue.Hidden,
+                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+            )
         val coroutineScope = rememberCoroutineScope()
         val haptic = rememberHapticFeedback()
-        val scope = remember(sheetState) {
-            object : SheetScope {
-                override fun dismiss() {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                    }.invokeOnCompletion {
-                        if (!sheetState.isVisible && controller.current.value == current) {
-                            controller.dismiss()
-                        }
+        val scope =
+            remember(sheetState) {
+                object : SheetScope {
+                    override fun dismiss() {
+                        coroutineScope
+                            .launch {
+                                sheetState.hide()
+                            }
+                            .invokeOnCompletion {
+                                if (!sheetState.isVisible && controller.current.value == current) {
+                                    controller.dismiss()
+                                }
+                            }
                     }
-                }
 
-                override fun hapticFeedback() = haptic()
+                    override fun hapticFeedback() = haptic()
+                }
             }
-        }
 
         ModalBottomSheet(
             modifier = Modifier.statusBarsPadding(),
             sheetState = sheetState,
             dragHandle = { BottomSheetDefaults.DragHandle() },
-            onDismissRequest = { controller.dismiss() }
+            onDismissRequest = { controller.dismiss() },
         ) {
             when (current) {
                 is DateSheet -> scope.DateSheetContent(current)
@@ -135,7 +144,6 @@ internal fun SheetHost(sheets: SheetContent) {
     }
 }
 
-
 // Building blocks
 
 /** Scrollable sheet body with Foundation's padding and edge fades. */
@@ -145,7 +153,7 @@ public fun SheetColumn(content: @Composable ColumnScope.() -> Unit) {
         modifier = Modifier.padding(horizontal = 16.dp),
         state = rememberScrollState(),
         fadeColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        content = content
+        content = content,
     )
 }
 
@@ -155,7 +163,7 @@ public fun SheetScope.CloseButton(modifier: Modifier = Modifier.fillMaxWidth()) 
     TextButton(
         modifier = modifier,
         text = stringResource(Res.string.navigation_close),
-        outlined = true
+        outlined = true,
     ) {
         dismiss()
         hapticFeedback()
@@ -165,11 +173,12 @@ public fun SheetScope.CloseButton(modifier: Modifier = Modifier.fillMaxWidth()) 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SheetScope.DateSheetContent(request: DateSheet) {
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = request.initialDateMs,
-        initialDisplayMode = DisplayMode.Input,
-        selectableDates = request.selectableDates
-    )
+    val datePickerState =
+        rememberDatePickerState(
+            initialSelectedDateMillis = request.initialDateMs,
+            initialDisplayMode = DisplayMode.Input,
+            selectableDates = request.selectableDates,
+        )
 
     LaunchedEffect(Unit) {
         snapshotFlow { datePickerState.selectedDateMillis }
@@ -182,14 +191,11 @@ private fun SheetScope.DateSheetContent(request: DateSheet) {
 
     SheetColumn {
         DatePickerCard(
-            modifier = Modifier
-                .padding(top = 8.dp),
-            datePickerState = datePickerState
+            modifier = Modifier.padding(top = 8.dp),
+            datePickerState = datePickerState,
         )
 
-        TextButton(
-            text = stringResource(Res.string.navigation_confirm)
-        ) {
+        TextButton(text = stringResource(Res.string.navigation_confirm)) {
             request.onSelected(datePickerState.selectedDateMillis ?: request.initialDateMs)
             dismiss()
             hapticFeedback()
@@ -207,35 +213,28 @@ private fun SheetScope.ShareAppSheetContent() {
 
     SheetColumn {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 4.dp),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+            contentAlignment = Alignment.Center,
         ) {
             CodeDisplay(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .height(if (isPortrait()) 256.dp else 200.dp),
+                modifier = Modifier.wrapContentWidth().height(if (isPortrait()) 256.dp else 200.dp),
                 text = shareText,
                 color = MaterialTheme.colorScheme.primary,
                 backgroundColor = MaterialTheme.colorScheme.onPrimary,
-                cardColor = MaterialTheme.colorScheme.onSurface
+                cardColor = MaterialTheme.colorScheme.onSurface,
             )
         }
 
         HintText(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             maxLines = 1,
-            text = shareText
+            text = shareText,
         )
 
         TextButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
-            text = stringResource(Res.string.share_sheet_copy_text)
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            text = stringResource(Res.string.share_sheet_copy_text),
         ) {
             coroutineScope.launch {
                 setClipboardText(clipboard, shareText)

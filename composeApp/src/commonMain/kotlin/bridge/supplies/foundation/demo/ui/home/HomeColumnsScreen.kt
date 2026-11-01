@@ -25,37 +25,33 @@ import bridge.supplies.foundation.ui.components.rememberIndexedLazyListState
 @Composable
 fun HomeColumnsScreen(
     viewModel: MainViewModel,
-    hapticFeedback: () -> Unit
+    hapticFeedback: () -> Unit,
 ) {
     var isLazy by rememberSaveable { mutableStateOf(false) }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
+
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         SettingsSwitch(
             modifier = Modifier.padding(horizontal = 8.dp),
             title = "Lazy loading",
             subtitle = "Load content cards lazily to save on memory usage",
-            enabled = isLazy
+            enabled = isLazy,
         ) { enabled ->
             isLazy = enabled
             hapticFeedback()
         }
-        
+
         Crossfade(
             modifier = Modifier.weight(1f),
-            targetState = isLazy
+            targetState = isLazy,
         ) { lazy ->
             if (!lazy) {
                 val state = rememberScrollState()
                 val expandedCards = rememberSaveable { mutableStateOf(listOf<Int>()) }
-                
+
                 EdgeFadeColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = state,
-                    endSpacing = 16.dp
+                    endSpacing = 16.dp,
                 ) {
                     repeat(10) { index ->
                         ExpandableTitledCard(
@@ -68,14 +64,14 @@ fun HomeColumnsScreen(
                                 } else {
                                     expandedCards.value = expandedCards.value - index
                                 }
-                            }
+                            },
                         ) { isExpanded ->
-                            Column(
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            ) {
+                            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                                 BodyText(
                                     modifier = Modifier.padding(bottom = 16.dp),
-                                    text = "This item has been loaded statically and remains in memory." + if (isExpanded) "\n\nThis item is expanded." else ""
+                                    text =
+                                        "This item has been loaded statically and remains in memory." +
+                                            if (isExpanded) "\n\nThis item is expanded." else "",
                                 )
                             }
                         }
@@ -84,11 +80,11 @@ fun HomeColumnsScreen(
             } else {
                 val state = rememberIndexedLazyListState()
                 val expandedCards = rememberSaveable { mutableStateOf(listOf<Int>()) }
-                
+
                 EdgeFadeIndexedLazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = state,
-                    endSpacing = 16.dp
+                    endSpacing = 16.dp,
                 ) {
                     repeat(100) { index ->
                         item {
@@ -102,14 +98,15 @@ fun HomeColumnsScreen(
                                     } else {
                                         expandedCards.value = expandedCards.value - index
                                     }
-                                }
+                                },
                             ) { isExpanded ->
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                ) {
+                                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                                     BodyText(
                                         modifier = Modifier.padding(bottom = 16.dp),
-                                        text = "This item has been loaded lazily and will leave memory when off screen." + if (isExpanded) "\n\nThis item is expanded." else ""
+                                        text =
+                                            "This item has been loaded lazily and will leave memory when off screen." +
+                                                if (isExpanded) "\n\nThis item is expanded."
+                                                else "",
                                     )
                                 }
                             }

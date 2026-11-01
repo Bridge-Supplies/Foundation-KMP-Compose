@@ -7,16 +7,17 @@ plugins {
 }
 
 group = "bridge.supplies.foundation"
+
 version = libs.versions.app.versionName.get()
 
 kotlin {
     explicitApi()
-    
+
     android {
         namespace = "bridge.supplies.foundation.core"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
-        
+
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
         }
@@ -24,7 +25,7 @@ kotlin {
     jvm("desktop")
     iosArm64()
     iosSimulatorArm64()
-    
+
     sourceSets {
         commonMain.dependencies {
             api(libs.kotlinx.coroutines.core)
@@ -33,16 +34,16 @@ kotlin {
             api(libs.androidx.datastore)
             api(libs.androidx.datastore.preferences)
             api(libs.koin.core)
-            
+
             implementation(libs.soywiz.korlibs.crypto)
             implementation(libs.soywiz.korlibs.compression)
         }
-        
+
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.browser)
         }
-        
+
         commonTest.dependencies {
             implementation(kotlin("test"))
         }

@@ -1,8 +1,8 @@
 package bridge.supplies.foundation.ui.shell
 
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 @Composable
 public actual fun BackHandler(
     enabled: Boolean,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     // no-op
 }
@@ -28,33 +28,29 @@ internal actual val RAIL_VERTICALLY_CENTERED = false
 internal actual val CENTER_TOP_BAR_TITLE = false
 
 internal actual fun ScreenEnterTransition(): EnterTransition =
-    fadeIn(
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    ) + scaleIn(
-        initialScale = 1f - 1f / TRANSITION_OFFSET_DIV,
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    )
+    fadeIn(animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)) +
+        scaleIn(
+            initialScale = 1f - 1f / TRANSITION_OFFSET_DIV,
+            animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING),
+        )
 
 internal actual fun ScreenExitTransition(): ExitTransition =
-    fadeOut(
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    ) + scaleOut(
-        targetScale = 1f + 1f / TRANSITION_OFFSET_DIV,
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    )
+    fadeOut(animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)) +
+        scaleOut(
+            targetScale = 1f + 1f / TRANSITION_OFFSET_DIV,
+            animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING),
+        )
 
 internal actual fun ScreenPopEnterTransition(): EnterTransition =
-    fadeIn(
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    ) + scaleIn(
-        initialScale = 1f + 1f / TRANSITION_OFFSET_DIV,
-        animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    )
+    fadeIn(animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)) +
+        scaleIn(
+            initialScale = 1f + 1f / TRANSITION_OFFSET_DIV,
+            animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING),
+        )
 
 internal actual fun ScreenPopExitTransition(): ExitTransition =
-    fadeOut(
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    ) + scaleOut(
-        targetScale = 1f - 1f / TRANSITION_OFFSET_DIV,
-        animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    )
+    fadeOut(animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)) +
+        scaleOut(
+            targetScale = 1f - 1f / TRANSITION_OFFSET_DIV,
+            animationSpec = tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING),
+        )

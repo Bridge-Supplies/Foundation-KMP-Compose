@@ -25,8 +25,8 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 /**
- * Foundation's shared state: settings (Foundation's and the app's), platform and config.
- * App state belongs in the app's own ViewModels, which can inject [FoundationSettings] directly.
+ * Foundation's shared state: settings (Foundation's and the app's), platform and config. App state
+ * belongs in the app's own ViewModels, which can inject [FoundationSettings] directly.
  */
 public class FoundationViewModel(
     public val config: FoundationConfig,
@@ -67,10 +67,12 @@ public fun foundationUiModule(): Module = module {
     single { FoundationViewModel(get(), get(), get()) }
 }
 
-@Composable
-public fun foundationViewModel(): FoundationViewModel = koinInject()
+@Composable public fun foundationViewModel(): FoundationViewModel = koinInject()
 
-/** Haptic feedback honoring the user's setting, e.g. `val haptic = rememberHapticFeedback(); onClick = { haptic() }`. */
+/**
+ * Haptic feedback honoring the user's setting, e.g. `val haptic = rememberHapticFeedback(); onClick
+ * = { haptic() }`.
+ */
 @Composable
 public fun rememberHapticFeedback(): () -> Unit {
     val viewModel = foundationViewModel()

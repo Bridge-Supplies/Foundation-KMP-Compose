@@ -12,10 +12,10 @@ class EncryptionTests {
         // Uses this build's key (real keystore key, or the dev fallback)
         val codec = FoundationQrCodec(BuildConfig.ENCRYPTION_KEY)
         val testData = SharedData("test_string")
-        
+
         val encryptedData = codec.encode(testData, SharedData.serializer())
         val decryptedData = codec.decode(encryptedData, SharedData.serializer()).getOrThrow()
-        
+
         assertEquals(testData, decryptedData)
     }
 }

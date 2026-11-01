@@ -17,20 +17,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import qrcode.QRCode
 import bridge.supplies.foundation.ui.util.bitmapFromBytes
+import qrcode.QRCode
 
 public fun generateQrCode(
     text: String,
     colorRgb: Int,
-    backgroundColorRgb: Int
+    backgroundColorRgb: Int,
 ): ImageBitmap {
-    val qrBytes = QRCode.ofSquares()
-        .withColor(colorRgb)
-        .withBackgroundColor(backgroundColorRgb)
-        .build(text)
-        .renderToBytes()
-    
+    val qrBytes =
+        QRCode.ofSquares()
+            .withColor(colorRgb)
+            .withBackgroundColor(backgroundColorRgb)
+            .build(text)
+            .renderToBytes()
+
     return bitmapFromBytes(qrBytes)
 }
 
@@ -40,28 +41,30 @@ public fun CodeDisplay(
     text: String,
     color: Color,
     backgroundColor: Color,
-    cardColor: Color
+    cardColor: Color,
 ) {
-    val qrBytes by rememberSaveable(text, color, backgroundColor) {
-        mutableStateOf(
-            QRCode.ofSquares()
-                .withColor(color.toArgb())
-                .withBackgroundColor(backgroundColor.toArgb())
-                .build(text)
-                .renderToBytes()
-        )
-    }
-    
-    val qrBitmap by remember(qrBytes) {
-        derivedStateOf {
-            bitmapFromBytes(qrBytes)
+    val qrBytes by
+        rememberSaveable(text, color, backgroundColor) {
+            mutableStateOf(
+                QRCode.ofSquares()
+                    .withColor(color.toArgb())
+                    .withBackgroundColor(backgroundColor.toArgb())
+                    .build(text)
+                    .renderToBytes()
+            )
         }
-    }
-    
+
+    val qrBitmap by
+        remember(qrBytes) {
+            derivedStateOf {
+                bitmapFromBytes(qrBytes)
+            }
+        }
+
     QrCodeCard(
         modifier = modifier,
         qrBitmap = qrBitmap,
-        cardColor = cardColor
+        cardColor = cardColor,
     )
 }
 
@@ -69,21 +72,16 @@ public fun CodeDisplay(
 public fun QrCodeCard(
     modifier: Modifier = Modifier,
     qrBitmap: ImageBitmap,
-    cardColor: Color
+    cardColor: Color,
 ) {
     ElevatedCard(
         modifier = modifier,
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = cardColor
-        )
+        colors = CardDefaults.elevatedCardColors(containerColor = cardColor),
     ) {
         Image(
-            modifier = Modifier
-                .aspectRatio(1f)
-                .fillMaxSize()
-                .padding(8.dp),
+            modifier = Modifier.aspectRatio(1f).fillMaxSize().padding(8.dp),
             bitmap = qrBitmap,
-            contentDescription = "QR code"
+            contentDescription = "QR code",
         )
     }
 }

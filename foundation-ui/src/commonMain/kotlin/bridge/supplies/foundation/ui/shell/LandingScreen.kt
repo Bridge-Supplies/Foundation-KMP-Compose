@@ -34,7 +34,6 @@ import bridge.supplies.foundation.ui.resources.landing_tip_theme_colors
 import bridge.supplies.foundation.ui.resources.landing_tip_vibration
 import bridge.supplies.foundation.ui.settings.FoundationSettingKeys
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -44,13 +43,17 @@ private const val LANDING_SCREEN_SHORT_DURATION_MS = 0
 private const val LANDING_SCREEN_LONG_DURATION_MS = 2000
 
 /** Foundation's tips plus the app's, limited to what this device and app support. */
-internal fun FoundationViewModel.landingTips(extraTips: List<StringResource>): List<StringResource> = buildList {
+internal fun FoundationViewModel.landingTips(
+    extraTips: List<StringResource>
+): List<StringResource> = buildList {
     add(Res.string.landing_tip_dark_mode)
     add(Res.string.landing_tip_theme_colors)
-    if (supports(PlatformFeature.FULLSCREEN_LANDSCAPE)) add(Res.string.landing_tip_fullscreen_landscape)
+    if (supports(PlatformFeature.FULLSCREEN_LANDSCAPE))
+        add(Res.string.landing_tip_fullscreen_landscape)
     if (supports(PlatformFeature.DYNAMIC_COLORS)) add(Res.string.landing_tip_dynamic_colors)
     if (supports(PlatformFeature.VIBRATION)) add(Res.string.landing_tip_vibration)
-    if (supports(PlatformFeature.CODE_SCANNING) && config.features.qrSharing) add(Res.string.landing_tip_code_scanning)
+    if (supports(PlatformFeature.CODE_SCANNING) && config.features.qrSharing)
+        add(Res.string.landing_tip_code_scanning)
     addAll(extraTips)
 }
 
@@ -58,61 +61,55 @@ internal fun FoundationViewModel.landingTips(extraTips: List<StringResource>): L
 @Composable
 internal fun DefaultLandingScreen(
     landing: Landing.Default,
-    onLandingCompleted: () -> Unit
+    onLandingCompleted: () -> Unit,
 ) {
     val viewModel = foundationViewModel()
     val tipsSetting by viewModel.setting(FoundationSettingKeys.landingTips).collectAsState()
     val useLandingTips = tipsSetting && viewModel.config.features.landingTips
-    val landingTip = remember(useLandingTips) {
-        if (useLandingTips) viewModel.landingTips(landing.extraTips).random() else null
-    }
-    
-    val landingDurationMs = if (useLandingTips) {
-        LANDING_SCREEN_LONG_DURATION_MS
-    } else {
-        LANDING_SCREEN_SHORT_DURATION_MS
-    }
-    
+    val landingTip =
+        remember(useLandingTips) {
+            if (useLandingTips) viewModel.landingTips(landing.extraTips).random() else null
+        }
+
+    val landingDurationMs =
+        if (useLandingTips) {
+            LANDING_SCREEN_LONG_DURATION_MS
+        } else {
+            LANDING_SCREEN_SHORT_DURATION_MS
+        }
+
     CircularReveal(
         startDelayMs = 100,
         revealDurationMs = LANDING_SCREEN_REVEAL_DURATION_MS,
         onCompleted = {
             delay(landingDurationMs.toLong())
             onLandingCompleted()
-        }
+        },
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         ) {
             Image(
                 painter = painterResource(landing.icon),
                 contentDescription = viewModel.config.appName,
                 colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface),
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .width(200.dp)
-                    .wrapContentHeight()
-                    .padding(16.dp)
+                modifier = Modifier.width(200.dp).wrapContentHeight().padding(16.dp),
             )
-            
+
             TitleText(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 text = viewModel.config.appName,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
-            
+
             if (landingTip != null) {
                 BodyText(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .padding(top = 8.dp),
+                    modifier = Modifier.padding(horizontal = 24.dp).padding(top = 8.dp),
                     text = stringResource(landingTip),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }

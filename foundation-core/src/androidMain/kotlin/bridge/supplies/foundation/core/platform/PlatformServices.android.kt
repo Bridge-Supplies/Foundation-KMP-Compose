@@ -17,9 +17,10 @@ public actual fun openUrl(url: String, inApp: Boolean): Boolean {
             customTab.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             customTab.launchUrl(context, url.toUri())
         } else {
-            val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             context.startActivity(intent, null)
         }
         true
@@ -29,9 +30,10 @@ public actual fun openUrl(url: String, inApp: Boolean): Boolean {
 }
 
 public actual fun openAppSettings() {
-    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        data = Uri.fromParts("package", FoundationAndroid.appContext.packageName, null)
-    }
+    val intent =
+        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            data = Uri.fromParts("package", FoundationAndroid.appContext.packageName, null)
+        }
     FoundationAndroid.appContext.startActivity(intent, null)
 }

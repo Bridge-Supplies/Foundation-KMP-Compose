@@ -8,7 +8,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-// keystore.properties is optional: without it there's no release signing config (see README > Publishing).
+// keystore.properties is optional: without it there's no release signing config (see README >
+// Publishing).
 fun getKeystoreProperties(): Properties? {
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     if (!keystorePropertiesFile.exists()) return null
@@ -40,7 +41,7 @@ android {
 
     buildTypes {
         getByName("release") {
-//            signingConfig = signingConfigs.getByName("release")
+            //            signingConfig = signingConfigs.getByName("release")
 
             resValue("string", "app_name", libs.versions.app.name.get())
 
@@ -49,7 +50,7 @@ android {
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
 

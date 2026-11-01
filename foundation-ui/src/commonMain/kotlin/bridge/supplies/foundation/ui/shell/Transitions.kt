@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 @Composable
 public expect fun BackHandler(
     enabled: Boolean = true,
-    onBack: () -> Unit = { }
+    onBack: () -> Unit = {},
 )
 
 internal expect val TRANSITION_ENTER_MS: Int
@@ -27,21 +27,26 @@ internal expect val CENTER_TOP_BAR_TITLE: Boolean
 
 internal fun TopLevelEnterTransition(): EnterTransition =
     fadeIn(
-        animationSpec = tween(
-            durationMillis = TRANSITION_ENTER_MS,
-            easing = TRANSITION_EASING
-        )
+        animationSpec =
+            tween(
+                durationMillis = TRANSITION_ENTER_MS,
+                easing = TRANSITION_EASING,
+            )
     )
 
 internal fun TopLevelExitTransition(): ExitTransition =
     fadeOut(
-        animationSpec = tween(
-            durationMillis = TRANSITION_EXIT_MS,
-            easing = TRANSITION_EASING
-        )
+        animationSpec =
+            tween(
+                durationMillis = TRANSITION_EXIT_MS,
+                easing = TRANSITION_EASING,
+            )
     )
 
 internal expect fun ScreenEnterTransition(): EnterTransition
+
 internal expect fun ScreenExitTransition(): ExitTransition
+
 internal expect fun ScreenPopEnterTransition(): EnterTransition
+
 internal expect fun ScreenPopExitTransition(): ExitTransition

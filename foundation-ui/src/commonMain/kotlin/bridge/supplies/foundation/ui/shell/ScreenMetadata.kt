@@ -25,8 +25,8 @@ private const val KEY_TITLE_TEXT = "bridge.supplies.foundation.titleText"
 private const val KEY_CHROME = "bridge.supplies.foundation.chrome"
 
 /**
- * Metadata for an entry, e.g. `entry<DetailRoute>(metadata = screenMetadata(title = Res.string.detail)) { … }`.
- * Without a title, the top bar shows the tab's title.
+ * Metadata for an entry, e.g. `entry<DetailRoute>(metadata = screenMetadata(title =
+ * Res.string.detail)) { … }`. Without a title, the top bar shows the tab's title.
  */
 public fun screenMetadata(
     title: StringResource? = null,
@@ -38,10 +38,12 @@ public fun screenMetadata(
     put(KEY_CHROME, chrome)
 }
 
-internal val Map<String, Any>.screenTitle: StringResource? get() = get(KEY_TITLE) as? StringResource
-internal val Map<String, Any>.screenTitleText: String? get() = get(KEY_TITLE_TEXT) as? String
-internal val Map<String, Any>.screenChrome: Chrome get() = get(KEY_CHROME) as? Chrome ?: Chrome.Standard
-
+internal val Map<String, Any>.screenTitle: StringResource?
+    get() = get(KEY_TITLE) as? StringResource
+internal val Map<String, Any>.screenTitleText: String?
+    get() = get(KEY_TITLE_TEXT) as? String
+internal val Map<String, Any>.screenChrome: Chrome
+    get() = get(KEY_CHROME) as? Chrome ?: Chrome.Standard
 
 // Top bar actions
 
@@ -70,5 +72,6 @@ internal class TopBarActionHost {
 internal val LocalTopBarActionHost = staticCompositionLocalOf { TopBarActionHost() }
 
 /** The route of the entry being composed. */
-public val LocalRoute: ProvidableCompositionLocal<NavKey> =
-    compositionLocalOf { error("LocalRoute is only available inside a FoundationApp entry") }
+public val LocalRoute: ProvidableCompositionLocal<NavKey> = compositionLocalOf {
+    error("LocalRoute is only available inside a FoundationApp entry")
+}

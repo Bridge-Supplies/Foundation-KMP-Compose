@@ -13,12 +13,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.ui.qr.ShareQrCode
 import bridge.supplies.foundation.ui.theme.FoundationTheme
-import kotlinx.serialization.builtins.serializer
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.serialization.builtins.serializer
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 
 @OptIn(ExperimentalTestApi::class)
 class ShareQrCodeUiTests {
@@ -50,7 +50,7 @@ class ShareQrCodeUiTests {
                         ShareQrCode(
                             value = "https://bridge.supplies/test-qr-code-share",
                             serializer = String.serializer(),
-                            encrypt = false
+                            encrypt = false,
                         )
                     }
                 }
@@ -60,9 +60,10 @@ class ShareQrCodeUiTests {
         // Wait for debounce and generation
         waitUntil(timeoutMillis = 5000) {
             runCatching {
-                onNodeWithContentDescription("QR code").assertIsDisplayed()
-                true
-            }.getOrDefault(false)
+                    onNodeWithContentDescription("QR code").assertIsDisplayed()
+                    true
+                }
+                .getOrDefault(false)
         }
 
         onNodeWithContentDescription("QR code").assertIsDisplayed()

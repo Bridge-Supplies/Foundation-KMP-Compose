@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verification entry point. Usage: scripts/verify.sh quick|ui|e2e
-#   quick: compile Android debug (+ desktop if present) + JVM/common unit tests,
+#   quick: formatting check, compile Android debug (+ desktop if present) + JVM/common unit tests,
 #          plus iosSimulatorArm64Test when iOS-related files changed.
 #   ui: quick + UI tests + the composite-build consumer test.
 #   e2e: ui + Maestro smoke on Android and iOS + over-install from a baseline APK (flows in .maestro/).
@@ -243,6 +243,9 @@ run_maestro_step() {
 }
 
 RUN_START="$(date +%s)"
+
+# Formatting first: it's the quickest check (./gradlew spotlessApply fixes it)
+run_gradle_step "format" "spotlessCheck"
 
 run_gradle_step "android-debug" "$ANDROID_TASK"
 if [ "$OVERALL" -eq 0 ]; then
