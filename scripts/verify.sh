@@ -2,7 +2,8 @@
 # Verification entry point. Usage: scripts/verify.sh quick|ui|e2e
 #   quick: compile Android debug (+ desktop if present) + JVM/common unit tests,
 #          plus iosSimulatorArm64Test when iOS-related files changed.
-#   ui/e2e: not wired yet.
+#   ui: quick + UI tests + the composite-build consumer test.
+#   e2e: ui + Maestro smoke on Android and iOS + over-install from a baseline APK (flows in .maestro/).
 # Env: VERIFY_BASE = git base for the iOS-change check (default main, the last release).
 # Compatible with macOS bash 3.2.
 
@@ -134,7 +135,11 @@ if has_module composeApp && module_has_desktop_target composeApp; then
     TEST_TASK="desktopTest" # every module with a desktop target
 fi
 if [ -z "$TEST_TASK" ]; then
-    TEST_TASK="$ANDROID_UNIT_TEST"
+    if has_module androidApp && has_module composeApp; then
+        TEST_TASK=":composeApp:testAndroidHostTest" # mobile-only app: androidApp has no tests of its own
+    else
+        TEST_TASK="$ANDROID_UNIT_TEST"
+    fi
 fi
 
 # --- iOS change detection ----------------------------------------------------
@@ -142,8 +147,8 @@ fi
 BASE="${VERIFY_BASE:-main}"
 IOS_CHANGED=0
 CHANGED="$( { git diff --name-only "$BASE"...HEAD 2>/dev/null; git diff --name-only HEAD 2>/dev/null; } | sort -u)"
-# iOS sources and Gradle build config (the memory caps in gradle.properties don't count).
-if echo "$CHANGED" | grep -Eq '(^|/)iosMain/|^iosApp/|\.gradle(\.kts)?$|libs\.versions\.toml$|gradle-wrapper\.properties$'; then
+# iOS sources, shared code, the Foundation submodule and Gradle build config (the memory caps in gradle.properties don't count).
+if echo "$CHANGED" | grep -Eq '(^|/)(iosMain|iosTest|commonMain|commonTest)/|^iosApp/|^foundation$|\.gradle(\.kts)?$|libs\.versions\.toml$|gradle-wrapper\.properties$'; then
     IOS_CHANGED=1
 fi
 
@@ -339,45 +344,60 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
         fi
     fi
 
+    # A step that can't run is a failure: this tier must never pass without having tested the app.
+    e2e_fail() { # name reason
+        echo "Error: $1: $2" | tee -a "$LOG" >&2
+        record "$1" FAIL 0
+        OVERALL=1
+        FAILED_STEP="$1"
+    }
+
     # Run Android Maestro smoke flow
-    if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
-        "$ADB" install -r "$DEMO_APK" >> "$LOG" 2>&1
-        "$ADB" shell am force-stop "$E2E_ANDROID_APP_ID" >> "$LOG" 2>&1 || true
-        run_maestro_step "e2e-smoke-android" "$MAESTRO" --platform android test -e APP_ID="$E2E_ANDROID_APP_ID" "$REPO/.maestro/smoke.yaml"
+    if [ "$OVERALL" -eq 0 ]; then
+        if [ -z "$DEMO_APK" ] || [ ! -f "$DEMO_APK" ]; then
+            e2e_fail "e2e-smoke-android" "no debug APK to install"
+        elif ! "$ADB" install -r "$DEMO_APK" >> "$LOG" 2>&1; then
+            e2e_fail "e2e-smoke-android" "could not install $DEMO_APK"
+        else
+            "$ADB" shell am force-stop "$E2E_ANDROID_APP_ID" >> "$LOG" 2>&1 || true
+            run_maestro_step "e2e-smoke-android" "$MAESTRO" --platform android test -e APP_ID="$E2E_ANDROID_APP_ID" "$REPO/.maestro/smoke.yaml"
+        fi
     fi
 
     # Run iOS Maestro smoke flow if simulator runtime exists
     if [ "$OVERALL" -eq 0 ]; then
         if xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
             IOS_APP_PATH="$REPO/build/ios-derived/Build/Products/Debug-iphonesimulator/$E2E_IOS_APP_NAME"
-            if [ -f "$REPO/iosApp/iosApp.xcodeproj/project.pbxproj" ]; then
-                # Always rebuild (incremental) so the flow never runs against a stale app.
-                # Simulator builds are arm64-only: the KMP framework has no x86_64 simulator slice.
-                echo ">> Building iOS app for simulator..."
-                xcodebuild -project "$REPO/iosApp/iosApp.xcodeproj" -scheme iOS \
-                    -destination "generic/platform=iOS Simulator" \
-                    -derivedDataPath "$REPO/build/ios-derived" \
-                    ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build >> "$LOG" 2>&1
-            fi
-            if [ -d "$IOS_APP_PATH" ]; then
+            # Always rebuild (incremental) so the flow never runs against a stale app.
+            # Simulator builds are arm64-only: the KMP framework has no x86_64 simulator slice.
+            echo ">> Building iOS app for simulator..."
+            if ! xcodebuild -project "$REPO/iosApp/iosApp.xcodeproj" -scheme iOS \
+                -destination "generic/platform=iOS Simulator" \
+                -derivedDataPath "$REPO/build/ios-derived" \
+                ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build >> "$LOG" 2>&1; then
+                e2e_fail "e2e-smoke-ios" "the iOS build failed"
+            elif [ ! -d "$IOS_APP_PATH" ]; then
+                e2e_fail "e2e-smoke-ios" "built app not found at $IOS_APP_PATH"
+            else
                 BOOTED_SIM="$(xcrun simctl list devices 2>/dev/null | grep -E "iPhone.*\(Booted\)" | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/' | head -n 1)"
                 if [ -z "$BOOTED_SIM" ]; then
-                    BOOTED_SIM="CCE1DBF4-83D7-4A2E-A689-52F4D6419A8E"
+                    BOOTED_SIM="$(xcrun simctl list devices available 2>/dev/null | grep -E "iPhone" | head -n 1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')"
                     xcrun simctl boot "$BOOTED_SIM" 2>/dev/null || true
                 fi
-                xcrun simctl install "$BOOTED_SIM" "$IOS_APP_PATH" >> "$LOG" 2>&1
-                xcrun simctl terminate "$BOOTED_SIM" "$E2E_IOS_APP_ID" >> "$LOG" 2>&1 || true
-                run_maestro_step "e2e-smoke-ios" "$MAESTRO" --platform ios test -e APP_ID="$E2E_IOS_APP_ID" "$REPO/.maestro/smoke.yaml"
-            else
-                skip_step "e2e-smoke-ios" "iOS app build not available"
+                if ! xcrun simctl install "$BOOTED_SIM" "$IOS_APP_PATH" >> "$LOG" 2>&1; then
+                    e2e_fail "e2e-smoke-ios" "could not install the app on simulator $BOOTED_SIM"
+                else
+                    xcrun simctl terminate "$BOOTED_SIM" "$E2E_IOS_APP_ID" >> "$LOG" 2>&1 || true
+                    run_maestro_step "e2e-smoke-ios" "$MAESTRO" --platform ios test -e APP_ID="$E2E_IOS_APP_ID" "$REPO/.maestro/smoke.yaml"
+                fi
             fi
         else
             skip_step "e2e-smoke-ios" "no iOS simulator runtime"
         fi
     fi
 
-    # Run over-install harness if baseline exists
-    if [ "$OVERALL" -eq 0 ] && [ -n "$DEMO_APK" ] && [ -f "$DEMO_APK" ]; then
+    # Run over-install harness if baseline exists (baselines aren't committed, so a fresh clone skips this)
+    if [ "$OVERALL" -eq 0 ]; then
         BASELINES_DIR=""
         for b in ${E2E_BASELINES_DIR:+"$E2E_BASELINES_DIR"} "$REPO/baselines/$E2E_BASELINE_NAME" "$REPO/../baselines/$E2E_BASELINE_NAME" "$REPO/../../baselines/$E2E_BASELINE_NAME"; do
             if [ -d "$b" ]; then
