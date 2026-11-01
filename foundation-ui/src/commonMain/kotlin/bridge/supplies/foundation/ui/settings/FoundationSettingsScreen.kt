@@ -231,6 +231,17 @@ private fun SystemSettings(
 ) {
     val viewModel = foundationViewModel()
     val features = viewModel.config.features
+    val showExpressiveAnimation =
+        builtIns.expressiveAnimation && LocalExpressiveAnimation.current == ExpressiveAnimation.USER_CHOICE
+
+    // Nothing to show on this platform with this app's options: no empty card
+    val hasSettings = (builtIns.encryptedSharing && features.qrSharing) ||
+        (builtIns.landingTips && features.landingTips) ||
+        showExpressiveAnimation ||
+        (builtIns.fullscreenLandscape && viewModel.supports(PlatformFeature.FULLSCREEN_LANDSCAPE)) ||
+        (builtIns.vibration && viewModel.supports(PlatformFeature.VIBRATION)) ||
+        builtIns.scrollHelpers
+    if (!hasSettings) return
 
     TitledCard(
         modifier = modifier
@@ -255,7 +266,7 @@ private fun SystemSettings(
         }
 
         // Only when the theme leaves the choice to the user (ThemeConfig.expressiveAnimation = USER_CHOICE)
-        if (builtIns.expressiveAnimation && LocalExpressiveAnimation.current == ExpressiveAnimation.USER_CHOICE) {
+        if (showExpressiveAnimation) {
             SettingSwitch(
                 key = FoundationSettingKeys.expressiveAnimation,
                 title = Res.string.app_settings_expressive_animation_title,

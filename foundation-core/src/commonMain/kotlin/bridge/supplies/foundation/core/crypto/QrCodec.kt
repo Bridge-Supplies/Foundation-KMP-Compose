@@ -2,6 +2,7 @@ package bridge.supplies.foundation.core.crypto
 
 import korlibs.crypto.AES
 import korlibs.crypto.Padding
+import korlibs.crypto.SHA256
 import korlibs.crypto.SecureRandom
 import korlibs.io.compression.compress
 import korlibs.io.compression.deflate.GZIP
@@ -38,7 +39,9 @@ public interface QrCodec {
  * `gzip(json)` or, when encrypted, `IV(16 random bytes) + AES-CBC/PKCS7(gzip(json))`.
  *
  * **Bytes** (written by [encodeBytes]): `"BS2B"` + `E` or `P` + Base45(payload), where payload is the bytes or, when
- * encrypted, `IV(16 random bytes) + AES-CBC/PKCS7(bytes)`.
+ * encrypted, `IV(16 random bytes) + AES-CBC/PKCS7(check + bytes)`. `check` is the first 4 bytes of SHA-256(bytes):
+ * padding alone lets about 1 in 255 wrong-key payloads through, and raw bytes have no gzip or JSON layer to catch
+ * them. It detects a wrong key or damaged text; it isn't a signature and doesn't prove who made the payload.
  *
  * **v1** (read only, Foundation 1.x apps): hex(AES-CBC(gzip(json))) with the key as the IV, or plain JSON.
  *
@@ -65,7 +68,7 @@ public class FoundationQrCodec(
     }
     
     override fun encodeBytes(bytes: ByteArray, encrypt: Boolean): String {
-        val payload = if (encrypt) encrypt(bytes) else bytes
+        val payload = if (encrypt) encrypt(bytesCheck(bytes) + bytes) else bytes
         return BYTES_PREFIX + (if (encrypt) ENCRYPTED else PLAIN) + Base45.encode(payload)
     }
     
@@ -73,19 +76,27 @@ public class FoundationQrCodec(
         require(text.length > BYTES_PREFIX.length && text.startsWith(BYTES_PREFIX)) { "Not a bytes payload" }
         val payload = Base45.decode(text.substring(BYTES_PREFIX.length + 1))
         when (val mode = text[BYTES_PREFIX.length]) {
-            ENCRYPTED -> decrypt(payload)
+            ENCRYPTED -> {
+                val checked = decrypt(payload)
+                require(checked.size >= CHECK_SIZE) { "Payload too short" }
+                val bytes = checked.copyOfRange(CHECK_SIZE, checked.size)
+                require(bytesCheck(bytes).contentEquals(checked.copyOfRange(0, CHECK_SIZE))) { "Wrong key or damaged payload" }
+                bytes
+            }
             PLAIN -> payload
             else -> error("Unknown bytes mode '$mode'")
         }
     }
-    
+
+    private fun bytesCheck(bytes: ByteArray): ByteArray = SHA256.digest(bytes).bytes.copyOf(CHECK_SIZE)
+
     private fun encrypt(bytes: ByteArray): ByteArray {
         val iv = SecureRandom.nextBytes(IV_SIZE)
         return iv + AES.encryptAesCbc(bytes, key.toByteArray(), iv, Padding.PKCS7Padding)
     }
     
     private fun decrypt(payload: ByteArray): ByteArray {
-        require(payload.size > IV_SIZE) { "Payload too short" }
+        require(payload.size > IV_SIZE && (payload.size - IV_SIZE) % AES_BLOCK_SIZE == 0) { "Damaged payload" }
         val iv = payload.copyOfRange(0, IV_SIZE)
         return AES.decryptAesCbc(payload.copyOfRange(IV_SIZE, payload.size), key.toByteArray(), iv, Padding.PKCS7Padding)
     }
@@ -107,5 +118,7 @@ public class FoundationQrCodec(
         const val ENCRYPTED = 'E'
         const val PLAIN = 'P'
         const val IV_SIZE = 16
+        const val AES_BLOCK_SIZE = 16
+        const val CHECK_SIZE = 4
     }
 }

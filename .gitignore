@@ -35,6 +35,7 @@ google-services.json
 .DS_Store
 
 *.xcuserstate
+xcuserdata/
 keystore.properties
 *.preferences_pb
 /.kotlin

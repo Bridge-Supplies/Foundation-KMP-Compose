@@ -2,6 +2,8 @@ package bridge.supplies.foundation.core.storage
 
 import bridge.supplies.foundation.core.config.FoundationConfig
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 /**
  * Desktop settings live in the per-user app data folder (macOS: ~/Library/Application Support/<packageName>,
@@ -14,7 +16,10 @@ internal actual fun settingsFilePath(config: FoundationConfig): String {
     val file = File(directory, config.storage.fileName)
     val legacyFile = File(config.storage.fileName)
     if (!file.exists() && legacyFile.isFile) {
-        legacyFile.copyTo(file)
+        // Copied under a temporary name first: a partial copy must never look like the settings file
+        val partial = File(directory, "${config.storage.fileName}.tmp")
+        legacyFile.copyTo(partial, overwrite = true)
+        Files.move(partial.toPath(), file.toPath(), StandardCopyOption.ATOMIC_MOVE)
     }
     return file.absolutePath
 }

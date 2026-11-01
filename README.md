@@ -106,7 +106,7 @@ From your app repository's root directory:
 
 ```bash
 git submodule add https://github.com/Bridge-Supplies/Foundation-KMP-Compose.git foundation
-cd foundation && git checkout v2.0.0 && cd ..   # pin a release tag
+cd foundation && git checkout v2.1.0 && cd ..   # pin a release tag
 git add .gitmodules foundation
 ```
 
