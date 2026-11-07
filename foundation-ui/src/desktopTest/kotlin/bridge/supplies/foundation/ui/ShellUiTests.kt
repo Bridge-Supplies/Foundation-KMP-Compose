@@ -315,7 +315,7 @@ class ShellUiTests {
     }
 
     @Test
-    fun screensArePaddedForTheirOwnBars() = runComposeUiTest {
+    fun screensClearTheBarsTheyShow() = runComposeUiTest {
         var navigator: Navigator? = null
         setContent { TestAppShell { navigator = it } }
 
