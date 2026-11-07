@@ -4,6 +4,9 @@ All notable changes to Foundation are documented in this file.
 
 ## 2.2.0
 
+### Changed
+- **iOS bundle ID:** the template's bundle ID is `BUNDLE_ID` as is. It used to add `TEAM_ID` to the end, so setting a team for device builds silently changed the app's identity. `TEAM_ID` now only picks the signing team, and goes in a git-ignored `iosApp/Configuration/Local.xcconfig`. The demo's bundle ID matches its Android `applicationId` (`bridge.supplies.foundation`), and the project no longer has a team hard-coded. Apps built from the template should copy the same three changes (`Config.xcconfig`, the two `PRODUCT_BUNDLE_IDENTIFIER` lines and `DEVELOPMENT_TEAM`).
+
 ### Added
 - **Top bar only:** `Chrome.TopBarOnly` shows the top bar without the bottom bar or rail, for a focused task such as an editor. Moving between it and a standard screen keeps the top bar in place, so only the bottom bar or rail animates. Apps with an exhaustive `when` over `Chrome` need a branch for it.
 - **Close button:** `screenMetadata(backButton = BackButton.Close)` shows a close button in place of the back arrow.
