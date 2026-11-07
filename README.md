@@ -1,6 +1,6 @@
 # Foundation (KMP-Compose Library & Template)
 ## Presented by [Bridge Supplies](https://bridge.supplies)
-### Latest version: 2.1.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
+### Latest version: 2.2.0 ([Releases](https://github.com/Bridge-Supplies/Foundation-KMP-Compose/releases))
 
 Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) and [Compose Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-getting-started.html) library and starter template targeting Android, iOS, and Desktop JVM (macOS, Windows, Linux). It provides a shared app shell, theming, persistence, offline QR sharing, and common UI components so apps can focus on their own features without duplicating infrastructure.
 
@@ -79,7 +79,7 @@ Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/he
   - `di/` — `foundationCoreModule(config)`
 * `/foundation-ui` (`bridge.supplies.foundation.ui`) — Compose Multiplatform UI library (depends on `foundation-core` as `api`):
   - `FoundationViewModel`, `foundationUiModule()`, `foundationViewModel()`, `rememberHapticFeedback()`, `isPortrait()`
-  - `shell/` — `FoundationApp`, `FoundationTab`, `RouteRegistry`, `Navigator`, `LocalNavigator`, `screenMetadata()`, `Chrome`, `TopBarAction`, `TopBarActions`, `Landing`, `ShellOptions`, platform transitions
+  - `shell/` — `FoundationApp`, `FoundationTab`, `RouteRegistry`, `Navigator`, `LocalNavigator`, `screenMetadata()`, `Chrome`, `BackButton`, `TopBarAction`, `TopBarActions`, `ScreenBackHandler`, `Landing`, `ShellOptions`, platform transitions
   - `theme/` — `FoundationTheme`, `ThemeConfig`, `ColorTheme`, `Palette`, `DarkMode`
   - `settings/` — `FoundationSettingsScreen`, `BuiltInSettings`, `FoundationSettingKeys`, `SettingSwitch`, `SettingChoice`, `SettingsScope` DSL
   - `sheets/` — `SheetHost`, `SheetContent`, `SheetScope`, `sheetController()`, `DateSheet`, `ShareAppSheet`, `SheetColumn`, `CloseButton`
@@ -106,7 +106,7 @@ From your app repository's root directory:
 
 ```bash
 git submodule add https://github.com/Bridge-Supplies/Foundation-KMP-Compose.git foundation
-cd foundation && git checkout v2.1.0 && cd ..   # pin a release tag
+cd foundation && git checkout v2.2.0 && cd ..   # pin a release tag
 git add .gitmodules foundation
 ```
 
@@ -358,6 +358,9 @@ fun App(
 
         // Example of an immersive screen without top bar, bottom bar, or rail:
         // entry<BattleRoute>(metadata = screenMetadata(chrome = Chrome.Immersive(hideSystemBars = true))) { ... }
+
+        // Example of a focused task: the top bar with a close button, no bottom bar or rail:
+        // entry<EditorRoute>(metadata = screenMetadata(chrome = Chrome.TopBarOnly, backButton = BackButton.Close)) { ... }
     }
 }
 ```
@@ -390,6 +393,16 @@ TopBarActions(
         }
     )
 )
+```
+
+Each screen is padded for the bars its own chrome shows, and the bars slide over the screens, so a screen keeps its place while the next one shows other bars.
+
+A screen with unsaved work can keep back for itself with `ScreenBackHandler`. It covers the top bar's back or close button and the system back:
+
+```kotlin
+var askDiscard by rememberSaveable { mutableStateOf(false) }
+ScreenBackHandler(enabled = hasUnsavedChanges) { askDiscard = true }
+// The dialog's Discard button calls navigator.back(), which leaves without asking again
 ```
 
 ### 4. Settings storage and `FoundationSettingsScreen`
@@ -578,8 +591,8 @@ Each release is a tag `vX.Y.Z` on `main`. `main` gets one squashed commit per ve
 
 1. Bump the submodule to the target release tag:
    ```bash
-   cd foundation && git fetch --tags && git checkout v2.1.0 && cd ..
-   git add foundation && git commit -m "Bump Foundation to v2.1.0"
+   cd foundation && git fetch --tags && git checkout v2.2.0 && cd ..
+   git add foundation && git commit -m "Bump Foundation to v2.2.0"
    ```
 2. Read [`CHANGELOG.md`](CHANGELOG.md) for any breaking changes or migration steps.
 3. Run your app's verification script (`scripts/verify.sh quick`) and test on your target platforms.

@@ -22,6 +22,7 @@
     <string name="screen_home_columns_title">Columns</string>
     <string name="screen_home_rows_title">Rows</string>
     <string name="screen_home_grids_title">Grids</string>
+    <string name="screen_home_editor_title">Editor</string>
     <string name="screen_generate_code_title">Share Code</string>
     <string name="screen_scan_code_title">Scanner</string>
     <string name="screen_options_title">Options</string>
@@ -46,6 +47,12 @@
     <string name="navigation_home_rows">Rows, Scroll Helpers</string>
     <string name="navigation_home_lazy_toggle">Lazy loading</string>
     <string name="navigation_home_grids">Grids, Staggered</string>
+    <string name="navigation_home_editor">Editor, Unsaved Changes</string>
+    <string name="editor_hint">Text to share</string>
+    <string name="editor_save">Save</string>
+    <string name="editor_discard">Discard</string>
+    <string name="editor_discard_text">Discard your changes?</string>
+    <string name="editor_keep_editing">Keep editing</string>
     <string name="app_settings_scroll_helpers_title">Use scroll helpers</string>
     <string name="app_settings_scroll_helpers_subtitle">Enable buttons to scroll horizontal content</string>
     <string name="navigation_home_staggered_toggle">Staggered grid</string>

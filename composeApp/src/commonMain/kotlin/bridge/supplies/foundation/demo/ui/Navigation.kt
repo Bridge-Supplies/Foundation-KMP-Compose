@@ -14,6 +14,7 @@ import bridge.supplies.foundation.demo.data.MainViewModel
 import bridge.supplies.foundation.demo.data.SharedData
 import bridge.supplies.foundation.demo.ui.home.HomeColumnsScreen
 import bridge.supplies.foundation.demo.ui.home.HomeDateScreen
+import bridge.supplies.foundation.demo.ui.home.HomeEditorScreen
 import bridge.supplies.foundation.demo.ui.home.HomeGridsScreen
 import bridge.supplies.foundation.demo.ui.home.HomeInfoScreen
 import bridge.supplies.foundation.demo.ui.home.HomeRowsScreen
@@ -22,6 +23,8 @@ import bridge.supplies.foundation.ui.about.AboutConfig
 import bridge.supplies.foundation.ui.about.FoundationAboutScreen
 import bridge.supplies.foundation.ui.qr.ScanQrScreen
 import bridge.supplies.foundation.ui.settings.FoundationSettingsScreen
+import bridge.supplies.foundation.ui.shell.BackButton
+import bridge.supplies.foundation.ui.shell.Chrome
 import bridge.supplies.foundation.ui.shell.FoundationTab
 import bridge.supplies.foundation.ui.shell.LocalNavigator
 import bridge.supplies.foundation.ui.shell.RouteRegistry
@@ -30,6 +33,7 @@ import foundation.composeapp.generated.resources.Res
 import foundation.composeapp.generated.resources.screen_about_title
 import foundation.composeapp.generated.resources.screen_home_columns_title
 import foundation.composeapp.generated.resources.screen_home_date_title
+import foundation.composeapp.generated.resources.screen_home_editor_title
 import foundation.composeapp.generated.resources.screen_home_grids_title
 import foundation.composeapp.generated.resources.screen_home_rows_title
 import foundation.composeapp.generated.resources.screen_scan_code_title
@@ -50,6 +54,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object HomeGrids : NavKey
 
+@Serializable data object HomeEditor : NavKey
+
 @Serializable data object ShareGenerate : NavKey
 
 @Serializable data object ShareScan : NavKey
@@ -64,6 +70,7 @@ val appRoutes = RouteRegistry {
     subclass(HomeColumns::class, HomeColumns.serializer())
     subclass(HomeRows::class, HomeRows.serializer())
     subclass(HomeGrids::class, HomeGrids.serializer())
+    subclass(HomeEditor::class, HomeEditor.serializer())
     subclass(ShareGenerate::class, ShareGenerate.serializer())
     subclass(ShareScan::class, ShareScan.serializer())
     subclass(SettingsOptions::class, SettingsOptions.serializer())
@@ -113,6 +120,7 @@ fun EntryProviderScope<NavKey>.appEntries(
             onNavigateColumnsScreen = { navigator.navigate(HomeColumns) },
             onNavigateRowsScreen = { navigator.navigate(HomeRows) },
             onNavigateGridsScreen = { navigator.navigate(HomeGrids) },
+            onNavigateEditorScreen = { navigator.navigate(HomeEditor) },
         )
     }
 
@@ -143,6 +151,17 @@ fun EntryProviderScope<NavKey>.appEntries(
             viewModel = viewModel,
             hapticFeedback = hapticFeedback,
         )
+    }
+
+    entry<HomeEditor>(
+        metadata =
+            screenMetadata(
+                title = Res.string.screen_home_editor_title,
+                chrome = Chrome.TopBarOnly,
+                backButton = BackButton.Close,
+            )
+    ) {
+        HomeEditorScreen(viewModel = viewModel, hapticFeedback = hapticFeedback)
     }
 
     // SHARE
