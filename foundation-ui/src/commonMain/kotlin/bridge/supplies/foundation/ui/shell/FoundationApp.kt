@@ -31,6 +31,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -245,6 +246,8 @@ private fun FoundationShell(
         LocalSnackbarHostState provides snackbarHost,
         LocalTopBarActionHost provides actionHost,
         LocalScreenBackHost provides backHost,
+        // Text and icons without their own color follow the theme, as on a Surface
+        LocalContentColor provides MaterialTheme.colorScheme.onBackground,
     ) {
         Box(
             modifier =
