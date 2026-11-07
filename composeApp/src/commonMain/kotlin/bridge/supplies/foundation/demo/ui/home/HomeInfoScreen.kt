@@ -31,6 +31,7 @@ import foundation.composeapp.generated.resources.app_name
 import foundation.composeapp.generated.resources.ic_launcher_foreground
 import foundation.composeapp.generated.resources.navigation_home_columns
 import foundation.composeapp.generated.resources.navigation_home_date
+import foundation.composeapp.generated.resources.navigation_home_editor
 import foundation.composeapp.generated.resources.navigation_home_grids
 import foundation.composeapp.generated.resources.navigation_home_rows
 import org.jetbrains.compose.resources.painterResource
@@ -44,6 +45,7 @@ fun HomeInfoScreen(
     onNavigateColumnsScreen: () -> Unit,
     onNavigateRowsScreen: () -> Unit,
     onNavigateGridsScreen: () -> Unit,
+    onNavigateEditorScreen: () -> Unit,
 ) {
     val sheets = sheetController()
     val isPortraitMode = isPortrait()
@@ -112,6 +114,14 @@ fun HomeInfoScreen(
             text = stringResource(Res.string.navigation_home_grids),
         ) {
             onNavigateGridsScreen()
+            hapticFeedback()
+        }
+
+        FloatingButton(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            text = stringResource(Res.string.navigation_home_editor),
+        ) {
+            onNavigateEditorScreen()
             hapticFeedback()
         }
     }
