@@ -5,13 +5,10 @@ All notable changes to Foundation are documented in this file.
 ## 2.2.0
 
 ### Added
-- **Top bar only:** `Chrome.TopBarOnly` shows the top bar without the bottom bar or rail, for a focused task such as an editor. Apps with an exhaustive `when` over `Chrome` need a branch for it.
+- **Top bar only:** `Chrome.TopBarOnly` shows the top bar without the bottom bar or rail, for a focused task such as an editor. Moving between it and a standard screen keeps the top bar in place, so only the bottom bar or rail animates. Apps with an exhaustive `when` over `Chrome` need a branch for it.
 - **Close button:** `screenMetadata(backButton = BackButton.Close)` shows a close button in place of the back arrow.
 - **Screen back handling:** `ScreenBackHandler(enabled) { … }` lets a screen keep back while it has unsaved changes, e.g. to ask before discarding them. It covers the top bar's back or close button and the system back.
 - **Demo editor:** the demo app's Home tab opens an editor that uses all three.
-
-### Changed
-- **Screens keep their place when the bars change:** each screen is padded for the bars its own chrome shows, and the bars slide over the screens instead of resizing them. Before, opening or closing a screen with different chrome moved the screen on its way in or out by the height of a bar.
 
 ## 2.1.0
 

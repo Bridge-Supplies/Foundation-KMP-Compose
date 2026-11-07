@@ -395,8 +395,6 @@ TopBarActions(
 )
 ```
 
-Each screen is padded for the bars its own chrome shows, and the bars slide over the screens, so a screen keeps its place while the next one shows other bars.
-
 A screen with unsaved work can keep back for itself with `ScreenBackHandler`. It covers the top bar's back or close button and the system back:
 
 ```kotlin
