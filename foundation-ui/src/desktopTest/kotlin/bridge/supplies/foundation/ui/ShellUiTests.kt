@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -330,5 +331,26 @@ class ShellUiTests {
         runOnUiThread { navigator!!.selectTab("tab3") }
         onNodeWithText("Immersive Content").assertIsDisplayed()
         assertEquals(0.dp, onNodeWithText("Immersive Content").getBoundsInRoot().top)
+    }
+
+    @Test
+    fun pushingAndPopping_animateBetweenBothScreens() = runComposeUiTest {
+        setContent { TestAppShell() }
+        waitForIdle()
+        mainClock.autoAdvance = false
+
+        // Partway through, both screens are composed
+        onNodeWithText("Go To Detail").performClick()
+        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeBy(100)
+        assertTrue(onAllNodesWithText("Tab 1 Content").fetchSemanticsNodes().isNotEmpty())
+        assertTrue(onAllNodesWithText("Tab 1 Detail Screen").fetchSemanticsNodes().isNotEmpty())
+
+        mainClock.advanceTimeBy(1_000)
+        onNodeWithText("Detail Back Button").performClick()
+        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeBy(100)
+        assertTrue(onAllNodesWithText("Tab 1 Content").fetchSemanticsNodes().isNotEmpty())
+        assertTrue(onAllNodesWithText("Tab 1 Detail Screen").fetchSemanticsNodes().isNotEmpty())
     }
 }
