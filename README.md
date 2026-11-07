@@ -632,13 +632,14 @@ If you are forking or cloning this repository as a standalone starter template i
   - `<application android:name="..." />` = the full package name + Application class name (e.g. `bridge.supplies.foundation.Foundation`)
 * Update iOS build files in `/iosApp`:
   - Update `Configuration/Config.xcconfig`:
-    - `BUNDLE_ID` = full package name + app name (e.g. `bridge.supplies.foundation.Foundation`)
+    - `BUNDLE_ID` = your Android `applicationId` (e.g. `bridge.supplies.foundation`). It becomes the iOS bundle ID as is, and is permanent once the app is on the App Store.
     - `APP_NAME` = visible app name (e.g. `Foundation`)
+  - For device builds, create `Configuration/Local.xcconfig` (git-ignored) with your Apple team ID: `TEAM_ID=ABCDE12345`. It only picks the signing team. Don't pick the team in Xcode's Signing settings, which writes it into the project file; if Xcode does, don't commit that change.
   - Update `iosApp.xcodeproj/project.pbxproj`:
     - replace `Foundation_` = your app name
     - `MARKETING_VERSION` = the same value as `app-versionName` in `libs.versions.toml`
     - `CURRENT_PROJECT_VERSION` = the same value as `app-versionCode` in `libs.versions.toml`
-    - `PRODUCT_BUNDLE_IDENTIFIER`, `PRODUCT_NAME`, and `INFOPLIST_KEY_CFBundleDisplayName` = your app name
+    - `PRODUCT_NAME` and `INFOPLIST_KEY_CFBundleDisplayName` = your app name (the bundle ID comes from `BUNDLE_ID`)
 
 ### After a successful build
 * Update run configurations in `.run/` if needed:

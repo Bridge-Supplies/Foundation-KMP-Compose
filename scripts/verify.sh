@@ -286,7 +286,7 @@ fi
 # --- E2E tier -------------------------------------------------------
 # App identity for the e2e flows. Apps that copy this script change only this block.
 E2E_ANDROID_APP_ID="bridge.supplies.foundation.debug"
-E2E_IOS_APP_ID="bridge.supplies.foundation.BridgeFoundation"
+E2E_IOS_APP_ID="bridge.supplies.foundation"
 E2E_IOS_APP_NAME="Foundation_.app"
 E2E_BASELINE_NAME="foundation"
 E2E_SEED_FLOW="$REPO/.maestro/seed-settings.yaml"

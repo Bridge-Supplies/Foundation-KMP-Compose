@@ -1,3 +1,9 @@
+// The iOS app's identity. BUNDLE_ID matches the Android applicationId.
+// TEAM_ID only picks the signing team; it never changes the bundle ID.
+// Put your Apple team ID in Local.xcconfig next to this file (git-ignored), e.g.
+//   TEAM_ID=ABCDE12345
 TEAM_ID=
-BUNDLE_ID=bridge.supplies.foundation.BridgeFoundation
+BUNDLE_ID=bridge.supplies.foundation
 APP_NAME=Foundation
+
+#include? "Local.xcconfig"
