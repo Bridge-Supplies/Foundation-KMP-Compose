@@ -9,10 +9,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -21,10 +25,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.ui.resources.Res
 import bridge.supplies.foundation.ui.resources.theme_settings_title
+import bridge.supplies.foundation.ui.shell.BackButton
 import bridge.supplies.foundation.ui.shell.Chrome
 import bridge.supplies.foundation.ui.shell.FoundationApp
 import bridge.supplies.foundation.ui.shell.LocalNavigator
 import bridge.supplies.foundation.ui.shell.Navigator
+import bridge.supplies.foundation.ui.shell.ScreenBackHandler
 import bridge.supplies.foundation.ui.shell.TopBarAction
 import bridge.supplies.foundation.ui.shell.TopBarActions
 import bridge.supplies.foundation.ui.shell.screenMetadata
@@ -56,6 +62,10 @@ class ShellUiTests {
         stopKoin()
     }
 
+    /** Whether the editor screen keeps back for itself, and how often it did. */
+    private var editorKeepsBack by mutableStateOf(true)
+    private var editorBackCount = 0
+
     @Composable
     private fun TestAppShell(onNavigatorReady: (Navigator) -> Unit = {}) {
         CompositionLocalProvider(
@@ -83,6 +93,9 @@ class ShellUiTests {
                             Button(onClick = { nav.navigate(Tab1DetailRoute) }) {
                                 Text("Go To Detail")
                             }
+                            Button(onClick = { nav.navigate(Tab1EditorRoute) }) {
+                                Text("Go To Editor")
+                            }
                         }
                     }
 
@@ -95,6 +108,18 @@ class ShellUiTests {
                                 Text("Detail Back Button")
                             }
                         }
+                    }
+
+                    entry<Tab1EditorRoute>(
+                        metadata =
+                            screenMetadata(
+                                titleText = "Editor",
+                                chrome = Chrome.TopBarOnly,
+                                backButton = BackButton.Close,
+                            )
+                    ) {
+                        ScreenBackHandler(enabled = editorKeepsBack) { editorBackCount++ }
+                        Text("Editor Content")
                     }
 
                     entry<Tab2RootRoute>(
@@ -254,5 +279,56 @@ class ShellUiTests {
 
         // In Chrome.Immersive, top bar is hidden (title should not be displayed)
         onNodeWithText("Immersive Title").assertDoesNotExist()
+    }
+
+    @Test
+    fun topBarOnly_showsTheTitleAndClose_withoutTheTabs() = runComposeUiTest {
+        setContent { TestAppShell() }
+        onNodeWithContentDescription("System", useUnmergedTree = true).assertIsDisplayed()
+
+        onNodeWithText("Go To Editor").performClick()
+        onNodeWithText("Editor Content").assertIsDisplayed()
+        onNodeWithText("Editor").assertIsDisplayed()
+        onNodeWithContentDescription("Close").assertIsDisplayed()
+        onNodeWithContentDescription("Back").assertDoesNotExist()
+        onNodeWithContentDescription("System", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun aScreenBackHandler_getsTheTopBarsBack_untilItLetsGo() = runComposeUiTest {
+        var navigator: Navigator? = null
+        setContent { TestAppShell { navigator = it } }
+        onNodeWithText("Go To Editor").performClick()
+
+        onNodeWithContentDescription("Close").performClick()
+        onNodeWithText("Editor Content").assertIsDisplayed()
+        assertEquals(1, editorBackCount)
+
+        assertEquals(Tab1EditorRoute, navigator!!.currentRoute)
+
+        runOnUiThread { editorKeepsBack = false }
+        waitForIdle()
+        onNodeWithContentDescription("Close").performClick()
+        onNodeWithText("Tab 1 Content").assertIsDisplayed()
+        assertEquals(1, editorBackCount)
+    }
+
+    @Test
+    fun screensArePaddedForTheirOwnBars() = runComposeUiTest {
+        var navigator: Navigator? = null
+        setContent { TestAppShell { navigator = it } }
+
+        // Below the top bar, and clear of the bottom bar
+        val standard = onNodeWithText("Tab 1 Content").getBoundsInRoot()
+        assertTrue(standard.top >= 64.dp, "below the top bar: ${standard.top}")
+
+        onNodeWithText("Go To Editor").performClick()
+        onNodeWithText("Editor Content").assertIsDisplayed()
+        val editor = onNodeWithText("Editor Content").getBoundsInRoot()
+        assertTrue(editor.top >= 64.dp, "below the top bar: ${editor.top}")
+
+        runOnUiThread { navigator!!.selectTab("tab3") }
+        onNodeWithText("Immersive Content").assertIsDisplayed()
+        assertEquals(0.dp, onNodeWithText("Immersive Content").getBoundsInRoot().top)
     }
 }

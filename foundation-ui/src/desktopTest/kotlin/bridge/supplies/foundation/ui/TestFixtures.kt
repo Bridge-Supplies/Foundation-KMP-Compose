@@ -96,11 +96,14 @@ fun testFoundationModule(
 
 @Serializable data object Tab3ImmersiveRoute : NavKey
 
+@Serializable data object Tab1EditorRoute : NavKey
+
 val testRouteRegistry = RouteRegistry {
     subclass(Tab1RootRoute::class, Tab1RootRoute.serializer())
     subclass(Tab1DetailRoute::class, Tab1DetailRoute.serializer())
     subclass(Tab2RootRoute::class, Tab2RootRoute.serializer())
     subclass(Tab3ImmersiveRoute::class, Tab3ImmersiveRoute.serializer())
+    subclass(Tab1EditorRoute::class, Tab1EditorRoute.serializer())
 }
 
 val testTabs =
