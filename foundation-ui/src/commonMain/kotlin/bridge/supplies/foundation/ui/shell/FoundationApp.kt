@@ -2,20 +2,14 @@ package bridge.supplies.foundation.ui.shell
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -31,12 +25,12 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -53,12 +47,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntry
@@ -175,39 +165,20 @@ private fun FoundationShell(
     val backHost = remember { ScreenBackHost() }
     val tabStateHolder = rememberSaveableStateHolder()
     var landingDone by rememberSaveable { mutableStateOf(landing is Landing.None) }
-    val density = LocalDensity.current
 
-    // Each bar's size, measured while it shows. Every screen is padded for the bars its own chrome
-    // shows, and the bars slide over the screens, so a screen never moves when the next one
-    // shows other bars.
-    val bars = remember { BarSizes() }
-
-    val isPortrait = isPortrait()
     val provider = entryProvider(builder = entries)
     val entryFor: (NavKey) -> NavEntry<NavKey> = { route ->
         val entry = provider(route)
         NavEntry(route, entry.contentKey, entry.metadata) { _: NavKey ->
-            val chrome = entry.metadata.screenChrome
-            Box(
-                modifier =
-                    Modifier.fillMaxSize()
-                        .padding(
-                            top = if (chrome.showsTopBar) bars.top else 0.dp,
-                            bottom =
-                                if (chrome.showsNavigation && isPortrait) bars.bottom else 0.dp,
-                            start = if (chrome.showsNavigation && !isPortrait) bars.rail else 0.dp,
-                        )
-            ) {
-                CompositionLocalProvider(LocalRoute provides route) { entry.Content() }
-            }
+            CompositionLocalProvider(LocalRoute provides route) { entry.Content() }
         }
     }
 
+    val isPortrait = isPortrait()
     val metadata = provider(navigator.currentRoute).metadata
     val chrome = if (landingDone) metadata.screenChrome else Chrome.Immersive()
     val showTopBar = chrome.showsTopBar
-    val showBottomBar = chrome.showsNavigation && isPortrait
-    val showRail = chrome.showsNavigation && !isPortrait
+    val showNavigation = chrome.showsNavigation
     val hideSystemBars = (chrome as? Chrome.Immersive)?.hideSystemBars == true
 
     LaunchedEffect(isPortrait, fullscreenLandscape, hideSystemBars) {
@@ -234,149 +205,105 @@ private fun FoundationShell(
         }
     }
 
-    // The top bar starts after the rail, following it as it slides
-    val topBarStart by
-        animateDpAsState(
-            targetValue = if (showRail) bars.rail else 0.dp,
-            animationSpec = tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING),
-        )
-
     CompositionLocalProvider(
         LocalNavigator provides navigator,
         LocalSnackbarHostState provides snackbarHost,
         LocalTopBarActionHost provides actionHost,
         LocalScreenBackHost provides backHost,
-        // Text and icons without their own color follow the theme, as on a Surface
-        LocalContentColor provides MaterialTheme.colorScheme.onBackground,
     ) {
-        Box(
+        Row(
             modifier =
                 Modifier.fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .safeDrawingPadding()
         ) {
-            AnimatedContent(
-                targetState = if (landingDone) navigator.currentTabId else null,
-                transitionSpec = {
-                    TopLevelEnterTransition() togetherWith TopLevelExitTransition()
-                },
-                modifier = Modifier.fillMaxSize(),
-            ) { tabId ->
-                if (tabId == null) {
-                    when (landing) {
-                        is Landing.Default -> DefaultLandingScreen(landing) { landingDone = true }
-                        is Landing.Custom -> landing.content { landingDone = true }
-                        Landing.None -> Unit
-                    }
-                } else {
-                    // Keeps each tab's screen state while another tab is shown
-                    tabStateHolder.SaveableStateProvider(tabId) {
-                        NavDisplay(
-                            backStack = navigator.stackOf(tabId),
-                            onBack = { onNavigateBack() },
-                            transitionSpec = {
-                                ScreenEnterTransition() togetherWith ScreenExitTransition()
-                            },
-                            popTransitionSpec = {
-                                ScreenPopEnterTransition() togetherWith ScreenPopExitTransition()
-                            },
-                            predictivePopTransitionSpec = {
-                                ScreenPopEnterTransition() togetherWith ScreenPopExitTransition()
-                            },
-                            entryProvider = entryFor,
-                        )
-                    }
-                }
-            }
-
             AnimatedVisibility(
-                visible = showRail,
-                enter = BarEnterTransition { -it },
-                exit = BarExitTransition { -it },
-                modifier = Modifier.align(Alignment.CenterStart).fillMaxHeight(),
+                visible = showNavigation && !isPortrait,
+                modifier = Modifier.fillMaxHeight(),
             ) {
                 ShellRail(
                     navigator = navigator,
                     verticallyCentered = shell.railVerticallyCentered,
                     onSelectTab = onSelectTab,
-                    modifier =
-                        Modifier.onSizeChanged {
-                            bars.rail = with(density) { it.width.toDp() }
-                        },
                 )
             }
 
-            AnimatedVisibility(
-                visible = showTopBar,
-                enter = BarEnterTransition(vertical = true) { -it },
-                exit = BarExitTransition(vertical = true) { -it },
-                modifier = Modifier.align(Alignment.TopStart).padding(start = topBarStart),
-            ) {
-                ShellTopBar(
-                    navigator = navigator,
-                    metadata = metadata,
-                    actions = actionHost.actions[navigator.currentRoute].orEmpty(),
-                    centerTitle = shell.centerTopBarTitle,
-                    onNavigateBack = { onNavigateBack() },
-                    modifier =
-                        Modifier.onSizeChanged { bars.top = with(density) { it.height.toDp() } },
-                )
-            }
-
-            AnimatedVisibility(
-                visible = showBottomBar,
-                enter = BarEnterTransition(vertical = true) { it },
-                exit = BarExitTransition(vertical = true) { it },
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-            ) {
-                BottomAppBar(
-                    contentPadding = PaddingValues(0.dp),
-                    modifier =
-                        Modifier.onSizeChanged {
-                            bars.bottom = with(density) { it.height.toDp() }
-                        },
-                ) {
-                    ShellBottomBar(navigator = navigator, onSelectTab = onSelectTab)
+            Scaffold(
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                topBar = {
+                    AnimatedVisibility(
+                        visible = showTopBar,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        ShellTopBar(
+                            navigator = navigator,
+                            metadata = metadata,
+                            actions = actionHost.actions[navigator.currentRoute].orEmpty(),
+                            centerTitle = shell.centerTopBarTitle,
+                            onNavigateBack = { onNavigateBack() },
+                        )
+                    }
+                },
+                bottomBar = {
+                    AnimatedVisibility(
+                        visible = showNavigation && isPortrait,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut(),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        BottomAppBar(contentPadding = PaddingValues(0.dp)) {
+                            ShellBottomBar(
+                                navigator = navigator,
+                                onSelectTab = onSelectTab,
+                            )
+                        }
+                    }
+                },
+                snackbarHost = {
+                    SnackbarHost(hostState = snackbarHost)
+                },
+            ) { innerPadding ->
+                AnimatedContent(
+                    targetState = if (landingDone) navigator.currentTabId else null,
+                    transitionSpec = {
+                        TopLevelEnterTransition() togetherWith TopLevelExitTransition()
+                    },
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                ) { tabId ->
+                    if (tabId == null) {
+                        when (landing) {
+                            is Landing.Default ->
+                                DefaultLandingScreen(landing) { landingDone = true }
+                            is Landing.Custom -> landing.content { landingDone = true }
+                            Landing.None -> Unit
+                        }
+                    } else {
+                        // Keeps each tab's screen state while another tab is shown
+                        tabStateHolder.SaveableStateProvider(tabId) {
+                            NavDisplay(
+                                backStack = navigator.stackOf(tabId),
+                                onBack = { onNavigateBack() },
+                                transitionSpec = {
+                                    ScreenEnterTransition() togetherWith ScreenExitTransition()
+                                },
+                                popTransitionSpec = {
+                                    ScreenPopEnterTransition() togetherWith
+                                        ScreenPopExitTransition()
+                                },
+                                predictivePopTransitionSpec = {
+                                    ScreenPopEnterTransition() togetherWith
+                                        ScreenPopExitTransition()
+                                },
+                                entryProvider = entryFor,
+                            )
+                        }
+                    }
                 }
+
+                SheetHost(sheets)
             }
-
-            SnackbarHost(
-                hostState = snackbarHost,
-                modifier =
-                    Modifier.align(Alignment.BottomCenter)
-                        .padding(bottom = if (showBottomBar) bars.bottom else 0.dp),
-            )
-
-            SheetHost(sheets)
         }
     }
-}
-
-/** The bars' sizes, measured while they show; until then Material's defaults. */
-private class BarSizes {
-    var top by mutableStateOf(64.dp)
-    var bottom by mutableStateOf(80.dp)
-    var rail by mutableStateOf(80.dp)
-}
-
-private fun BarEnterTransition(
-    vertical: Boolean = false,
-    offset: (Int) -> Int,
-): EnterTransition {
-    val spec = tween<IntOffset>(TRANSITION_ENTER_MS, easing = TRANSITION_EASING)
-    val fade = fadeIn(tween(TRANSITION_ENTER_MS, easing = TRANSITION_EASING))
-    return fade +
-        if (vertical) slideInVertically(spec, offset) else slideInHorizontally(spec, offset)
-}
-
-private fun BarExitTransition(
-    vertical: Boolean = false,
-    offset: (Int) -> Int,
-): ExitTransition {
-    val spec = tween<IntOffset>(TRANSITION_EXIT_MS, easing = TRANSITION_EASING)
-    val fade = fadeOut(tween(TRANSITION_EXIT_MS, easing = TRANSITION_EASING))
-    return fade +
-        if (vertical) slideOutVertically(spec, offset) else slideOutHorizontally(spec, offset)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -387,7 +314,6 @@ private fun ShellTopBar(
     actions: List<TopBarAction>,
     centerTitle: Boolean,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val title =
         metadata.screenTitleText
@@ -435,14 +361,12 @@ private fun ShellTopBar(
 
     if (centerTitle) {
         CenterAlignedTopAppBar(
-            modifier = modifier,
             title = titleContent,
             navigationIcon = navigationIcon,
             actions = actionsContent,
         )
     } else {
         TopAppBar(
-            modifier = modifier,
             title = titleContent,
             navigationIcon = navigationIcon,
             actions = actionsContent,
@@ -455,9 +379,8 @@ private fun ShellRail(
     navigator: Navigator,
     verticallyCentered: Boolean,
     onSelectTab: (FoundationTab) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    NavigationRail(modifier = modifier.fillMaxHeight()) {
+    NavigationRail(modifier = Modifier.fillMaxHeight()) {
         if (verticallyCentered) {
             Spacer(Modifier.weight(1f))
         } else {
