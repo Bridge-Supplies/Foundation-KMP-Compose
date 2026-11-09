@@ -17,7 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import bridge.supplies.foundation.ui.resources.Res
+import bridge.supplies.foundation.ui.resources.qr_code_description
 import bridge.supplies.foundation.ui.util.bitmapFromBytes
+import org.jetbrains.compose.resources.stringResource
 import qrcode.QRCode
 
 public fun generateQrCode(
@@ -81,7 +84,7 @@ public fun QrCodeCard(
         Image(
             modifier = Modifier.aspectRatio(1f).fillMaxSize().padding(8.dp),
             bitmap = qrBitmap,
-            contentDescription = "QR code",
+            contentDescription = stringResource(Res.string.qr_code_description),
         )
     }
 }
