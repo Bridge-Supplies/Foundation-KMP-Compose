@@ -19,11 +19,11 @@ class QrCodeSizeTests {
         // A compact 150-byte app format (e.g. a game turn); random-looking bytes, as encrypted data
         // is
         val bytes = ByteArray(150) { (it * 151 + 7).toByte() }
-        val bytesVersion = QRCode.ofSquares().build(codec.encodeBytes(bytes)).typeNum
+        val bytesVersion = QRCode.ofSquares().build(codec.encodeBytes(bytes)).informationDensity
         val jsonVersion =
             QRCode.ofSquares()
                 .build(codec.encode(Wrapped(Base64.encode(bytes)), Wrapped.serializer()))
-                .typeNum
+                .informationDensity
         assertTrue(
             bytesVersion < jsonVersion,
             "encodeBytes v$bytesVersion should be smaller than encode v$jsonVersion",
