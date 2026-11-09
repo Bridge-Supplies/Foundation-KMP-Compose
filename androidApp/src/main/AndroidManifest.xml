@@ -9,7 +9,6 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.FLASHLIGHT" />
 
     <application
         android:name="bridge.supplies.foundation.Foundation"
