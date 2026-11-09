@@ -139,7 +139,7 @@ kotlin {
 
         named("desktopMain") {
             dependencies {
-                implementation(compose.desktop.common)
+                implementation(compose.desktop.currentOs)
             }
         }
     }
