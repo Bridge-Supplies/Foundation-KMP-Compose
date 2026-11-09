@@ -7,6 +7,8 @@ import bridge.supplies.foundation.core.storage.createDataStore
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 
@@ -91,5 +93,39 @@ class DataStoreSettingsTests {
             User("x", 1),
             settings.get(JsonSetting(settingName("json"), User("x", 1), User.serializer())),
         )
+    }
+
+    @Test
+    fun keepsAnUnreadableJsonValueBeforeOverwritingIt() = runBlocking {
+        val store = newStore()
+        store.edit { it[stringPreferencesKey("Settings_json")] = "{written by an older version" }
+        val settings = DataStoreSettings(store)
+        val key = JsonSetting(settingName("json"), User("", 0), User.serializer())
+
+        settings.set(key, User("Ra", 7L))
+
+        assertEquals(User("Ra", 7L), settings.get(key))
+        val backup = stringPreferencesKey(DataStoreSettings.unreadableName(key))
+        assertEquals("{written by an older version", store.data.first()[backup])
+    }
+
+    @Test
+    fun keepsTheFirstUnreadableValueAndIgnoresReadableOnes() = runBlocking {
+        val store = newStore()
+        val settings = DataStoreSettings(store)
+        val key = JsonSetting(settingName("json"), User("", 0), User.serializer())
+        val backup = stringPreferencesKey(DataStoreSettings.unreadableName(key))
+
+        settings.set(key, User("Ra", 7L))
+        settings.set(key, User("Ka", 8L))
+        assertNull(store.data.first()[backup])
+
+        store.edit { it[stringPreferencesKey("Settings_json")] = "first" }
+        settings.remove(key)
+        store.edit { it[stringPreferencesKey("Settings_json")] = "second" }
+        settings.set(key, User("Ba", 9L))
+
+        assertEquals("first", store.data.first()[backup])
+        assertEquals(User("Ba", 9L), settings.get(key))
     }
 }
