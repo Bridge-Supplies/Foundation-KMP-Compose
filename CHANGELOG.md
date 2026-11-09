@@ -16,6 +16,9 @@ All notable changes to Foundation are documented in this file.
 ### Fixed
 - **Unreadable JSON settings are kept:** a `JsonSetting` whose stored value no longer decodes still reads as its default, but before that value is overwritten or removed, `DataStoreSettings` now copies its raw text to `DataStoreSettings.unreadableName(key)` (`<name>__unreadable`). An app update that breaks decoding can no longer destroy the user's data on the next save, and a later release can recover it. Only the first unreadable value is kept.
 
+### Removed
+- **`VerticalSeparator`:** removed the unused `VerticalSeparator` composable.
+
 ## 2.1.0
 
 ### Added

@@ -60,7 +60,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -824,14 +823,6 @@ public fun HorizontalSeparator() {
     HorizontalDivider(
         color = MaterialTheme.colorScheme.outlineVariant,
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-    )
-}
-
-@Composable
-public fun VerticalSeparator() {
-    VerticalDivider(
-        color = MaterialTheme.colorScheme.outlineVariant,
-        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
     )
 }
 
