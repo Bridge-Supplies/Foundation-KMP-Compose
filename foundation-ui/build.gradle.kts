@@ -75,12 +75,6 @@ kotlin {
             implementation(kotlin("test"))
         }
 
-        named("desktopMain") {
-            dependencies {
-                implementation(compose.desktop.currentOs)
-            }
-        }
-
         named("desktopTest") {
             dependencies {
                 implementation(compose.desktop.currentOs)
