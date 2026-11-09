@@ -55,9 +55,21 @@ val devEncryptionKey = "BridgeDevKey0016"
 
 buildConfig {
     val keystoreProperties = getKeystoreProperties()
+    val encryptionKey = keystoreProperties?.getProperty("encryptionKey")
     if (keystoreProperties == null) {
         logger.warn(
             "keystore.properties not found: using the dev-only encryption key; release signing is disabled."
+        )
+    }
+    val desktopPackaging =
+        Regex("package(Dmg|Msi|Exe|Deb|Rpm|Pkg|DistributionForCurrentOS|Release.*)$")
+    val buildingForUsers =
+        keystoreProperties?.getProperty("storeFile") != null || // Android release signing is set up
+            System.getenv("CONFIGURATION") == "Release" || // an Xcode archive
+            gradle.startParameter.taskNames.any { desktopPackaging.containsMatchIn(it) }
+    if (encryptionKey == null && buildingForUsers) {
+        throw GradleException(
+            "This build is meant for users but has no encryptionKey in keystore.properties. The dev key must never ship."
         )
     }
 
@@ -66,10 +78,7 @@ buildConfig {
     buildConfigField("PACKAGE_NAME", libs.versions.app.packageName.get())
     buildConfigField("APP_VERSION", libs.versions.app.versionName.get())
     buildConfigField("APP_BUILD", libs.versions.app.versionCode.get())
-    buildConfigField(
-        "ENCRYPTION_KEY",
-        keystoreProperties?.getProperty("encryptionKey") ?: devEncryptionKey,
-    )
+    buildConfigField("ENCRYPTION_KEY", encryptionKey ?: devEncryptionKey)
 }
 
 compose.resources {

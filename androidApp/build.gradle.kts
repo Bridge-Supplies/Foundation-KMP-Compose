@@ -41,7 +41,7 @@ android {
 
     buildTypes {
         getByName("release") {
-            //            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
 
             resValue("string", "app_name", libs.versions.app.name.get())
 
