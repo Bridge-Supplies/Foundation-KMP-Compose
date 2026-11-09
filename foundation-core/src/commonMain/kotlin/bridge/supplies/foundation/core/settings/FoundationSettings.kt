@@ -1,6 +1,7 @@
 package bridge.supplies.foundation.core.settings
 
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -27,6 +28,10 @@ public interface FoundationSettings {
 /**
  * [FoundationSettings] backed by a Preferences [DataStore]. DataStore allows one instance per file,
  * so share this.
+ *
+ * A [JsonSetting] whose stored value no longer decodes reads as its default. Before such a value is
+ * overwritten or removed, its raw text is copied to [unreadableName], so an app update that breaks
+ * decoding can't destroy the user's data and a later release can still recover it.
  */
 public class DataStoreSettings(
     private val dataStore: DataStore<Preferences>,
@@ -37,11 +42,25 @@ public class DataStoreSettings(
         dataStore.data.map { preferences -> read(preferences, key) }
 
     override suspend fun <T> set(key: SettingKey<T>, value: T) {
-        dataStore.edit { preferences -> write(preferences, key, value) }
+        dataStore.edit { preferences ->
+            if (key is JsonSetting<*>) keepUnreadable(preferences, key)
+            write(preferences, key, value)
+        }
     }
 
     override suspend fun remove(key: SettingKey<*>) {
-        dataStore.edit { preferences -> preferences.remove(preferencesKey(key)) }
+        dataStore.edit { preferences ->
+            if (key is JsonSetting<*>) keepUnreadable(preferences, key)
+            preferences.remove(preferencesKey(key))
+        }
+    }
+
+    /** Copies a stored value that doesn't decode to [unreadableName]; the first copy is kept. */
+    private fun keepUnreadable(preferences: MutablePreferences, key: JsonSetting<*>) {
+        val raw = preferences[stringPreferencesKey(key.name)] ?: return
+        if (runCatching { json.decodeFromString(key.serializer, raw) }.isSuccess) return
+        val backup = stringPreferencesKey(unreadableName(key))
+        if (preferences[backup] == null) preferences[backup] = raw
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -64,7 +83,7 @@ public class DataStoreSettings(
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> write(
-        preferences: androidx.datastore.preferences.core.MutablePreferences,
+        preferences: MutablePreferences,
         key: SettingKey<T>,
         value: T,
     ) {
@@ -93,4 +112,13 @@ public class DataStoreSettings(
             is JsonSetting -> stringPreferencesKey(key.name)
             is StringSetSetting -> stringSetPreferencesKey(key.name)
         }
+
+    public companion object {
+        /**
+         * The key holding the first stored value of [key] that couldn't be decoded, if any. Only
+         * values replaced or removed through that [JsonSetting] are kept. Read or clear it with
+         * `StringSetting(unreadableName(key), "")`.
+         */
+        public fun unreadableName(key: JsonSetting<*>): String = "${key.name}__unreadable"
+    }
 }

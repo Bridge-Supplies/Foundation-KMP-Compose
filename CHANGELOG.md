@@ -13,6 +13,9 @@ All notable changes to Foundation are documented in this file.
 - **Screen back handling:** `ScreenBackHandler(enabled) { … }` lets a screen keep back while it has unsaved changes, e.g. to ask before discarding them. It covers the top bar's back or close button and the system back.
 - **Demo editor:** the demo app's Home tab opens an editor that uses all three.
 
+### Fixed
+- **Unreadable JSON settings are kept:** a `JsonSetting` whose stored value no longer decodes still reads as its default, but before that value is overwritten or removed, `DataStoreSettings` now copies its raw text to `DataStoreSettings.unreadableName(key)` (`<name>__unreadable`). An app update that breaks decoding can no longer destroy the user's data on the next save, and a later release can recover it. Only the first unreadable value is kept.
+
 ## 2.1.0
 
 ### Added
