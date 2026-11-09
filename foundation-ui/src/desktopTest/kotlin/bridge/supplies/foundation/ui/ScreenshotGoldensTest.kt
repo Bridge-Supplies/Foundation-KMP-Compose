@@ -25,8 +25,12 @@ import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
@@ -47,6 +51,7 @@ import bridge.supplies.foundation.ui.sheets.SheetScope
 import bridge.supplies.foundation.ui.shell.BackButton
 import bridge.supplies.foundation.ui.shell.Chrome
 import bridge.supplies.foundation.ui.shell.FoundationApp
+import bridge.supplies.foundation.ui.shell.LocalNavigator
 import bridge.supplies.foundation.ui.shell.LocalRoute
 import bridge.supplies.foundation.ui.shell.LocalTopBarActionHost
 import bridge.supplies.foundation.ui.shell.TopBarActionHost
@@ -111,7 +116,14 @@ class ScreenshotGoldensTest {
             tabs = testTabs,
             routes = testRouteRegistry,
         ) {
-            entry<Tab1RootRoute>(
+            entry<Tab1RootRoute>(metadata = screenMetadata(titleText = "Home")) {
+                val nav = LocalNavigator.current
+                TextButton(
+                    text = "Go To Editor",
+                    onClick = { nav.navigate(Tab1EditorRoute) },
+                )
+            }
+            entry<Tab1EditorRoute>(
                 metadata =
                     screenMetadata(
                         titleText = "Editor",
@@ -316,6 +328,10 @@ class ScreenshotGoldensTest {
                 }
             }
         }
+        onNodeWithText("Go To Editor").performClick()
+        waitForIdle()
+        onNodeWithText("Editor Content").assertIsDisplayed()
+        onNodeWithContentDescription("Close").assertIsDisplayed()
         val image = onRoot().captureToImage().toAwtImage()
         GoldenTestHelper.assertGolden(image, "top_bar_only_light")
     }
@@ -332,6 +348,10 @@ class ScreenshotGoldensTest {
                 }
             }
         }
+        onNodeWithText("Go To Editor").performClick()
+        waitForIdle()
+        onNodeWithText("Editor Content").assertIsDisplayed()
+        onNodeWithContentDescription("Close").assertIsDisplayed()
         val image = onRoot().captureToImage().toAwtImage()
         GoldenTestHelper.assertGolden(image, "top_bar_only_dark")
     }

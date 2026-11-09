@@ -87,9 +87,11 @@ kotlin {
 }
 
 tasks.withType<Test>().configureEach {
-    systemProperty("recordGolden", System.getProperty("recordGolden", "false"))
+    val record =
+        findProperty("recordGolden")?.toString() ?: System.getProperty("recordGolden", "false")
+    systemProperty("recordGolden", record)
     environment(
         "RECORD_GOLDEN",
-        System.getenv("RECORD_GOLDEN") ?: System.getProperty("recordGolden", "false"),
+        System.getenv("RECORD_GOLDEN") ?: record,
     )
 }
