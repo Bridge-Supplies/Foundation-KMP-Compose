@@ -26,6 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.ui.resources.Res
@@ -53,7 +55,10 @@ public fun TitledCard(
                     Column(modifier = Modifier.weight(1f)) {
                         TitleText(
                             text = title,
-                            modifier = Modifier.padding(top = 6.dp).padding(horizontal = 16.dp),
+                            modifier =
+                                Modifier.padding(top = 6.dp).padding(horizontal = 16.dp).semantics {
+                                    heading()
+                                },
                         )
 
                         if (subtitle != null) {
@@ -163,7 +168,10 @@ public fun ExpandableTitledCard(
                     ) {
                         TitleText(
                             modifier =
-                                Modifier.weight(1f).padding(end = 16.dp).padding(bottom = 4.dp),
+                                Modifier.weight(1f)
+                                    .padding(end = 16.dp)
+                                    .padding(bottom = 4.dp)
+                                    .semantics { heading() },
                             text = title,
                             maxLines = if (isExpanded) 2 else 1,
                         )

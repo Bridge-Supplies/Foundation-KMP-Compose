@@ -3,6 +3,9 @@
     <string name="button_expand_less">Collapse content</string>
     <string name="invalid_date">Invalid date</string>
     <string name="navigation_back">Back</string>
+    <string name="navigation_forward">Forward</string>
+    <string name="qr_code_description">QR code</string>
+    <string name="clipboard_label">Copied Text</string>
     <string name="landing_tip_dark_mode">This device supports automatic\nlight/dark mode in Settings.</string>
     <string name="landing_tip_theme_colors">When manually setting a color theme,\nyou can pick the color's intensity.</string>
     <string name="landing_tip_fullscreen_landscape">If landscape orientation is cramped,\nenable fullscreen mode in Settings.</string>

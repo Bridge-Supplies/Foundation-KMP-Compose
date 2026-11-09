@@ -68,7 +68,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import bridge.supplies.foundation.ui.resources.Res
+import bridge.supplies.foundation.ui.resources.navigation_back
+import bridge.supplies.foundation.ui.resources.navigation_forward
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 // REMEMBERS
 
@@ -222,9 +226,9 @@ public fun BoxScope.AnimatedVerticalEdgeFade(
                                 },
                             contentDescription =
                                 if (isStartEdge) {
-                                    "Back"
+                                    stringResource(Res.string.navigation_back)
                                 } else {
-                                    "Forward"
+                                    stringResource(Res.string.navigation_forward)
                                 },
                         )
                     },
@@ -299,9 +303,9 @@ public fun BoxScope.AnimatedHorizontalEdgeFade(
                                 },
                             contentDescription =
                                 if (isStartEdge) {
-                                    "Back"
+                                    stringResource(Res.string.navigation_back)
                                 } else {
-                                    "Forward"
+                                    stringResource(Res.string.navigation_forward)
                                 },
                         )
                     },

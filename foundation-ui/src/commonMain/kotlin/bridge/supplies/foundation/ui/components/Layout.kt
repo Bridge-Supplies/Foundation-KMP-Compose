@@ -26,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -63,7 +65,8 @@ public fun StickyHeader(
                 modifier =
                     Modifier.weight(1f)
                         .padding(vertical = if (subtitleText == null) 8.dp else 0.dp)
-                        .padding(end = 8.dp),
+                        .padding(end = 8.dp)
+                        .semantics { heading() },
                 title = titleText,
                 subtitle = subtitleText,
                 subtitleMaxLines = 1,
