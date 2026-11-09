@@ -120,12 +120,34 @@ class DataStoreSettingsTests {
         settings.set(key, User("Ka", 8L))
         assertNull(store.data.first()[backup])
 
+        settings.remove(key)
+        assertNull(store.data.first()[backup])
+
         store.edit { it[stringPreferencesKey("Settings_json")] = "first" }
         settings.remove(key)
+        assertNull(store.data.first()[stringPreferencesKey("Settings_json")])
+        assertEquals("first", store.data.first()[backup])
         store.edit { it[stringPreferencesKey("Settings_json")] = "second" }
         settings.set(key, User("Ba", 9L))
 
         assertEquals("first", store.data.first()[backup])
         assertEquals(User("Ba", 9L), settings.get(key))
+    }
+
+    @Test
+    fun keepsValidJsonInAnOldShape() = runBlocking {
+        // A field that changed type: valid JSON that the current class can't decode
+        val store = newStore()
+        store.edit {
+            it[stringPreferencesKey("Settings_json")] = """{"name":"Ra","birthday":"old"}"""
+        }
+        val settings = DataStoreSettings(store)
+        val key = JsonSetting(settingName("json"), User("", 0), User.serializer())
+
+        assertEquals(User("", 0), settings.get(key))
+        settings.set(key, User("Ra", 7L))
+
+        val backup = stringPreferencesKey(DataStoreSettings.unreadableName(key))
+        assertEquals("""{"name":"Ra","birthday":"old"}""", store.data.first()[backup])
     }
 }

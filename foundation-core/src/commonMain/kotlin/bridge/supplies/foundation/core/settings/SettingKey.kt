@@ -34,7 +34,10 @@ public class EnumSetting<E : Enum<E>>(
     public val entries: List<E>,
 ) : SettingKey<E>
 
-/** Stored as a JSON string. A value that fails to decode reads as [default]. */
+/**
+ * Stored as a JSON string. A value that fails to decode reads as [default]; before it's overwritten
+ * or removed, [DataStoreSettings] copies it to [DataStoreSettings.unreadableName].
+ */
 public class JsonSetting<T>(
     override val name: String,
     override val default: T,

@@ -416,6 +416,8 @@ val userProfileKey = JsonSetting(settingName("self_user"), UserProfile(), UserPr
 > [!IMPORTANT]
 > `EnumSetting` stores the enum's ordinal (`Int`). Never reorder or remove enum entries in an existing app—only append new entries to the end.
 
+A `JsonSetting` whose stored value no longer decodes (for example after a field changed type) reads as its default. Before that value is overwritten or removed, `DataStoreSettings` copies its raw text to `DataStoreSettings.unreadableName(key)` (`<name>__unreadable`; the first copy is kept), so a later release can recover it with `StringSetting(DataStoreSettings.unreadableName(key), "")`.
+
 Read and write settings in Compose through `FoundationViewModel` (or inject `FoundationSettings` directly into your own ViewModels):
 
 ```kotlin

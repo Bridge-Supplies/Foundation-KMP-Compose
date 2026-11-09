@@ -114,7 +114,11 @@ public class DataStoreSettings(
         }
 
     public companion object {
-        /** The key holding a [JsonSetting]'s last value that couldn't be decoded, if any. */
+        /**
+         * The key holding the first stored value of [key] that couldn't be decoded, if any. Only
+         * values replaced or removed through that [JsonSetting] are kept. Read or clear it with
+         * `StringSetting(unreadableName(key), "")`.
+         */
         public fun unreadableName(key: JsonSetting<*>): String = "${key.name}__unreadable"
     }
 }
