@@ -569,6 +569,9 @@ val text: String = qrCodec.encodeBytes(bytes, encrypt = true)
 val back: Result<ByteArray> = qrCodec.decodeBytes(text) // fails for other payloads or another key
 ```
 
+> [!NOTE]
+> **QR encryption security:** QR payload encryption (AES-CBC using `encryptionKey`) is designed to prevent casual reading by generic barcode scanners; it is not meant to protect confidential secrets. The encryption key is compiled into the app, so any build using the same key can decrypt the data, and JSON payloads do not include a cryptographic authentication tag.
+
 **Devices without a back camera:** `QrCodeScanner` only opens the back camera, so on Android `PlatformFeature.CODE_SCANNING` is on only if the device has one. Check it (`currentPlatform().supports(PlatformFeature.CODE_SCANNING)`) before offering to scan. Devices with only a front camera or webcam, such as most Chromebooks, can still show QR codes but can't scan them. Your app decides who can install it: `android.permission.CAMERA` makes Google Play require a back camera unless the manifest says otherwise, so an app that works without one declares:
 
 ```xml
