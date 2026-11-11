@@ -60,7 +60,7 @@ Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/he
 - Build
   - [gmazzo's BuildConfig](https://github.com/gmazzo/gradle-buildconfig-plugin) (shared BuildConfig in the demo app)
 - Cryptography & compression
-  - [Korlibs Crypto](https://github.com/korlibs/korlibs-crypto) (AES-CBC encryption/decryption and secure random IVs)
+  - The operating system's own crypto for AES-CBC and SHA-256 and for random IVs: `javax.crypto` on Android and desktop, CommonCrypto and `SecRandomCopyBytes` on iOS (no third-party crypto library)
   - [Korlibs Compression](https://github.com/korlibs/korlibs-compression) (GZIP compression/decompression)
 - Theming
   - [jordond's MaterialKolor](https://github.com/jordond/materialkolor) (dynamic Material color scheme generation)

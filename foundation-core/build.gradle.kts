@@ -21,6 +21,9 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
         }
+
+        // Runs commonTest on the JVM with the Android sources (testAndroidHostTest)
+        withHostTest {}
     }
     jvm("desktop")
     iosArm64()
@@ -35,7 +38,6 @@ kotlin {
             api(libs.androidx.datastore.preferences)
             api(libs.koin.core)
 
-            implementation(libs.soywiz.korlibs.crypto)
             implementation(libs.soywiz.korlibs.compression)
         }
 
