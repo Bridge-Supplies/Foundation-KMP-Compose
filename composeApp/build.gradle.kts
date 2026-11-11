@@ -40,6 +40,7 @@ licenseReport {
  */
 class LicenseOverrides(private val file: File) : DependencyFilter {
     override fun filter(source: ProjectData): ProjectData {
+        if (!file.exists()) return source
         @Suppress("UNCHECKED_CAST")
         val rules =
             (JsonSlurper().parse(file) as Map<String, Any?>)["overrides"]
