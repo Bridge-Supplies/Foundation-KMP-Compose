@@ -513,7 +513,7 @@ FoundationApp(
   - `Landing.Custom { onDone -> MyOnboardingScreen(onFinish = onDone) }` renders a custom onboarding flow.
   - `Landing.None` skips the landing screen.
 - **About & licenses screen:**
-  Each app generates its own `licenses.json` in its shared module using the `com.github.jk1.dependency-license-report` plugin (see `composeApp/build.gradle.kts` for the `licenseReport` + `prepareLicenseReport` task setup) and passes the bytes to `FoundationAboutScreen`:
+  Each app generates its own `licenses.json` in its shared module using the `com.github.jk1.dependency-license-report` plugin (see `composeApp/build.gradle.kts` for the `licenseReport` + `prepareLicenseReport` task setup) and passes the bytes to `FoundationAboutScreen`. The report can't read some licenses itself (it lists the Android artifacts of moko-permissions without one, so the About screen would show them as unknown). The `LicenseOverrides` filter in that build file fills these in from `gradle/license-overrides.json`; apps copy the filter and point it at `foundation/gradle/license-overrides.json`, so new overrides arrive with Foundation updates:
 
 ```kotlin
 entry<SettingsAbout>(metadata = screenMetadata(title = Res.string.screen_about_title)) {
