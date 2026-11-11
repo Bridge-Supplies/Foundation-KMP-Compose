@@ -1,8 +1,5 @@
 package bridge.supplies.foundation.core.crypto
 
-import korlibs.crypto.AES
-import korlibs.crypto.Padding
-import korlibs.encoding.Hex
 import korlibs.io.compression.compress
 import korlibs.io.compression.deflate.GZIP
 import korlibs.io.compression.uncompress
@@ -13,12 +10,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Guards QR/share-code compatibility across crypto library upgrades.
+ * Guards QR/share-code compatibility across crypto implementations.
  *
  * The fixtures below were produced with korlibs krypto 4.0.10 (before the swap to
- * `com.soywiz:korlibs-crypto`) using the dev key and must never change. They use the same pipeline
- * as `compressAndEncrypt()` (JSON -> GZIP -> AES-CBC/PKCS7 with key = IV -> hex), but with an
- * explicit key so the result doesn't depend on the build's `ENCRYPTION_KEY`.
+ * `com.soywiz:korlibs-crypto`, and later to the operating system's crypto) using the dev key and
+ * must never change. They use the same pipeline as `compressAndEncrypt()` (JSON -> GZIP ->
+ * AES-CBC/PKCS7 with key = IV -> hex), but with an explicit key so the result doesn't depend on the
+ * build's `ENCRYPTION_KEY`.
  */
 class CryptoFixtureTests {
     private val key = "BridgeDevKey0016".toByteArray()
@@ -32,24 +30,24 @@ class CryptoFixtureTests {
 
     @Test
     fun decryptsFixtureIdentically() {
-        val decrypted = AES.decryptAesCbc(Hex.decode(cipherHex), key, key, Padding.PKCS7Padding)
-        assertEquals(compressedHex, Hex.encode(decrypted))
+        val decrypted = aesCbcDecrypt(cipherHex.hexToByteArray(), key, key)
+        assertEquals(compressedHex, decrypted.toHexString())
         assertEquals(json, GZIP.uncompress(decrypted).toString(UTF8))
     }
 
     @Test
     fun producesIdenticalCiphertext() {
         val compressed = GZIP.compress(json.toByteArray())
-        assertEquals(compressedHex, Hex.encode(compressed))
-        val cipher = AES.encryptAesCbc(compressed, key, key, Padding.PKCS7Padding)
-        assertEquals(cipherHex, Hex.encode(cipher))
+        assertEquals(compressedHex, compressed.toHexString())
+        val cipher = aesCbcEncrypt(compressed, key, key)
+        assertEquals(cipherHex, cipher.toHexString())
     }
 
     @Test
     fun rawAesMatchesFixture() {
-        val cipher = AES.encryptAesCbc(json.toByteArray(), key, key, Padding.PKCS7Padding)
-        assertEquals(rawCipherHex, Hex.encode(cipher))
-        val plain = AES.decryptAesCbc(Hex.decode(rawCipherHex), key, key, Padding.PKCS7Padding)
+        val cipher = aesCbcEncrypt(json.toByteArray(), key, key)
+        assertEquals(rawCipherHex, cipher.toHexString())
+        val plain = aesCbcDecrypt(rawCipherHex.hexToByteArray(), key, key)
         assertEquals(json, plain.toString(UTF8))
     }
 }

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Verification entry point. Usage: scripts/verify.sh quick|ui|e2e
 #   quick: formatting check, compile Android debug (+ desktop if present) + JVM/common unit tests,
-#          plus iosSimulatorArm64Test when iOS-related files changed since the base.
+#          plus iosSimulatorArm64Test when iOS-related files changed since the base. Warns (doesn't
+#          fail) when iosApp/Configuration/Config.xcconfig's version differs from the catalog's.
 #   ui: quick + UI tests + the composite-build consumer test.
 #   e2e: ui + iosSimulatorArm64Test (always) + Maestro flows on Android and iOS
 #        + over-install from a baseline APK (flows in .maestro/).
@@ -437,6 +438,23 @@ write_history() {
 }
 
 RUN_START="$(date +%s)"
+
+# iOS version check (warn-only): Config.xcconfig must repeat the version catalog's app version.
+check_ios_version() {
+    local xcconfig="$REPO/iosApp/Configuration/Config.xcconfig" toml="$REPO/gradle/libs.versions.toml"
+    local catalog_name catalog_code ios_name ios_code
+    [ -f "$xcconfig" ] && [ -f "$toml" ] || return 0
+    catalog_name="$(sed -n 's/^app-versionName *= *"\([^"]*\)".*/\1/p' "$toml" | head -n 1)"
+    catalog_code="$(sed -n 's/^app-versionCode *= *"\([^"]*\)".*/\1/p' "$toml" | head -n 1)"
+    ios_name="$(sed -n 's/^MARKETING_VERSION *= *\([^ ]*\).*/\1/p' "$xcconfig" | head -n 1)"
+    ios_code="$(sed -n 's/^CURRENT_PROJECT_VERSION *= *\([^ ]*\).*/\1/p' "$xcconfig" | head -n 1)"
+    [ -n "$ios_name$ios_code" ] || return 0 # the project doesn't keep its version in Config.xcconfig
+    if [ "$ios_name" != "$catalog_name" ] || [ "$ios_code" != "$catalog_code" ]; then
+        echo "Warning: iosApp/Configuration/Config.xcconfig has version $ios_name ($ios_code), but gradle/libs.versions.toml has $catalog_name ($catalog_code). Update MARKETING_VERSION and CURRENT_PROJECT_VERSION." | tee -a "$LOG"
+        record "ios-version (Config.xcconfig differs from libs.versions.toml)" WARN 0
+    fi
+}
+check_ios_version
 
 # Formatting first: it's the quickest check (./gradlew spotlessApply fixes it)
 run_gradle_step "format" "spotlessCheck"

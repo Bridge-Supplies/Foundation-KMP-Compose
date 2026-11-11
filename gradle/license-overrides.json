@@ -1,0 +1,11 @@
+{
+  "overrides": [
+    {
+      "modulePattern": "dev\\.icerock\\.moko:permissions(-.+)?",
+      "licenseName": "Apache-2.0",
+      "licenseUrl": "https://github.com/icerockdev/moko-permissions/blob/master/LICENSE.md",
+      "moduleUrl": "https://github.com/icerockdev/moko-permissions",
+      "note": "The report reads no license for the Android artifacts; their POMs and the repository's LICENSE.md say Apache-2.0."
+    }
+  ]
+}

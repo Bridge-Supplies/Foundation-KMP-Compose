@@ -29,7 +29,7 @@ public data class StorageConfig(
     public val fileName: String = DEFAULT_SETTINGS_FILE_NAME,
     /**
      * iOS: directory to store the file in (e.g. an App Group container for widgets). Default:
-     * Documents.
+     * Application Support (before 2.2.0: Documents; a file found there is moved over once).
      */
     public val iosDirectory: (() -> String)? = null,
     /** Desktop: directory to store the file in. Default: the per-user app data folder. */

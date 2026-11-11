@@ -1,9 +1,5 @@
 package bridge.supplies.foundation.core.crypto
 
-import korlibs.crypto.AES
-import korlibs.crypto.Padding
-import korlibs.crypto.SHA256
-import korlibs.crypto.SecureRandom
 import korlibs.io.compression.compress
 import korlibs.io.compression.deflate.GZIP
 import korlibs.io.compression.uncompress
@@ -98,12 +94,11 @@ public class FoundationQrCodec(
         }
     }
 
-    private fun bytesCheck(bytes: ByteArray): ByteArray =
-        SHA256.digest(bytes).bytes.copyOf(CHECK_SIZE)
+    private fun bytesCheck(bytes: ByteArray): ByteArray = sha256(bytes).copyOf(CHECK_SIZE)
 
     private fun encrypt(bytes: ByteArray): ByteArray {
-        val iv = SecureRandom.nextBytes(IV_SIZE)
-        return iv + AES.encryptAesCbc(bytes, key.toByteArray(), iv, Padding.PKCS7Padding)
+        val iv = secureRandomBytes(IV_SIZE)
+        return iv + aesCbcEncrypt(bytes, key.toByteArray(), iv)
     }
 
     private fun decrypt(payload: ByteArray): ByteArray {
@@ -111,12 +106,7 @@ public class FoundationQrCodec(
             "Damaged payload"
         }
         val iv = payload.copyOfRange(0, IV_SIZE)
-        return AES.decryptAesCbc(
-            payload.copyOfRange(IV_SIZE, payload.size),
-            key.toByteArray(),
-            iv,
-            Padding.PKCS7Padding,
-        )
+        return aesCbcDecrypt(payload.copyOfRange(IV_SIZE, payload.size), key.toByteArray(), iv)
     }
 
     private fun decodeV2(text: String): String {
@@ -137,7 +127,6 @@ public class FoundationQrCodec(
         const val ENCRYPTED = 'E'
         const val PLAIN = 'P'
         const val IV_SIZE = 16
-        const val AES_BLOCK_SIZE = 16
         const val CHECK_SIZE = 4
     }
 }

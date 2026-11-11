@@ -1,4 +1,11 @@
+import com.github.jk1.license.ConfigurationData
+import com.github.jk1.license.License
+import com.github.jk1.license.ModuleData
+import com.github.jk1.license.PomData
+import com.github.jk1.license.ProjectData
+import com.github.jk1.license.filter.DependencyFilter
 import com.github.jk1.license.render.JsonReportRenderer
+import groovy.json.JsonSlurper
 import java.io.FileInputStream
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -20,8 +27,57 @@ licenseReport {
     // Foundation's own modules aren't third-party licenses (and resolving their Android variants is
     // ambiguous)
     excludeGroups = arrayOf("bridge.supplies.foundation")
+    // Licenses the report can't read itself (see the file). Apps use foundation/gradle/...
+    filters = arrayOf(LicenseOverrides(rootProject.file("gradle/license-overrides.json")))
     renderers = arrayOf(JsonReportRenderer("licenses.json"))
     outputDir = "${project.layout.projectDirectory}/reports/licenses"
+}
+
+/**
+ * Gives a license to dependencies the report finds none for. [file] lists `overrides`, each with a
+ * `modulePattern` (a regex over `group:name`), `licenseName`, `licenseUrl` and an optional
+ * `moduleUrl`. Dependencies that already have license information are left as they are.
+ */
+class LicenseOverrides(private val file: File) : DependencyFilter {
+    override fun filter(source: ProjectData): ProjectData {
+        if (!file.exists()) return source
+        @Suppress("UNCHECKED_CAST")
+        val rules =
+            (JsonSlurper().parse(file) as Map<String, Any?>)["overrides"]
+                as List<Map<String, String>>
+        fun withOverride(module: ModuleData): ModuleData {
+            val hasLicense =
+                module.poms.any { it.licenses.isNotEmpty() } ||
+                    module.manifests.any { it.license != null }
+            val rule = rules.firstOrNull {
+                Regex(it.getValue("modulePattern")).matches("${module.group}:${module.name}")
+            }
+            if (hasLicense || rule == null) return module
+            val pom =
+                PomData().apply {
+                    projectUrl = rule["moduleUrl"]
+                    licenses =
+                        setOf(License(rule.getValue("licenseName"), rule.getValue("licenseUrl")))
+                }
+            return ModuleData(
+                module.group,
+                module.name,
+                module.version,
+                module.hasArtifactFile,
+                module.manifests,
+                module.licenseFiles,
+                module.poms + pom,
+            )
+        }
+        val configurations =
+            source.configurations.map { configuration ->
+                ConfigurationData(
+                    configuration.name,
+                    configuration.dependencies.map(::withOverride).toSortedSet(),
+                )
+            }
+        return ProjectData(source.project, configurations.toSet(), source.importedModules)
+    }
 }
 
 tasks.register("prepareLicenseReport") {

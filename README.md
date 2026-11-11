@@ -60,7 +60,7 @@ Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/he
 - Build
   - [gmazzo's BuildConfig](https://github.com/gmazzo/gradle-buildconfig-plugin) (shared BuildConfig in the demo app)
 - Cryptography & compression
-  - [Korlibs Crypto](https://github.com/korlibs/korlibs-crypto) (AES-CBC encryption/decryption and secure random IVs)
+  - The operating system's own crypto for AES-CBC and SHA-256 and for random IVs: `javax.crypto` on Android and desktop, CommonCrypto and `SecRandomCopyBytes` on iOS (no third-party crypto library)
   - [Korlibs Compression](https://github.com/korlibs/korlibs-compression) (GZIP compression/decompression)
 - Theming
   - [jordond's MaterialKolor](https://github.com/jordond/materialkolor) (dynamic Material color scheme generation)
@@ -405,7 +405,7 @@ ScreenBackHandler(enabled = hasUnsavedChanges) { askDiscard = true }
 
 ### 4. Settings storage and `FoundationSettingsScreen`
 
-Foundation owns the single `DataStore<Preferences>` instance (`settings.preferences_pb`). Define your app's keys with `settingName("<suffix>")` (which prefixes `"Settings_"` for backward compatibility):
+Foundation owns the single `DataStore<Preferences>` instance (`settings.preferences_pb`). It lives in the app's data folder on Android, in Application Support on iOS (before 2.2.0 it was Documents; a file found there is moved over once), and in the per-user app data folder on desktop. `StorageConfig.iosDirectory` and `desktopDirectory` override the folder. Define your app's keys with `settingName("<suffix>")` (which prefixes `"Settings_"` for backward compatibility):
 
 ```kotlin
 val showHintsKey = BooleanSetting(settingName("show_hints"), default = true)
@@ -513,7 +513,7 @@ FoundationApp(
   - `Landing.Custom { onDone -> MyOnboardingScreen(onFinish = onDone) }` renders a custom onboarding flow.
   - `Landing.None` skips the landing screen.
 - **About & licenses screen:**
-  Each app generates its own `licenses.json` in its shared module using the `com.github.jk1.dependency-license-report` plugin (see `composeApp/build.gradle.kts` for the `licenseReport` + `prepareLicenseReport` task setup) and passes the bytes to `FoundationAboutScreen`:
+  Each app generates its own `licenses.json` in its shared module using the `com.github.jk1.dependency-license-report` plugin (see `composeApp/build.gradle.kts` for the `licenseReport` + `prepareLicenseReport` task setup) and passes the bytes to `FoundationAboutScreen`. The report can't read some licenses itself (it lists the Android artifacts of moko-permissions without one, so the About screen would show them as unknown). The `LicenseOverrides` filter in that build file fills these in from `gradle/license-overrides.json`; apps copy the filter and point it at `foundation/gradle/license-overrides.json`, so new overrides arrive with Foundation updates:
 
 ```kotlin
 entry<SettingsAbout>(metadata = screenMetadata(title = Res.string.screen_about_title)) {
@@ -636,15 +636,16 @@ If you are forking or cloning this repository as a standalone starter template i
 * Update `androidApp/src/main/AndroidManifest.xml`:
   - `<application android:name="..." />` = the full package name + Application class name (e.g. `bridge.supplies.foundation.Foundation`)
 * Update iOS build files in `/iosApp`:
-  - Update `Configuration/Config.xcconfig`:
+  - Update `Configuration/Config.xcconfig`, the one place for the iOS app's identity and version (`Info.plist` and the Xcode project read it):
     - `BUNDLE_ID` = your Android `applicationId` (e.g. `bridge.supplies.foundation`). It becomes the iOS bundle ID as is, and is permanent once the app is on the App Store.
     - `APP_NAME` = visible app name (e.g. `Foundation`)
+    - `PRODUCT_NAME` = the `.app` and Swift module name, usually the same as `APP_NAME` (the demo uses `Foundation_`, see above). `scripts/verify.sh` looks for `<PRODUCT_NAME>.app` (`E2E_IOS_APP_NAME`).
+    - `APP_CATEGORY` = your [App Store category](https://developer.apple.com/documentation/bundleresources/information-property-list/lsapplicationcategorytype) (default `public.app-category.utilities`)
+    - `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` = `app-versionName` and `app-versionCode` from `libs.versions.toml`. Change them together on every release: `scripts/verify.sh` warns when they differ.
   - For device builds, create `Configuration/Local.xcconfig` (git-ignored) with your Apple team ID: `TEAM_ID=ABCDE12345`. It only picks the signing team. Don't pick the team in Xcode's Signing settings, which writes it into the project file; if Xcode does, don't commit that change.
-  - Update `iosApp.xcodeproj/project.pbxproj`:
-    - replace `Foundation_` = your app name
-    - `MARKETING_VERSION` = the same value as `app-versionName` in `libs.versions.toml`
-    - `CURRENT_PROJECT_VERSION` = the same value as `app-versionCode` in `libs.versions.toml`
-    - `PRODUCT_NAME` and `INFOPLIST_KEY_CFBundleDisplayName` = your app name (the bundle ID comes from `BUNDLE_ID`)
+  - `iosApp.xcodeproj/project.pbxproj` needs no app-specific edits: the name, bundle ID, version and category all come from `Config.xcconfig`.
+  - Check `iosApp/iosApp/Info.plist`: `NSCameraUsageDescription` explains the QR scanner; remove it if your app doesn't scan codes (`FeatureFlags.qrSharing = false`).
+  - The template is set up for the App Store: iPhone only (`TARGETED_DEVICE_FAMILY = 1`, it runs on iPad in compatibility mode), iOS 17.2 or later, `arm64`, and `ITSAppUsesNonExemptEncryption = false` (QR encryption uses only the operating system's crypto). `iosApp/iosApp/PrivacyInfo.xcprivacy` declares no tracking and no collected data, plus the reasons for the file-timestamp and system-boot-time APIs that the linked libraries use. Update it if you add a library or code that collects data or uses other [required-reason APIs](https://developer.apple.com/documentation/bundleresources/describing-use-of-required-reason-api).
 
 ### After a successful build
 * Update run configurations in `.run/` if needed:

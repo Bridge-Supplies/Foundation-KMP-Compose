@@ -1,8 +1,5 @@
 package bridge.supplies.foundation.core.crypto
 
-import korlibs.crypto.AES
-import korlibs.crypto.Padding
-import korlibs.encoding.Hex
 import korlibs.io.compression.compress
 import korlibs.io.compression.deflate.GZIP
 import korlibs.io.compression.uncompress
@@ -18,7 +15,7 @@ internal fun compressAndEncryptV1(text: String, key: String): String? =
     try {
         val keyBytes = key.toByteArray()
         val compressedBytes = GZIP.compress(text.toByteArray())
-        Hex.encode(AES.encryptAesCbc(compressedBytes, keyBytes, keyBytes, Padding.PKCS7Padding))
+        aesCbcEncrypt(compressedBytes, keyBytes, keyBytes).toHexString()
     } catch (e: Exception) {
         null
     }
@@ -27,8 +24,7 @@ internal fun compressAndEncryptV1(text: String, key: String): String? =
 internal fun decryptAndDecompressV1(hex: String, key: String): String? =
     try {
         val keyBytes = key.toByteArray()
-        val decryptedBytes =
-            AES.decryptAesCbc(Hex.decode(hex), keyBytes, keyBytes, Padding.PKCS7Padding)
+        val decryptedBytes = aesCbcDecrypt(hex.hexToByteArray(), keyBytes, keyBytes)
         GZIP.uncompress(decryptedBytes).toString(UTF8)
     } catch (e: Exception) {
         null
