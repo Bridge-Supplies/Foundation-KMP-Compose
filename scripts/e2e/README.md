@@ -107,7 +107,10 @@ appId: ${APP_ID}
 
 ## Integrating into `scripts/verify.sh`
 
-Apps copy `scripts/verify.sh` and `scripts/e2e/over-install.sh` and change only the `E2E_*` block at the top of the e2e tier: the Android and iOS app ids, the iOS `.app` name, the baseline folder name, and the seed/assert flows. The tier then:
-1. Builds the Android debug APK and runs `.maestro/smoke.yaml` on the emulator.
-2. Builds the iOS app for the simulator (incremental, `ARCHS=arm64`) and runs the same smoke flow there.
+Apps copy `scripts/verify.sh` and `scripts/e2e/over-install.sh` and change only the `E2E_*` block at the top of the e2e tier: the Android and iOS app ids, the iOS `.app` name, the flows to run on each platform, the baseline folder name, the seed and assert flows, and `E2E_STRICT` (1 makes a missing baseline APK or simulator a failure). The tier then:
+1. Builds the Android debug APK (booting the `medium_phone` emulator if none is running) and runs each `E2E_ANDROID_FLOWS` flow on the emulator.
+2. Builds the iOS app for the simulator (incremental, `ARCHS=arm64`), removes simulator apps whose bundle ID starts with the app's ID plus a dot (except `.debug`), and runs each `E2E_IOS_FLOWS` flow.
 3. If a baseline APK is found, runs `scripts/e2e/over-install.sh` with the seed and assert flows.
+4. Shuts the emulator down again if it booted it (`VERIFY_KEEP_EMULATOR=1` keeps it).
+
+Every Gradle step, Maestro flow and the over-install run under a time limit (`VERIFY_TIMEOUT_GRADLE_MIN`, default 25; `VERIFY_TIMEOUT_MAESTRO_MIN`, default 10; `VERIFY_TIMEOUT_OVER_INSTALL_MIN`, default 15). A step past its limit is killed with its child processes and fails. Each run appends a line to `~/.cache/bridge-supplies/verify-history.tsv`.
