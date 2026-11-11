@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 # Verification entry point. Usage: scripts/verify.sh quick|ui|e2e
 #   quick: formatting check, compile Android debug (+ desktop if present) + JVM/common unit tests,
-#          plus iosSimulatorArm64Test when iOS-related files changed.
+#          plus iosSimulatorArm64Test when iOS-related files changed since the base.
 #   ui: quick + UI tests + the composite-build consumer test.
-#   e2e: ui + Maestro smoke on Android and iOS + over-install from a baseline APK (flows in .maestro/).
-# Env: VERIFY_BASE = git base for the iOS-change check (default main, the last release).
-# Compatible with macOS bash 3.2.
+#   e2e: ui + iosSimulatorArm64Test (always) + Maestro flows on Android and iOS
+#        + over-install from a baseline APK (flows in .maestro/).
+# Env:
+#   VERIFY_BASE                      git base for the iOS-change check. Default: the merge-base of
+#                                    HEAD and origin/main (on a release branch, the whole release), else main.
+#   VERIFY_TIMEOUT_GRADLE_MIN        limit per Gradle step and for the iOS app build (default 25).
+#   VERIFY_TIMEOUT_MAESTRO_MIN       limit per Maestro flow (default 10).
+#   VERIFY_TIMEOUT_OVER_INSTALL_MIN  limit for the over-install flow (default 15).
+#   VERIFY_KEEP_EMULATOR=1           keep the Android emulator running when this script booted it.
+# A step that runs past its limit is killed with its child processes and fails.
+# Each run appends one line to ~/.cache/bridge-supplies/verify-history.tsv.
+# Compatible with macOS bash 3.2 (which has no `timeout` command).
 
 set -u
 
@@ -27,6 +36,20 @@ LOCK_ROOT="$HOME/.cache/bridge-supplies"
 LOCK_WAIT_SECONDS=1800
 LOCK_POLL_SECONDS=10
 HELD_LOCKS=""
+HISTORY_FILE="$LOCK_ROOT/verify-history.tsv"
+
+GRADLE_LIMIT_MIN="${VERIFY_TIMEOUT_GRADLE_MIN:-25}"
+MAESTRO_LIMIT_MIN="${VERIFY_TIMEOUT_MAESTRO_MIN:-10}"
+OVER_INSTALL_LIMIT_MIN="${VERIFY_TIMEOUT_OVER_INSTALL_MIN:-15}"
+EMULATOR_BOOT_LIMIT_MIN=10
+for limit in "$GRADLE_LIMIT_MIN" "$MAESTRO_LIMIT_MIN" "$OVER_INSTALL_LIMIT_MIN"; do
+    case "$limit" in
+        ''|*[!0-9]*|0)
+            echo "VERIFY_TIMEOUT_*_MIN must be a whole number of minutes above 0 (got '$limit')." >&2
+            exit 2
+            ;;
+    esac
+done
 
 # --- Locks -------------------------------------------------------------------
 
@@ -81,11 +104,131 @@ release_all_locks() {
     HELD_LOCKS=""
 }
 
-# Helpers for the emulator lock (unused by `quick`; for ui/e2e tiers later).
+# The emulator lock covers the Android emulator and the iOS simulator (e2e tier).
 acquire_emulator_lock() { acquire_lock emulator; }
-release_emulator_lock() { release_lock emulator; HELD_LOCKS="$(echo "$HELD_LOCKS" | sed 's/ emulator//')"; }
+release_emulator_lock() {
+    case " $HELD_LOCKS " in
+        *" emulator "*)
+            release_lock emulator
+            HELD_LOCKS="$(echo "$HELD_LOCKS" | sed 's/ emulator//')"
+            ;;
+    esac
+}
 
-trap release_all_locks EXIT
+# --- Processes and time limits -----------------------------------------------
+
+STEP_PID=""
+STEP_TIMED_OUT=0
+EMULATOR_PID=""
+EMULATOR_STARTED=0
+RUN_START=""
+HISTORY_WRITTEN=0
+
+# is_alive <pid>: the process exists and isn't a zombie.
+is_alive() {
+    local state
+    state="$(ps -o stat= -p "$1" 2>/dev/null)"
+    case "$state" in
+        ''|Z*) return 1 ;;
+    esac
+    return 0
+}
+
+# descendants <pid>: every descendant PID of the process.
+descendants() {
+    local child
+    for child in $(pgrep -P "$1" 2>/dev/null); do
+        echo "$child"
+        descendants "$child"
+    done
+}
+
+# kill_tree <pid>: TERM the process and all its descendants, then KILL whatever is left after 10 s.
+kill_tree() {
+    local pids p alive waited=0
+    pids="$1 $(descendants "$1")"
+    # shellcheck disable=SC2086 # split the PID list on purpose
+    kill -TERM $pids 2>/dev/null
+    while [ "$waited" -lt 10 ]; do
+        alive=""
+        for p in $pids; do
+            is_alive "$p" && alive="$alive $p"
+        done
+        [ -z "$alive" ] && return 0
+        sleep 1
+        waited=$((waited + 1))
+    done
+    # shellcheck disable=SC2086
+    kill -KILL $alive 2>/dev/null
+    return 0
+}
+
+# run_limited <minutes> <command...>: run the command in the background with its output in the log,
+# and kill its process tree once it runs longer than <minutes>. Sets STEP_TIMED_OUT=1 on a timeout.
+run_limited() {
+    local minutes="$1" start rc
+    shift
+    STEP_TIMED_OUT=0
+    start="$(date +%s)"
+    "$@" >> "$LOG" 2>&1 &
+    STEP_PID=$!
+    while is_alive "$STEP_PID"; do
+        if [ $(($(date +%s) - start)) -ge $((minutes * 60)) ]; then
+            STEP_TIMED_OUT=1
+            echo "!! timed out after $minutes min; stopping PID $STEP_PID and its children" >> "$LOG"
+            kill_tree "$STEP_PID"
+            break
+        fi
+        sleep 1
+    done
+    wait "$STEP_PID" 2>/dev/null
+    rc=$?
+    STEP_PID=""
+    [ "$STEP_TIMED_OUT" -eq 1 ] && rc=124
+    return "$rc"
+}
+
+stop_current_step() {
+    if [ -n "$STEP_PID" ]; then
+        kill_tree "$STEP_PID"
+        STEP_PID=""
+    fi
+}
+
+# Shut down the Android emulator if this run booted it (unless VERIFY_KEEP_EMULATOR=1).
+shutdown_emulator_if_ours() {
+    local serial waited=0
+    [ "$EMULATOR_STARTED" -eq 1 ] || return 0
+    EMULATOR_STARTED=0
+    if [ "${VERIFY_KEEP_EMULATOR:-0}" = "1" ]; then
+        echo ">> Leaving the Android emulator running (VERIFY_KEEP_EMULATOR=1)."
+        return 0
+    fi
+    echo ">> Shutting down the Android emulator this run booted..."
+    serial="$("$ADB" devices 2>/dev/null | grep -Eo '^emulator-[0-9]+' | head -n 1)"
+    if [ -n "$serial" ]; then
+        "$ADB" -s "$serial" emu kill >> "$LOG" 2>&1 || true
+    fi
+    while [ -n "$EMULATOR_PID" ] && is_alive "$EMULATOR_PID" && [ "$waited" -lt 60 ]; do
+        sleep 1
+        waited=$((waited + 1))
+    done
+    if [ -n "$EMULATOR_PID" ] && is_alive "$EMULATOR_PID"; then
+        kill_tree "$EMULATOR_PID"
+    fi
+    return 0
+}
+
+cleanup() {
+    stop_current_step
+    shutdown_emulator_if_ours
+    if [ -n "$RUN_START" ] && [ "$HISTORY_WRITTEN" -eq 0 ]; then
+        write_history ABORTED
+    fi
+    release_all_locks
+}
+
+trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
@@ -126,27 +269,32 @@ module_has_desktop_target() {
 }
 
 DESKTOP_TASK=""
-TEST_TASK=""
+TEST_TASKS="" # space-separated Gradle task list
 if has_module desktopApp; then
     DESKTOP_TASK=":desktopApp:compileKotlin"
 fi
 if has_module composeApp && module_has_desktop_target composeApp; then
     [ -z "$DESKTOP_TASK" ] && DESKTOP_TASK=":composeApp:compileKotlinDesktop"
-    TEST_TASK="desktopTest" # every module with a desktop target
+    TEST_TASKS="desktopTest" # every module with a desktop target
 fi
-if [ -z "$TEST_TASK" ]; then
+if [ -z "$TEST_TASKS" ]; then
     if has_module androidApp && has_module composeApp; then
-        TEST_TASK=":composeApp:testAndroidHostTest" # mobile-only app: androidApp has no tests of its own
+        TEST_TASKS=":composeApp:testAndroidHostTest" # mobile-only app: androidApp has no tests of its own
     else
-        TEST_TASK="$ANDROID_UNIT_TEST"
+        TEST_TASKS="$ANDROID_UNIT_TEST"
     fi
 fi
 
 # --- iOS change detection ----------------------------------------------------
 
-BASE="${VERIFY_BASE:-main}"
+if [ -n "${VERIFY_BASE:-}" ]; then
+    BASE="$VERIFY_BASE"
+else
+    BASE="$(git merge-base HEAD origin/main 2>/dev/null)"
+    [ -n "$BASE" ] || BASE="main"
+fi
 IOS_CHANGED=0
-CHANGED="$( { git diff --name-only "$BASE"...HEAD 2>/dev/null; git diff --name-only HEAD 2>/dev/null; } | sort -u)"
+CHANGED="$( { git diff --name-only "$BASE"...HEAD 2>/dev/null; git diff --name-only HEAD 2>/dev/null; git status --porcelain -uall 2>/dev/null | sed 's/^...//'; } | sort -u)"
 # iOS sources, shared code, the Foundation submodule and Gradle build config (the memory caps in gradle.properties don't count).
 if echo "$CHANGED" | grep -Eq '(^|/)(iosMain|iosTest|commonMain|commonTest)/|^iosApp/|^foundation$|\.gradle(\.kts)?$|libs\.versions\.toml$|gradle-wrapper\.properties$'; then
     IOS_CHANGED=1
@@ -164,29 +312,62 @@ acquire_lock build || exit 1
 
 SUMMARY=""
 OVERALL=0
-FAILED_STEP=""
+FAILED_STEP=""   # the first failure
+FAILED_STEPS=""  # every failure, comma-separated
+ANY_TIMEOUT=0
+STEP_TIMES=""    # "step=seconds" pairs for the history file
 
 record() { # name status seconds
     SUMMARY="$SUMMARY$(printf '  %-6s %-40s %ss' "$2" "$1" "$3")
 "
 }
 
-run_gradle_step() { # name gradle-task
-    local name="$1" task="$2" start end rc
-    echo ">> $name: ./gradlew $task"
-    echo "=== $name: ./gradlew $task ===" >> "$LOG"
+# Step name without a "(reason)" suffix and without spaces, for the history file.
+step_key() {
+    echo "${1%% (*}" | tr ' \t' '__'
+}
+
+mark_failed() { # name
+    OVERALL=1
+    [ -z "$FAILED_STEP" ] && FAILED_STEP="$1"
+    FAILED_STEPS="${FAILED_STEPS:+$FAILED_STEPS,}$(step_key "$1")"
+}
+
+# run_step <name> <limit-minutes> <command...>: one timed step, output in the log.
+run_step() {
+    local name="$1" minutes="$2" start secs rc
+    shift 2
+    echo ">> $name: $*"
+    echo "=== $name: $* ===" >> "$LOG"
     start="$(date +%s)"
-    ./gradlew "$task" --console=plain --no-daemon >> "$LOG" 2>&1
+    run_limited "$minutes" "$@"
     rc=$?
-    end="$(date +%s)"
-    if [ "$rc" -eq 0 ]; then
-        record "$name" PASS $((end - start))
+    secs=$(($(date +%s) - start))
+    STEP_TIMES="$STEP_TIMES $(step_key "$name")=$secs"
+    if [ "$STEP_TIMED_OUT" -eq 1 ]; then
+        echo "!! $name timed out after $minutes min"
+        record "$name (timed out after $minutes min)" FAIL "$secs"
+        ANY_TIMEOUT=1
+        mark_failed "$name"
+    elif [ "$rc" -eq 0 ]; then
+        record "$name" PASS "$secs"
     else
-        record "$name" FAIL $((end - start))
-        OVERALL=1
-        FAILED_STEP="$name"
+        record "$name" FAIL "$secs"
+        mark_failed "$name"
     fi
     return "$rc"
+}
+
+run_gradle_step() { # name gradle-task...
+    local name="$1"
+    shift
+    run_step "$name" "$GRADLE_LIMIT_MIN" ./gradlew "$@" --console=plain --no-daemon
+}
+
+run_maestro_step() { # name command...
+    local name="$1"
+    shift
+    run_step "$name" "$MAESTRO_LIMIT_MIN" "$@"
 }
 
 skip_step() { # name reason
@@ -194,52 +375,42 @@ skip_step() { # name reason
     record "$1 ($2)" SKIP 0
 }
 
-run_consumer_test_step() {
-    local name="consumer-test"
-    local start end rc
-    local cmd="$REPO/scripts/consumer-test.sh"
-    if [ ! -f "$cmd" ]; then
-        skip_step "$name" "no consumer-test.sh"
-        return 0
-    fi
-    echo ">> $name: scripts/consumer-test.sh"
-    echo "=== $name: scripts/consumer-test.sh ===" >> "$LOG"
-    start="$(date +%s)"
-    if [ "$IOS_CHANGED" -eq 1 ]; then
-        "$cmd" >> "$LOG" 2>&1
-    else
-        "$cmd" --no-ios >> "$LOG" 2>&1
-    fi
-    rc=$?
-    end="$(date +%s)"
-    if [ "$rc" -eq 0 ]; then
-        record "$name" PASS $((end - start))
-    else
-        record "$name" FAIL $((end - start))
-        OVERALL=1
-        FAILED_STEP="$name"
-    fi
-    return "$rc"
+# A step that can't run is a failure: a tier must never pass without having tested the app.
+fail_step() { # name reason
+    echo "Error: $1: $2" | tee -a "$LOG" >&2
+    record "$1" FAIL 0
+    STEP_TIMES="$STEP_TIMES $(step_key "$1")=0"
+    mark_failed "$1"
 }
 
-run_maestro_step() {
-    local name="$1"
-    shift
-    local start end rc
-    echo ">> $name: $*"
-    echo "=== $name: $* ===" >> "$LOG"
-    start="$(date +%s)"
-    "$@" >> "$LOG" 2>&1
-    rc=$?
-    end="$(date +%s)"
-    if [ "$rc" -eq 0 ]; then
-        record "$name" PASS $((end - start))
-    else
-        record "$name" FAIL $((end - start))
-        OVERALL=1
-        FAILED_STEP="$name"
+run_consumer_test_step() {
+    local cmd="$REPO/scripts/consumer-test.sh"
+    if [ ! -f "$cmd" ]; then
+        skip_step "consumer-test" "no consumer-test.sh"
+        return 0
     fi
-    return "$rc"
+    if [ "$IOS_CHANGED" -eq 1 ]; then
+        run_step "consumer-test" "$GRADLE_LIMIT_MIN" "$cmd"
+    else
+        run_step "consumer-test" "$GRADLE_LIMIT_MIN" "$cmd" --no-ios
+    fi
+}
+
+# write_history <result>: append this run to the shared history file.
+write_history() {
+    local branch commit
+    HISTORY_WRITTEN=1
+    branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+    commit="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+    if ! git diff --quiet HEAD 2>/dev/null; then
+        commit="$commit-dirty"
+    fi
+    mkdir -p "$LOCK_ROOT"
+    if [ ! -f "$HISTORY_FILE" ]; then
+        printf 'time\trepo\tbranch\tcommit\ttier\tresult\tfailed\tseconds\tsteps\n' > "$HISTORY_FILE"
+    fi
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$REPO_NAME" "$branch" "$commit" \
+        "$TIER" "$1" "${FAILED_STEPS:--}" "$(($(date +%s) - RUN_START))" "${STEP_TIMES# }" >> "$HISTORY_FILE"
 }
 
 RUN_START="$(date +%s)"
@@ -256,10 +427,12 @@ if [ "$OVERALL" -eq 0 ]; then
     fi
 fi
 if [ "$OVERALL" -eq 0 ]; then
-    run_gradle_step "unit-tests" "$TEST_TASK"
+    # shellcheck disable=SC2086 # split the task list on purpose
+    run_gradle_step "unit-tests" $TEST_TASKS
 fi
 if [ "$OVERALL" -eq 0 ]; then
-    if [ "$IOS_CHANGED" -eq 1 ]; then
+    # e2e always runs the iOS tests; quick and ui only when iOS-related files changed.
+    if [ "$IOS_CHANGED" -eq 1 ] || [ "$TIER" = "e2e" ]; then
         if xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
             run_gradle_step "ios-tests" "iosSimulatorArm64Test"
         else
@@ -268,12 +441,11 @@ if [ "$OVERALL" -eq 0 ]; then
             run_gradle_step "ios-link (no simulator)" "linkDebugTestIosSimulatorArm64"
         fi
     else
-        echo "skipped iOS (no iOS-related changes)"
         skip_step "ios-tests" "no iOS-related changes"
     fi
 fi
 
-# --- UI tier --------------------------------------------------------
+# --- UI tier -----------------------------------------------------------------
 if [ "$OVERALL" -eq 0 ] && [ "$TIER" != "quick" ]; then
     if has_module foundation-ui; then
         run_gradle_step "ui-tests" ":foundation-ui:desktopTest"
@@ -283,18 +455,47 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" != "quick" ]; then
     fi
 fi
 
-# --- E2E tier -------------------------------------------------------
+# --- E2E tier ----------------------------------------------------------------
 # App identity for the e2e flows. Apps that copy this script change only this block.
 E2E_ANDROID_APP_ID="bridge.supplies.foundation.debug"
 E2E_IOS_APP_ID="bridge.supplies.foundation"
 E2E_IOS_APP_NAME="Foundation_.app"
+E2E_ANDROID_FLOWS="smoke" # .maestro/<flow>.yaml, in order
+E2E_IOS_FLOWS="smoke"
 E2E_BASELINE_NAME="foundation"
-E2E_SEED_FLOW="$REPO/.maestro/seed-settings.yaml"
+E2E_SEED="$REPO/.maestro/seed-settings.yaml" # how scripts/e2e/over-install.sh seeds the baseline
 E2E_ASSERT_FLOW="$REPO/.maestro/assert-settings.yaml"
+E2E_STRICT=0 # 1: a missing baseline APK or iPhone simulator fails the tier instead of being skipped
+
+wait_for_android_boot() {
+    "$ADB" wait-for-device
+    while [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
+        sleep 2
+    done
+}
+
+# Remove simulator apps whose bundle ID extends this app's (an old "<id>.<Name>" build): Maestro's
+# clearState hangs forever when the current ID is a prefix of an installed one. Keeps "<id>.debug".
+remove_stale_ios_apps() { # simulator
+    local id
+    for id in $(xcrun simctl listapps "$1" 2>/dev/null | sed -n 's/^[[:space:]]*CFBundleIdentifier = "\{0,1\}\([^";]*\)"\{0,1\};[[:space:]]*$/\1/p' | sort -u); do
+        case "$id" in
+            "$E2E_IOS_APP_ID.debug") ;;
+            "$E2E_IOS_APP_ID".*)
+                echo ">> Uninstalling stale simulator app $id" | tee -a "$LOG"
+                xcrun simctl uninstall "$1" "$id" >> "$LOG" 2>&1 || echo "Could not uninstall $id" | tee -a "$LOG"
+                ;;
+        esac
+    done
+}
 
 if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
-    acquire_emulator_lock || exit 1
+    if ! acquire_emulator_lock; then
+        fail_step "emulator-lock" "timed out waiting for the emulator lock"
+    fi
+fi
 
+if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
     # Locate adb
     ADB="${ADB:-$HOME/Library/Android/sdk/platform-tools/adb}"
     if [ ! -x "$ADB" ] && command -v adb >/dev/null 2>&1; then
@@ -322,12 +523,12 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
         if [ ! -x "$EMU_BIN" ] && command -v emulator >/dev/null 2>&1; then
             EMU_BIN="$(command -v emulator)"
         fi
-        "$EMU_BIN" -avd medium_phone -netdelay none -netspeed full &
-        "$ADB" wait-for-device >> "$LOG" 2>&1
-        while [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
-            sleep 2
-        done
-        echo ">> Android emulator ready."
+        "$EMU_BIN" -avd medium_phone -netdelay none -netspeed full >/dev/null 2>&1 &
+        EMULATOR_PID=$!
+        EMULATOR_STARTED=1
+        if run_step "android-emulator-boot" "$EMULATOR_BOOT_LIMIT_MIN" wait_for_android_boot; then
+            echo ">> Android emulator ready."
+        fi
     fi
 
     # Locate Android debug APK
@@ -338,7 +539,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
         DEMO_APK="$REPO/composeApp/build/outputs/apk/debug/composeApp-debug.apk"
     fi
 
-    if [ -z "$DEMO_APK" ] || [ ! -f "$DEMO_APK" ]; then
+    if [ "$OVERALL" -eq 0 ] && { [ -z "$DEMO_APK" ] || [ ! -f "$DEMO_APK" ]; }; then
         run_gradle_step "demo-apk-build" "$ANDROID_TASK"
         if [ -f "$REPO/androidApp/build/outputs/apk/debug/androidApp-debug.apk" ]; then
             DEMO_APK="$REPO/androidApp/build/outputs/apk/debug/androidApp-debug.apk"
@@ -347,59 +548,63 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
         fi
     fi
 
-    # A step that can't run is a failure: this tier must never pass without having tested the app.
-    e2e_fail() { # name reason
-        echo "Error: $1: $2" | tee -a "$LOG" >&2
-        record "$1" FAIL 0
-        OVERALL=1
-        FAILED_STEP="$1"
-    }
-
-    # Run Android Maestro smoke flow
+    # Android Maestro flows
     if [ "$OVERALL" -eq 0 ]; then
         if [ -z "$DEMO_APK" ] || [ ! -f "$DEMO_APK" ]; then
-            e2e_fail "e2e-smoke-android" "no debug APK to install"
+            fail_step "android-install" "no debug APK to install"
         elif ! "$ADB" install -r "$DEMO_APK" >> "$LOG" 2>&1; then
-            e2e_fail "e2e-smoke-android" "could not install $DEMO_APK"
+            fail_step "android-install" "could not install $DEMO_APK"
         else
-            "$ADB" shell am force-stop "$E2E_ANDROID_APP_ID" >> "$LOG" 2>&1 || true
-            run_maestro_step "e2e-smoke-android" "$MAESTRO" --platform android test -e APP_ID="$E2E_ANDROID_APP_ID" "$REPO/.maestro/smoke.yaml"
+            for flow in $E2E_ANDROID_FLOWS; do
+                if [ "$OVERALL" -eq 0 ]; then
+                    "$ADB" shell am force-stop "$E2E_ANDROID_APP_ID" >> "$LOG" 2>&1 || true
+                    run_maestro_step "e2e-$flow-android" "$MAESTRO" --platform android test -e APP_ID="$E2E_ANDROID_APP_ID" "$REPO/.maestro/$flow.yaml"
+                fi
+            done
         fi
     fi
 
-    # Run iOS Maestro smoke flow if simulator runtime exists
+    # iOS Maestro flows
     if [ "$OVERALL" -eq 0 ]; then
-        if xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
+        if ! xcrun simctl list devices available 2>/dev/null | grep -q "iPhone"; then
+            if [ "$E2E_STRICT" -eq 1 ]; then
+                fail_step "e2e-ios" "no iPhone simulator available"
+            else
+                skip_step "e2e-ios" "no iOS simulator runtime"
+            fi
+        else
             IOS_APP_PATH="$REPO/build/ios-derived/Build/Products/Debug-iphonesimulator/$E2E_IOS_APP_NAME"
-            # Always rebuild (incremental) so the flow never runs against a stale app.
+            # Always rebuild (incremental) so the flows never run against a stale app.
             # Simulator builds are arm64-only: the KMP framework has no x86_64 simulator slice.
-            echo ">> Building iOS app for simulator..."
-            if ! xcodebuild -project "$REPO/iosApp/iosApp.xcodeproj" -scheme iOS \
+            if run_step "ios-app-build" "$GRADLE_LIMIT_MIN" xcodebuild -project "$REPO/iosApp/iosApp.xcodeproj" -scheme iOS \
                 -destination "generic/platform=iOS Simulator" \
                 -derivedDataPath "$REPO/build/ios-derived" \
-                ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build >> "$LOG" 2>&1; then
-                e2e_fail "e2e-smoke-ios" "the iOS build failed"
-            elif [ ! -d "$IOS_APP_PATH" ]; then
-                e2e_fail "e2e-smoke-ios" "built app not found at $IOS_APP_PATH"
-            else
+                ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build; then
                 BOOTED_SIM="$(xcrun simctl list devices 2>/dev/null | grep -E "iPhone.*\(Booted\)" | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/' | head -n 1)"
                 if [ -z "$BOOTED_SIM" ]; then
                     BOOTED_SIM="$(xcrun simctl list devices available 2>/dev/null | grep -E "iPhone" | head -n 1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')"
-                    xcrun simctl boot "$BOOTED_SIM" 2>/dev/null || true
+                    if [ -n "$BOOTED_SIM" ]; then
+                        xcrun simctl boot "$BOOTED_SIM" 2>/dev/null || true
+                    fi
                 fi
-                if ! xcrun simctl install "$BOOTED_SIM" "$IOS_APP_PATH" >> "$LOG" 2>&1; then
-                    e2e_fail "e2e-smoke-ios" "could not install the app on simulator $BOOTED_SIM"
+                remove_stale_ios_apps "$BOOTED_SIM"
+                if [ ! -d "$IOS_APP_PATH" ]; then
+                    fail_step "ios-install" "built app not found at $IOS_APP_PATH"
+                elif ! xcrun simctl install "$BOOTED_SIM" "$IOS_APP_PATH" >> "$LOG" 2>&1; then
+                    fail_step "ios-install" "could not install the app on simulator $BOOTED_SIM"
                 else
-                    xcrun simctl terminate "$BOOTED_SIM" "$E2E_IOS_APP_ID" >> "$LOG" 2>&1 || true
-                    run_maestro_step "e2e-smoke-ios" "$MAESTRO" --platform ios test -e APP_ID="$E2E_IOS_APP_ID" "$REPO/.maestro/smoke.yaml"
+                    for flow in $E2E_IOS_FLOWS; do
+                        if [ "$OVERALL" -eq 0 ]; then
+                            xcrun simctl terminate "$BOOTED_SIM" "$E2E_IOS_APP_ID" >> "$LOG" 2>&1 || true
+                            run_maestro_step "e2e-$flow-ios" "$MAESTRO" --platform ios test -e APP_ID="$E2E_IOS_APP_ID" "$REPO/.maestro/$flow.yaml"
+                        fi
+                    done
                 fi
             fi
-        else
-            skip_step "e2e-smoke-ios" "no iOS simulator runtime"
         fi
     fi
 
-    # Run over-install harness if baseline exists (baselines aren't committed, so a fresh clone skips this)
+    # Over-install from the published version's debug baseline (baselines aren't committed)
     if [ "$OVERALL" -eq 0 ]; then
         BASELINES_DIR=""
         for b in ${E2E_BASELINES_DIR:+"$E2E_BASELINES_DIR"} "$REPO/baselines/$E2E_BASELINE_NAME" "$REPO/../baselines/$E2E_BASELINE_NAME" "$REPO/../../baselines/$E2E_BASELINE_NAME"; do
@@ -413,33 +618,47 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ]; then
             BASELINE_APK="$(find "$BASELINES_DIR" -name "*.apk" 2>/dev/null | sort -V | tail -n 1)"
         fi
         if [ -n "$BASELINE_APK" ] && [ -f "$BASELINE_APK" ]; then
-            run_maestro_step "e2e-over-install" "$REPO/scripts/e2e/over-install.sh" "$BASELINE_APK" "$DEMO_APK" "$E2E_SEED_FLOW" "$E2E_ASSERT_FLOW"
+            run_step "e2e-over-install" "$OVER_INSTALL_LIMIT_MIN" "$REPO/scripts/e2e/over-install.sh" "$BASELINE_APK" "$DEMO_APK" "$E2E_SEED" "$E2E_ASSERT_FLOW"
+        elif [ "$E2E_STRICT" -eq 1 ]; then
+            fail_step "e2e-over-install" "baseline APK for $E2E_BASELINE_NAME not found; it isn't committed (see scripts/e2e/README.md)"
         else
             skip_step "e2e-over-install" "no baseline APK found"
         fi
     fi
+fi
 
+if [ "$TIER" = "e2e" ]; then
+    shutdown_emulator_if_ours
     release_emulator_lock
 fi
 
-RUN_END="$(date +%s)"
+# --- Summary -----------------------------------------------------------------
 
-echo
-echo "===== verify $TIER summary ====="
-printf '%s' "$SUMMARY"
+RUN_END="$(date +%s)"
 if [ "$OVERALL" -eq 0 ]; then
-    echo "RESULT: PASS ($((RUN_END - RUN_START))s total)"
+    RESULT_LINE="RESULT: PASS ($((RUN_END - RUN_START))s total)"
+    HISTORY_RESULT="PASS"
+else
+    RESULT_LINE="RESULT: FAIL at '$FAILED_STEP' ($((RUN_END - RUN_START))s total)"
+    HISTORY_RESULT="FAIL"
+    [ "$ANY_TIMEOUT" -eq 1 ] && HISTORY_RESULT="TIMEOUT"
+    ERRS="$(grep -E '^e: |error:|FAILED|What went wrong|Exception|Execution failed|> Task .* FAILED|timed out after' "$LOG" | tail -n 40)"
+    [ -n "$ERRS" ] || ERRS="$(tail -n 40 "$LOG")"
+fi
+
+# The summary goes to the terminal and the log.
+{
+    echo
+    echo "===== verify $TIER summary ====="
+    printf '%s' "$SUMMARY"
+    echo "$RESULT_LINE"
     echo "Log: $LOG"
+} | tee -a "$LOG"
+write_history "$HISTORY_RESULT"
+
+if [ "$OVERALL" -eq 0 ]; then
     exit 0
 fi
-
-echo "RESULT: FAIL at '$FAILED_STEP' ($((RUN_END - RUN_START))s total)"
-echo "Log: $LOG"
 echo "----- last relevant error lines -----"
-ERRS="$(grep -E '^e: |error:|FAILED|What went wrong|Exception|Execution failed|> Task .* FAILED' "$LOG" | tail -n 40)"
-if [ -n "$ERRS" ]; then
-    echo "$ERRS"
-else
-    tail -n 40 "$LOG"
-fi
+echo "$ERRS"
 exit 1
