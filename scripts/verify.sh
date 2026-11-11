@@ -134,27 +134,42 @@ is_alive() {
     return 0
 }
 
-# descendants <pid>: every descendant PID of the process.
+# descendants <pid>: every descendant PID of the process, children before their parents.
 descendants() {
     local child
     for child in $(pgrep -P "$1" 2>/dev/null); do
-        echo "$child"
         descendants "$child"
+        echo "$child"
     done
 }
 
-# kill_tree <pid>: TERM the process and all its descendants, then KILL whatever is left after 10 s.
+# kill_tree <pid>: TERM the process and its descendants (children first), then KILL whatever is left
+# after 10 s. Children that appear during the grace period are added to the tree; nothing outside the
+# tree under <pid> is signalled.
 kill_tree() {
-    local pids p alive waited=0
-    pids="$1 $(descendants "$1")"
+    local pids p q alive waited=0
+    pids="$(descendants "$1") $1"
     # shellcheck disable=SC2086 # split the PID list on purpose
     kill -TERM $pids 2>/dev/null
-    while [ "$waited" -lt 10 ]; do
+    while true; do
         alive=""
         for p in $pids; do
             is_alive "$p" && alive="$alive $p"
         done
         [ -z "$alive" ] && return 0
+        for p in $alive; do
+            for q in $(descendants "$p"); do
+                case " $pids " in
+                    *" $q "*) ;;
+                    *)
+                        pids="$q $pids"
+                        alive="$q $alive"
+                        kill -TERM "$q" 2>/dev/null
+                        ;;
+                esac
+            done
+        done
+        [ "$waited" -ge 10 ] && break
         sleep 1
         waited=$((waited + 1))
     done
@@ -196,12 +211,13 @@ stop_current_step() {
 }
 
 # Shut down the Android emulator if this run booted it (unless VERIFY_KEEP_EMULATOR=1).
+# The flags are cleared only at the end, so an interrupt during the shutdown makes cleanup() finish it.
 shutdown_emulator_if_ours() {
     local serial waited=0
     [ "$EMULATOR_STARTED" -eq 1 ] || return 0
-    EMULATOR_STARTED=0
     if [ "${VERIFY_KEEP_EMULATOR:-0}" = "1" ]; then
         echo ">> Leaving the Android emulator running (VERIFY_KEEP_EMULATOR=1)."
+        EMULATOR_STARTED=0
         return 0
     fi
     echo ">> Shutting down the Android emulator this run booted..."
@@ -216,10 +232,13 @@ shutdown_emulator_if_ours() {
     if [ -n "$EMULATOR_PID" ] && is_alive "$EMULATOR_PID"; then
         kill_tree "$EMULATOR_PID"
     fi
+    EMULATOR_STARTED=0
+    EMULATOR_PID=""
     return 0
 }
 
 cleanup() {
+    trap '' INT TERM # a second interrupt must not cut the cleanup short
     stop_current_step
     shutdown_emulator_if_ours
     if [ -n "$RUN_START" ] && [ "$HISTORY_WRITTEN" -eq 0 ]; then
@@ -294,6 +313,10 @@ else
     [ -n "$BASE" ] || BASE="main"
 fi
 IOS_CHANGED=0
+if ! git rev-parse --verify --quiet "$BASE^{commit}" >/dev/null 2>&1; then
+    echo "Base '$BASE' not found: running the iOS tests."
+    IOS_CHANGED=1
+fi
 CHANGED="$( { git diff --name-only "$BASE"...HEAD 2>/dev/null; git diff --name-only HEAD 2>/dev/null; git status --porcelain -uall 2>/dev/null | sed 's/^...//'; } | sort -u)"
 # iOS sources, shared code, the Foundation submodule and Gradle build config (the memory caps in gradle.properties don't count).
 if echo "$CHANGED" | grep -Eq '(^|/)(iosMain|iosTest|commonMain|commonTest)/|^iosApp/|^foundation$|\.gradle(\.kts)?$|libs\.versions\.toml$|gradle-wrapper\.properties$'; then
@@ -407,10 +430,10 @@ write_history() {
     fi
     mkdir -p "$LOCK_ROOT"
     if [ ! -f "$HISTORY_FILE" ]; then
-        printf 'time\trepo\tbranch\tcommit\ttier\tresult\tfailed\tseconds\tsteps\n' > "$HISTORY_FILE"
+        printf 'time\trepo\tbranch\tcommit\ttier\tresult\tfailed\tseconds\tsteps\n' >> "$HISTORY_FILE"
     fi
     printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$REPO_NAME" "$branch" "$commit" \
-        "$TIER" "$1" "${FAILED_STEPS:--}" "$(($(date +%s) - RUN_START))" "${STEP_TIMES# }" >> "$HISTORY_FILE"
+        "$TIER" "$1" "${FAILED_STEPS:--}" "$((${RUN_END:-$(date +%s)} - RUN_START))" "${STEP_TIMES# }" >> "$HISTORY_FILE"
 }
 
 RUN_START="$(date +%s)"
