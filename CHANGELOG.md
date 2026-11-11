@@ -6,6 +6,7 @@ All notable changes to Foundation are documented in this file.
 
 ### Changed
 - **QR codes use the operating system's crypto:** `FoundationQrCodec` now encrypts with `javax.crypto` on Android and desktop and with CommonCrypto on iOS, instead of the `korlibs-crypto` library, which is no longer a dependency. The format is unchanged: codes made by earlier versions still decode, and codes made now decode in apps on earlier versions. On iOS this means the app uses only encryption built into the operating system, which simplifies the App Store export-compliance answer.
+- **iOS settings file in Application Support:** the settings file now lives in Application Support instead of Documents, where it doesn't belong (Documents is for files the user works with). If a file exists in Documents and none in Application Support, it's moved over once at launch. `StorageConfig.iosDirectory` still overrides the folder.
 - **iOS bundle ID:** the template's bundle ID is `BUNDLE_ID` as is. It used to add `TEAM_ID` to the end, so setting a team for device builds silently changed the app's identity. `TEAM_ID` now only picks the signing team, and goes in a git-ignored `iosApp/Configuration/Local.xcconfig`. The demo's bundle ID matches its Android `applicationId` (`bridge.supplies.foundation`), and the project no longer has a team hard-coded. Apps built from the template should copy the same three changes (`Config.xcconfig`, the two `PRODUCT_BUNDLE_IDENTIFIER` lines and `DEVELOPMENT_TEAM`).
 
 ### Added

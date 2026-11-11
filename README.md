@@ -405,7 +405,7 @@ ScreenBackHandler(enabled = hasUnsavedChanges) { askDiscard = true }
 
 ### 4. Settings storage and `FoundationSettingsScreen`
 
-Foundation owns the single `DataStore<Preferences>` instance (`settings.preferences_pb`). Define your app's keys with `settingName("<suffix>")` (which prefixes `"Settings_"` for backward compatibility):
+Foundation owns the single `DataStore<Preferences>` instance (`settings.preferences_pb`). It lives in the app's data folder on Android, in Application Support on iOS (before 2.2.0 it was Documents; a file found there is moved over once), and in the per-user app data folder on desktop. `StorageConfig.iosDirectory` and `desktopDirectory` override the folder. Define your app's keys with `settingName("<suffix>")` (which prefixes `"Settings_"` for backward compatibility):
 
 ```kotlin
 val showHintsKey = BooleanSetting(settingName("show_hints"), default = true)
