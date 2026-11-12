@@ -60,7 +60,40 @@ public class FoundationViewModel(
             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
     }
+
+    /**
+     * Vibrates with [pattern] under the same conditions as [hapticFeedback]: the device supports it
+     * and the user hasn't turned haptic feedback off.
+     */
+    public fun hapticFeedback(haptics: HapticFeedback, pattern: HapticPattern) {
+        if (supports(PlatformFeature.VIBRATION) && setting(FoundationSettingKeys.vibration).value) {
+            haptics.performHapticFeedback(pattern.toHapticFeedbackType())
+        }
+    }
 }
+
+/**
+ * Named vibration patterns for [rememberHapticPatterns]. All of them follow the user's "Haptic
+ * feedback" setting.
+ */
+public enum class HapticPattern {
+    /** A light tap, the same as [rememberHapticFeedback]. For ordinary taps. */
+    Click,
+    /** A short success pulse. For a confirmed action. */
+    Confirm,
+    /** A strong, long pulse. For a big moment such as a hit, a defeat or a result. */
+    Heavy,
+    /** A short failure buzz. For a refused or invalid action. */
+    Reject,
+}
+
+internal fun HapticPattern.toHapticFeedbackType(): HapticFeedbackType =
+    when (this) {
+        HapticPattern.Click -> HapticFeedbackType.TextHandleMove
+        HapticPattern.Confirm -> HapticFeedbackType.Confirm
+        HapticPattern.Heavy -> HapticFeedbackType.LongPress
+        HapticPattern.Reject -> HapticFeedbackType.Reject
+    }
 
 /** Koin module for foundation-ui. Include it next to `foundationCoreModule(config)`. */
 public fun foundationUiModule(): Module = module {
@@ -78,6 +111,22 @@ public fun rememberHapticFeedback(): () -> Unit {
     val viewModel = foundationViewModel()
     val haptics = LocalHapticFeedback.current
     return remember(viewModel, haptics) { { viewModel.hapticFeedback(haptics) } }
+}
+
+/**
+ * Haptic feedback with named [HapticPattern]s, honoring the user's setting, e.g. `val haptic =
+ * rememberHapticPatterns(); onClick = { haptic(HapticPattern.Confirm) }`.
+ */
+@Composable
+public fun rememberHapticPatterns(): (HapticPattern) -> Unit {
+    val viewModel = foundationViewModel()
+    val haptics = LocalHapticFeedback.current
+    return remember(viewModel, haptics) {
+        // Start loading the setting now, so the first tap already knows its stored value.
+        viewModel.setting(FoundationSettingKeys.vibration)
+        val perform: (HapticPattern) -> Unit = { viewModel.hapticFeedback(haptics, it) }
+        perform
+    }
 }
 
 /** Whether the window is taller than it is wide. */

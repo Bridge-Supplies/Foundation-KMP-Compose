@@ -78,7 +78,7 @@ Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/he
   - `time/` & `text/` — date/time helpers (`getTodayUtcMs()`, `getDateDisplay()`, `getDateTime()`, etc.) and number formatting
   - `di/` — `foundationCoreModule(config)`
 * `/foundation-ui` (`bridge.supplies.foundation.ui`) — Compose Multiplatform UI library (depends on `foundation-core` as `api`):
-  - `FoundationViewModel`, `foundationUiModule()`, `foundationViewModel()`, `rememberHapticFeedback()`, `isPortrait()`
+  - `FoundationViewModel`, `foundationUiModule()`, `foundationViewModel()`, `rememberHapticFeedback()`, `rememberHapticPatterns()`, `HapticPattern`, `isPortrait()`
   - `shell/` — `FoundationApp`, `FoundationTab`, `RouteRegistry`, `Navigator`, `LocalNavigator`, `screenMetadata()`, `Chrome`, `BackButton`, `TopBarAction`, `TopBarActions`, `ScreenBackHandler`, `Landing`, `ShellOptions`, platform transitions
   - `theme/` — `FoundationTheme`, `ThemeConfig`, `ColorTheme`, `Palette`, `DarkMode`
   - `settings/` — `FoundationSettingsScreen`, `BuiltInSettings`, `FoundationSettingKeys`, `SettingSwitch`, `SettingChoice`, `SettingsScope` DSL
@@ -584,6 +584,7 @@ val back: Result<ByteArray> = qrCodec.decodeBytes(text) // fails for other paylo
 - `openUrl(url, inApp = false)` — opens a URL in the external browser, or inside the app when `inApp = true` (Custom Tabs on Android, `SFSafariViewController` on iOS; Desktop always uses the system browser).
 - `openAppSettings()` — opens the operating system's settings page for the app.
 - `rememberHapticFeedback()` — returns a `() -> Unit` lambda that triggers haptic feedback when supported by the device and enabled in user settings.
+- `rememberHapticPatterns()` — returns a `(HapticPattern) -> Unit` (`Click`, `Confirm`, `Heavy`, `Reject`) under the same setting, e.g. `haptic(HapticPattern.Confirm)`.
 - `isPortrait()` — returns `true` when the window height is greater than or equal to its width.
 
 ---
