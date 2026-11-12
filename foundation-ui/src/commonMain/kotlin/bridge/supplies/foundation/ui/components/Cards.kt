@@ -88,6 +88,7 @@ public fun TitledCard(
         isElevated && onClick != null -> {
             ElevatedCard(
                 modifier = modifier,
+                colors = FoundationCardDefaults.elevatedColors,
                 onClick = onClick,
             ) {
                 cardContent()
@@ -95,7 +96,10 @@ public fun TitledCard(
         }
 
         isElevated -> {
-            ElevatedCard(modifier = modifier) {
+            ElevatedCard(
+                modifier = modifier,
+                colors = FoundationCardDefaults.elevatedColors,
+            ) {
                 cardContent()
             }
         }
@@ -103,6 +107,7 @@ public fun TitledCard(
         !isElevated && onClick != null -> {
             Card(
                 modifier = modifier,
+                colors = FoundationCardDefaults.colors,
                 onClick = onClick,
             ) {
                 cardContent()
@@ -110,7 +115,10 @@ public fun TitledCard(
         }
 
         else -> {
-            Card(modifier = modifier) {
+            Card(
+                modifier = modifier,
+                colors = FoundationCardDefaults.colors,
+            ) {
                 cardContent()
             }
         }
@@ -208,6 +216,7 @@ public fun ExpandableTitledCard(
     if (isElevated) {
         ElevatedCard(
             modifier = modifier,
+            colors = FoundationCardDefaults.elevatedColors,
             onClick = {
                 onClick()
             },
@@ -217,6 +226,7 @@ public fun ExpandableTitledCard(
     } else {
         Card(
             modifier = modifier,
+            colors = FoundationCardDefaults.colors,
             onClick = {
                 onClick()
             },
