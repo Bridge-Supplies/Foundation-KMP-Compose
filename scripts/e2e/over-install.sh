@@ -86,12 +86,12 @@ echo "==> Step 2: Installing baseline APK ($BASELINE_APK)..."
 "$ADB" install "$BASELINE_APK"
 
 echo "==> Step 3: Running seed flow ($SEED_FLOW)..."
-"$MAESTRO" --platform android test -e APP_ID="$APP_ID" "$SEED_FLOW"
+"$MAESTRO" --platform android test ${ANDROID_SERIAL:+--udid "$ANDROID_SERIAL"} -e APP_ID="$APP_ID" "$SEED_FLOW"
 
 echo "==> Step 4: Installing new APK over baseline ($NEW_APK)..."
 "$ADB" install -r "$NEW_APK"
 
 echo "==> Step 5: Running assert flow ($ASSERT_FLOW)..."
-"$MAESTRO" --platform android test -e APP_ID="$APP_ID" "$ASSERT_FLOW"
+"$MAESTRO" --platform android test ${ANDROID_SERIAL:+--udid "$ANDROID_SERIAL"} -e APP_ID="$APP_ID" "$ASSERT_FLOW"
 
 echo "==> Over-install verification SUCCEEDED for $APP_ID"
