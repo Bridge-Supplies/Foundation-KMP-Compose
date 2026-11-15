@@ -5,10 +5,12 @@
 #          fail) when iosApp/Configuration/Config.xcconfig's version differs from the catalog's.
 #   ui: quick + UI tests + the composite-build consumer test.
 #   e2e: ui + iosSimulatorArm64Test (always) + Maestro flows on Android and iOS
+#        (plus smoke in phone landscape, tablet portrait and tablet landscape on Android)
 #        + over-install from a baseline APK (flows in .maestro/). After the shared build and test steps,
 #        the Android lane and the iOS lane run at the same time (each with its own log, one
-#        `maestro test` call per lane); over-install runs last in the Android lane, only when the
-#        branch touches saved-data paths (E2E_SAVED_DATA_PATTERN), or with --full / VERIFY_OVER_INSTALL=1.
+#        `maestro test` call per lane, followed by the large-screen smoke steps); over-install runs last
+#        in the Android lane, only when the branch touches saved-data paths (E2E_SAVED_DATA_PATTERN),
+#        or with --full / VERIFY_OVER_INSTALL=1.
 # Options:
 #   --only a,b   run just these steps (names as the summary prints them, e.g. e2e-maps-android),
 #                plus the builds and device boots they need. Format, unit tests and iOS tests are
@@ -302,6 +304,9 @@ cleanup() {
         kill_tree "$lane"
     done
     LANE_PIDS=""
+    if [ -n "${LANE_DIR:-}" ] && [ -f "$LANE_DIR/display-modified" ]; then
+        restore_emulator_display
+    fi
     shutdown_emulator_if_ours
     if [ -n "$RUN_START" ] && [ "$HISTORY_WRITTEN" -eq 0 ]; then
         write_history ABORTED
@@ -405,12 +410,14 @@ E2E_SAVED_DATA_PATTERN='/(settings|storage)/|SettingKey|AndroidManifest\.xml$|^\
 # device boots they need).
 
 ALL_STEPS="format android-debug desktop-compile unit-tests ios-tests"
+LARGE_SCREEN_STEPS="e2e-smoke-landscape-android e2e-smoke-tablet-android e2e-smoke-tablet-landscape-android"
 if [ "$TIER" != "quick" ]; then
     has_module foundation-ui && ALL_STEPS="$ALL_STEPS ui-tests"
     ALL_STEPS="$ALL_STEPS consumer-test"
 fi
 if [ "$TIER" = "e2e" ]; then
     for flow in $E2E_ANDROID_FLOWS; do ALL_STEPS="$ALL_STEPS e2e-$flow-android"; done
+    ALL_STEPS="$ALL_STEPS $LARGE_SCREEN_STEPS"
     for flow in $E2E_IOS_FLOWS; do ALL_STEPS="$ALL_STEPS e2e-$flow-ios"; done
     ALL_STEPS="$ALL_STEPS e2e-over-install"
 fi
@@ -440,10 +447,12 @@ failed_to_selection() { # names (comma-separated)
                 android-emulator-boot|android-install|demo-apk-build)
                     s=""
                     for flow in $E2E_ANDROID_FLOWS; do s="$s e2e-$flow-android"; done
+                    s="$s $LARGE_SCREEN_STEPS"
                     ;;
                 emulator-lock)
                     s=""
                     for flow in $E2E_ANDROID_FLOWS; do s="$s e2e-$flow-android"; done
+                    s="$s $LARGE_SCREEN_STEPS"
                     for flow in $E2E_IOS_FLOWS; do s="$s e2e-$flow-ios"; done
                     ;;
                 *)
@@ -694,17 +703,22 @@ check_ios_version() {
 
 # The e2e lanes need these before the shared steps, to know which builds to run.
 ANDROID_FLOWS_SEL=""
+ANDROID_LARGE_SEL=""
 IOS_FLOWS_SEL=""
 OVER_INSTALL_RUN=0
 ANDROID_LANE=0
 IOS_LANE=0
 if [ "$TIER" = "e2e" ]; then
     ANDROID_FLOWS_SEL="$(selected_flows android)"
+    for s in smoke-landscape smoke-tablet smoke-tablet-landscape; do
+        selected "e2e-$s-android" && ANDROID_LARGE_SEL="$ANDROID_LARGE_SEL $s"
+    done
+    ANDROID_LARGE_SEL="${ANDROID_LARGE_SEL# }"
     IOS_FLOWS_SEL="$(selected_flows ios)"
     if selected e2e-over-install && over_install_wanted; then
         OVER_INSTALL_RUN=1
     fi
-    { [ -n "$ANDROID_FLOWS_SEL" ] || [ "$OVER_INSTALL_RUN" -eq 1 ]; } && ANDROID_LANE=1
+    { [ -n "$ANDROID_FLOWS_SEL" ] || [ -n "$ANDROID_LARGE_SEL" ] || [ "$OVER_INSTALL_RUN" -eq 1 ]; } && ANDROID_LANE=1
     [ -n "$IOS_FLOWS_SEL" ] && IOS_LANE=1
 fi
 
@@ -838,10 +852,45 @@ junit_field() {
         }' "$1" 2>/dev/null
 }
 
+# record_maestro_result <step> <junit> <junit_flow> <limit_min> <secs> <rc>
+record_maestro_result() {
+    local step="$1" junit="$2" flow="$3" limit_min="$4" secs="$5" rc="$6" status ftime
+    if [ "$STEP_TIMED_OUT" -eq 1 ]; then
+        status="TIMEOUT"
+        ftime="$secs"
+    elif [ "$STEP_DEVICE_LOST" -eq 1 ]; then
+        status="DEVICELOST"
+        ftime="$secs"
+    else
+        status="$(junit_field "$junit" "$flow" status)"
+        ftime="$(junit_field "$junit" "$flow" time)"
+        [ -n "$status" ] || { status="FAIL"; ftime=0; echo "No result for $flow ($step) in the Maestro report (exit $rc)" >> "$LOG"; }
+    fi
+    STEP_TIMES="$STEP_TIMES $step=${ftime:-0}"
+    case "$status" in
+        PASS) record "$step" PASS "${ftime:-0}" ;;
+        DEVICELOST)
+            echo "!! ${TAG}$step: the device stopped answering (adb)"
+            record "$step (device lost: adb stopped answering)" FAIL "$ftime"
+            mark_failed "$step"
+            ;;
+        TIMEOUT)
+            echo "!! ${TAG}$step: the Maestro call timed out after $limit_min min"
+            record "$step (timed out after $limit_min min)" FAIL "$ftime"
+            ANY_TIMEOUT=1
+            mark_failed "$step"
+            ;;
+        *)
+            record "$step" FAIL "${ftime:-0}"
+            mark_failed "$step"
+            ;;
+    esac
+}
+
 # run_maestro_call <android|ios> <flow>...: one `maestro test` for these flows (in this order, a failed
 # flow doesn't stop the rest), and a summary row per flow from its JUnit report.
 run_maestro_call() {
-    local plat="$1" appid junit names n start secs rc flow status ftime udid=""
+    local plat="$1" appid junit names n start secs rc flow udid=""
     shift
     names="$*"
     n=$#
@@ -866,37 +915,66 @@ run_maestro_call() {
     rc=$?
     secs=$(($(date +%s) - start))
     for flow in $names; do
-        if [ "$STEP_TIMED_OUT" -eq 1 ]; then
-            status="TIMEOUT"
-            ftime="$secs"
-        elif [ "$STEP_DEVICE_LOST" -eq 1 ]; then
-            status="DEVICELOST"
-            ftime="$secs"
-        else
-            status="$(junit_field "$junit" "$flow" status)"
-            ftime="$(junit_field "$junit" "$flow" time)"
-            [ -n "$status" ] || { status="FAIL"; ftime=0; echo "No result for $flow in the Maestro report (exit $rc)" >> "$LOG"; }
-        fi
-        STEP_TIMES="$STEP_TIMES e2e-$flow-$plat=${ftime:-0}"
-        case "$status" in
-            PASS) record "e2e-$flow-$plat" PASS "${ftime:-0}" ;;
-            DEVICELOST)
-                echo "!! ${TAG}e2e-$flow-$plat: the device stopped answering (adb)"
-                record "e2e-$flow-$plat (device lost: adb stopped answering)" FAIL "$ftime"
-                mark_failed "e2e-$flow-$plat"
-                ;;
-            TIMEOUT)
-                echo "!! ${TAG}e2e-$flow-$plat: the Maestro call timed out after $((MAESTRO_LIMIT_MIN * n)) min"
-                record "e2e-$flow-$plat (timed out after $((MAESTRO_LIMIT_MIN * n)) min)" FAIL "$ftime"
-                ANY_TIMEOUT=1
-                mark_failed "e2e-$flow-$plat"
-                ;;
-            *)
-                record "e2e-$flow-$plat" FAIL "${ftime:-0}"
-                mark_failed "e2e-$flow-$plat"
-                ;;
+        record_maestro_result "e2e-$flow-$plat" "$junit" "$flow" $((MAESTRO_LIMIT_MIN * n)) "$secs" "$rc"
+    done
+}
+
+# Restore the Android emulator's size, density and rotation after large-screen smoke runs.
+restore_emulator_display() {
+    [ -n "${ADB:-}" ] || return 0
+    [ -n "${ANDROID_SERIAL:-}" ] || return 0
+    "$ADB" shell wm size reset >> "${LOG:-/dev/null}" 2>&1 || true
+    "$ADB" shell wm density reset >> "${LOG:-/dev/null}" 2>&1 || true
+    "$ADB" shell settings put system user_rotation 0 >> "${LOG:-/dev/null}" 2>&1 || true
+    "$ADB" shell settings put system accelerometer_rotation 1 >> "${LOG:-/dev/null}" 2>&1 || true
+    [ -n "${LANE_DIR:-}" ] && rm -f "$LANE_DIR/display-modified"
+}
+
+# run_smoke_variant <variant> <wm_size|reset> <wm_density|reset> <user_rotation>
+run_smoke_variant() {
+    local variant="$1" size="$2" density="$3" rotation="$4"
+    local step="e2e-$variant-android" junit start secs rc udid=""
+    : > "$LANE_DIR/display-modified"
+    "$ADB" shell am force-stop "$E2E_ANDROID_APP_ID" >> "$LOG" 2>&1 || true
+    if [ "$size" = "reset" ]; then
+        "$ADB" shell wm size reset >> "$LOG" 2>&1 || true
+    else
+        "$ADB" shell wm size "$size" >> "$LOG" 2>&1 || true
+    fi
+    if [ "$density" = "reset" ]; then
+        "$ADB" shell wm density reset >> "$LOG" 2>&1 || true
+    else
+        "$ADB" shell wm density "$density" >> "$LOG" 2>&1 || true
+    fi
+    "$ADB" shell settings put system accelerometer_rotation 0 >> "$LOG" 2>&1 || true
+    "$ADB" shell settings put system user_rotation "$rotation" >> "$LOG" 2>&1 || true
+    sleep 2
+    junit="$LANE_DIR/android-$variant.xml"
+    rm -f "$junit"
+    [ -n "${ANDROID_SERIAL:-}" ] && udid="$ANDROID_SERIAL"
+    echo ">> ${TAG}maestro android: $variant (smoke.yaml)"
+    echo "=== maestro android: $variant (smoke.yaml) ===" >> "$LOG"
+    start="$(date +%s)"
+    run_limited "$MAESTRO_LIMIT_MIN" "$MAESTRO" --platform android test ${udid:+--udid "$udid"} -e APP_ID="$E2E_ANDROID_APP_ID" --format junit --output "$junit" "$REPO/.maestro/smoke.yaml"
+    rc=$?
+    secs=$(($(date +%s) - start))
+    record_maestro_result "$step" "$junit" "smoke" "$MAESTRO_LIMIT_MIN" "$secs" "$rc"
+}
+
+run_large_screen_smokes() {
+    local variant
+    trap 'restore_emulator_display' EXIT
+    trap 'restore_emulator_display; exit 130' INT
+    trap 'restore_emulator_display; exit 143' TERM
+    for variant in $1; do
+        case "$variant" in
+            smoke-landscape) run_smoke_variant "$variant" reset reset 1 ;;
+            smoke-tablet) run_smoke_variant "$variant" 2076x2152 390 0 ;;
+            smoke-tablet-landscape) run_smoke_variant "$variant" 2076x2152 390 1 ;;
         esac
     done
+    restore_emulator_display
+    trap - EXIT INT TERM
 }
 
 # run_maestro_flows <android|ios> <flow>...: the lane's flows in one Maestro call, or with
@@ -935,8 +1013,8 @@ run_over_install_step() {
 
 # The Android lane: runs in its own process. Over-install comes last in the lane, so it never overlaps
 # the Android flows; its row is kept apart so the summary can list it last.
-android_lane() { # flows over-install(0|1)
-    local flows="$1" over_install="$2" SUMMARY_FLOWS
+android_lane() { # flows large_smokes over-install(0|1)
+    local flows="$1" large_smokes="$2" over_install="$3" SUMMARY_FLOWS
     DEVICE_CHECK="$ADB shell true" # fail clearly, not hang, if the emulator drops mid-lane
     DEMO_APK=""
     if [ -f "$REPO/androidApp/build/outputs/apk/debug/androidApp-debug.apk" ]; then
@@ -955,6 +1033,9 @@ android_lane() { # flows over-install(0|1)
     if [ -n "$flows" ]; then
         # shellcheck disable=SC2086 # split the flow list on purpose
         run_maestro_flows android $flows
+    fi
+    if [ -n "$large_smokes" ]; then
+        run_large_screen_smokes "$large_smokes"
     fi
     SUMMARY_FLOWS="$SUMMARY"
     SUMMARY=""
@@ -1112,7 +1193,7 @@ if [ "$OVERALL" -eq 0 ] && [ "$TIER" = "e2e" ] && { [ "$ANDROID_LANE" -eq 1 ] ||
     fi
 
     LANES_START="$(date +%s)"
-    [ "$ANDROID_LANE" -eq 1 ] && launch_lane android android_lane "$ANDROID_FLOWS_SEL" "$OVER_INSTALL_RUN"
+    [ "$ANDROID_LANE" -eq 1 ] && launch_lane android android_lane "$ANDROID_FLOWS_SEL" "$ANDROID_LARGE_SEL" "$OVER_INSTALL_RUN"
     [ "$IOS_LANE" -eq 1 ] && launch_lane ios ios_lane "$IOS_FLOWS_SEL"
     for pid in $LANE_PIDS; do
         wait "$pid" 2>/dev/null

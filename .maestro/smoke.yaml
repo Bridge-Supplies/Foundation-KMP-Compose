@@ -1,6 +1,7 @@
 appId: ${APP_ID}
 ---
-- launchApp
+- launchApp:
+    clearState: true
 - extendedWaitUntil:
     visible: "Home"
     timeout: 30000 # the first launch after an install is slow
@@ -9,10 +10,18 @@ appId: ${APP_ID}
 
 # Open Date screen via DateSheet, then back
 - tapOn: "Datetime, BottomSheet, NavArgs"
+- waitForAnimationToEnd # the sheet slides up; tapping mid-animation can miss Confirm (iOS)
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- scrollUntilVisible:
+    element: "Confirm"
+    direction: DOWN
 - extendedWaitUntil:
     visible: "Confirm"
     timeout: 5000
-- waitForAnimationToEnd # the sheet slides up; tapping mid-animation can miss Confirm (iOS)
 - tapOn: "Confirm"
 - extendedWaitUntil:
     visible: "Back"
