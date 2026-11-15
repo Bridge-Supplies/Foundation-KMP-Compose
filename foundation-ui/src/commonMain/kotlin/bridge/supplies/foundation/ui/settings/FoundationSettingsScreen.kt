@@ -44,6 +44,7 @@ import bridge.supplies.foundation.ui.components.TitledCard
 import bridge.supplies.foundation.ui.components.rememberNestedScrollConnection
 import bridge.supplies.foundation.ui.foundationViewModel
 import bridge.supplies.foundation.ui.isPortrait
+import bridge.supplies.foundation.ui.isTablet
 import bridge.supplies.foundation.ui.rememberHapticFeedback
 import bridge.supplies.foundation.ui.resources.Res
 import bridge.supplies.foundation.ui.resources.action_settings
@@ -138,6 +139,7 @@ public fun FoundationSettingsScreen(
 ) {
     val hapticFeedback = rememberHapticFeedback()
     val isPortrait = isPortrait()
+    val isTablet = isTablet()
     val listState = rememberLazyStaggeredGridState()
     val sections = remember(extra) { SettingsBuilder().apply(extra).sections }
 
@@ -162,7 +164,8 @@ public fun FoundationSettingsScreen(
         EdgeFadeLazyStaggeredVerticalGrid(
             modifier = Modifier.padding(horizontal = 8.dp).nestedScroll(nestedScrollConnection),
             state = listState,
-            columns = if (isPortrait) 1 else 2,
+            // A tablet has room for two columns either way up
+            columns = if (isPortrait && !isTablet) 1 else 2,
             horizontalItemSpacing = 0.dp,
             endSpacing = 56.dp,
         ) {

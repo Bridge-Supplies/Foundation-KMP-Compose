@@ -4,8 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import bridge.supplies.foundation.core.config.FoundationConfig
@@ -134,4 +137,18 @@ public fun rememberHapticPatterns(): (HapticPattern) -> Unit {
 public fun isPortrait(): Boolean {
     val size = LocalWindowInfo.current.containerSize
     return size.width <= size.height
+}
+
+/** A window at least this long on its short side is a tablet; anything smaller is a phone. */
+public val TabletMinSize: Dp = 600.dp
+
+/**
+ * Whether the window is tablet-sized. With [isPortrait] this gives four layouts: phone portrait,
+ * phone landscape, tablet portrait and tablet landscape.
+ */
+@Composable
+public fun isTablet(): Boolean {
+    val size = LocalWindowInfo.current.containerSize
+    val shortSide = with(LocalDensity.current) { minOf(size.width, size.height).toDp() }
+    return shortSide >= TabletMinSize
 }

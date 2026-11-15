@@ -127,7 +127,8 @@ class SettingsScreenUiTests {
             CompositionLocalProvider(
                 LocalRoute provides DummySettingsRoute,
                 LocalTopBarActionHost provides actionHost,
-                LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(800, 1200)),
+                // A phone-sized window: one column, so the order shows as top to bottom
+                LocalWindowInfo provides FakeWindowInfo(containerSize = IntSize(400, 1200)),
             ) {
                 Box(Modifier.size(400.dp, 2000.dp)) {
                     FoundationSettingsScreen(
