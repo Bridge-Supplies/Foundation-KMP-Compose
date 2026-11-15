@@ -16,7 +16,7 @@ Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/he
 - Single-instance `DataStore<Preferences>` settings storage (`FoundationSettings` and typed `SettingKey`s) shared between Foundation and the consuming app
 - Modal bottom sheet host (`SheetController`) with built-in date picker (`DateSheet`) and app-sharing (`ShareAppSheet`) sheets
 - Built-in Settings, About, and open-source license screens with declarative extension points
-- Platform services for URLs (`openUrl` with in-app browser support), system app settings (`openAppSettings`), haptics (`rememberHapticFeedback`), and window orientation (`isPortrait`)
+- Platform services for URLs (`openUrl` with in-app browser support), system app settings (`openAppSettings`), haptics (`rememberHapticFeedback`), and window orientation and size (`isPortrait`, `isTablet`)
 
 ## Screenshots
 ### Android
@@ -78,7 +78,7 @@ Foundation is an opinionated [Kotlin Multiplatform](https://www.jetbrains.com/he
   - `time/` & `text/` — date/time helpers (`getTodayUtcMs()`, `getDateDisplay()`, `getDateTime()`, etc.) and number formatting
   - `di/` — `foundationCoreModule(config)`
 * `/foundation-ui` (`bridge.supplies.foundation.ui`) — Compose Multiplatform UI library (depends on `foundation-core` as `api`):
-  - `FoundationViewModel`, `foundationUiModule()`, `foundationViewModel()`, `rememberHapticFeedback()`, `rememberHapticPatterns()`, `HapticPattern`, `isPortrait()`
+  - `FoundationViewModel`, `foundationUiModule()`, `foundationViewModel()`, `rememberHapticFeedback()`, `rememberHapticPatterns()`, `HapticPattern`, `isPortrait()`, `isTablet()`, `TabletMinSize`
   - `shell/` — `FoundationApp`, `FoundationTab`, `RouteRegistry`, `Navigator`, `LocalNavigator`, `screenMetadata()`, `Chrome`, `BackButton`, `TopBarAction`, `TopBarActions`, `ScreenBackHandler`, `Landing`, `ShellOptions`, platform transitions
   - `theme/` — `FoundationTheme`, `ThemeConfig`, `ColorTheme`, `Palette`, `DarkMode`
   - `settings/` — `FoundationSettingsScreen`, `BuiltInSettings`, `FoundationSettingKeys`, `SettingSwitch`, `SettingChoice`, `SettingsScope` DSL
@@ -586,6 +586,7 @@ val back: Result<ByteArray> = qrCodec.decodeBytes(text) // fails for other paylo
 - `rememberHapticFeedback()` — returns a `() -> Unit` lambda that triggers haptic feedback when supported by the device and enabled in user settings.
 - `rememberHapticPatterns()` — returns a `(HapticPattern) -> Unit` (`Click`, `Confirm`, `Heavy`, `Reject`) under the same setting, e.g. `haptic(HapticPattern.Confirm)`.
 - `isPortrait()` — returns `true` when the window height is greater than or equal to its width.
+- `isTablet()` — returns `true` when the window is at least `TabletMinSize` (600dp) on its short side. With `isPortrait()` it gives phone portrait, phone landscape, tablet portrait and tablet landscape.
 
 ---
 
