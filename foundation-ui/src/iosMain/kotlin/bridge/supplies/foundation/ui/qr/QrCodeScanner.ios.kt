@@ -86,7 +86,7 @@ public actual fun QrCodeScanner(
     when (viewModel.state) {
         PermissionState.Granted -> {
             ScannerView(
-                modifier = modifier,
+                modifier = modifier.fillMaxSize(),
                 codeTypes = listOf(BarcodeFormat.FORMAT_QR_CODE),
             ) { result ->
                 when (result) {

@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import bridge.supplies.foundation.core.time.getDateDisplay
 import bridge.supplies.foundation.core.time.getDateTime
@@ -51,15 +52,13 @@ public fun DatePickerCard(
 ) {
     Card(
         modifier = modifier,
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
+        colors = FoundationCardDefaults.colors,
     ) {
         DatePicker(
             modifier = Modifier.padding(top = 8.dp),
             state = datePickerState,
             title = null,
+            colors = DatePickerDefaults.colors(containerColor = Color.Transparent),
             headline = {
                 val dateMs = datePickerState.selectedDateMillis
 

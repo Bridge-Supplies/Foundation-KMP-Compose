@@ -114,3 +114,9 @@ Apps copy `scripts/verify.sh` and `scripts/e2e/over-install.sh` and change only 
 4. Shuts the emulator down again if it booted it (`VERIFY_KEEP_EMULATOR=1` keeps it).
 
 Every Gradle step, Maestro flow and the over-install run under a time limit (`VERIFY_TIMEOUT_GRADLE_MIN`, default 25; `VERIFY_TIMEOUT_MAESTRO_MIN`, default 10; `VERIFY_TIMEOUT_OVER_INSTALL_MIN`, default 15). A step past its limit is killed with its child processes and fails. Each run appends a line to `~/.cache/bridge-supplies/verify-history.tsv`.
+
+## Running less, running faster
+
+- `scripts/verify.sh e2e --only <step>[,<step>...]` runs just those steps (names as the summary prints them, `e2e-` prefix optional, e.g. `computer-ios,maps-android`) plus the builds and device boots they need. `scripts/verify.sh e2e --failed` reruns the steps that failed in the last e2e run in this worktree. A partial run prints `RESULT: PASS (partial: N of M steps, ...)` and never counts as "verify passes".
+- After the shared build and test steps, the Android lane (emulator, flows, over-install) and the iOS lane (app build, flows) run at the same time, each with its own log under `build/verify/`. A lane's flows run in one `maestro test` call (`VERIFY_MAESTRO_CALLS=flow` gives one call per flow); a failed flow doesn't stop the rest, and the per-flow rows come from Maestro's JUnit report. Animations stay on.
+- `e2e-over-install` runs only when the branch touches a saved-data path (`E2E_SAVED_DATA_PATTERN` in `scripts/verify.sh`), with `--full`, or with `VERIFY_OVER_INSTALL=1`; otherwise the summary says SKIP and why.

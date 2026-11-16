@@ -34,6 +34,7 @@ import bridge.supplies.foundation.core.platform.openUrl
 import bridge.supplies.foundation.ui.components.BottomButton
 import bridge.supplies.foundation.ui.components.ClickableIcon
 import bridge.supplies.foundation.ui.components.EdgeFadeIndexedLazyColumn
+import bridge.supplies.foundation.ui.components.FoundationCardDefaults
 import bridge.supplies.foundation.ui.components.HintText
 import bridge.supplies.foundation.ui.components.OptionDetailText
 import bridge.supplies.foundation.ui.components.StickyHeader
@@ -210,6 +211,7 @@ private fun LicenseCard(
 ) {
     Card(
         modifier = modifier,
+        colors = FoundationCardDefaults.colors,
         onClick = {
             if (license.moduleUrl.isNotBlank()) {
                 onViewModuleUrl(license.moduleUrl)
